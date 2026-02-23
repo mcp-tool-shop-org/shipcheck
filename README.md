@@ -1,4 +1,6 @@
-# mcp-shipcheck
+<p align="center">
+  <img src="assets/logo.png" alt="MCP ShipCheck" width="360" />
+</p>
 
 > A.k.a. "NPM Readiness Sheriff"
 
