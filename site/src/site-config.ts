@@ -48,7 +48,7 @@ export const config: SiteConfig = {
       id: 'tools',
       title: 'Tools',
       subtitle: 'Three read-only tools. Safe for MCP hosts to call automatically.',
-      headers: ['Tool', 'Input', 'Returns'],
+      columns: ['Tool', 'Input', 'Returns'],
       rows: [
         ['shipcheck.audit', '{ path: string }', 'Score (0–100), structured findings (fails / warnings / infos), summary counts'],
         ['shipcheck.packPreview', '{ path: string }', 'Files that will be included in the tarball, with sizes and metadata'],
