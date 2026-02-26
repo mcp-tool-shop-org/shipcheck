@@ -3,9 +3,7 @@
 </p>
 
 <p align="center">
-  
-            <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/mcp-shipcheck/readme.png"
-           alt="MCP ShipCheck" width="400" />
+  <img src="assets/logo.png" alt="MCP ShipCheck" width="400" />
 </p>
 
 <p align="center">
