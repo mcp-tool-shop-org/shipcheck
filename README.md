@@ -79,6 +79,13 @@ The gate says **what** must be true, not **how** to implement it. Applicability 
 
 Error codes use namespaced prefixes: `IO_`, `CONFIG_`, `PERM_`, `DEP_`, `RUNTIME_`, `PARTIAL_`, `INPUT_`, `STATE_`. Codes are stable once released.
 
+## Trust model
+
+**Data touched:** reads `package.json`, `pyproject.toml`, and `SHIP_GATE.md` in the current working directory. Writes template files (`SHIP_GATE.md`, `SECURITY.md`, `CHANGELOG.md`, `SCORECARD.md`) to the current directory only.
+**No network requests.** All operations are local file reads and writes.
+**No secrets handling.** Does not read, store, or transmit credentials.
+**No telemetry** collected or sent.
+
 ## Reference implementation
 
 [mcp-voice-soundboard](https://github.com/mcp-tool-shop-org/mcp-voice-soundboard) was the first repo to pass Ship Gate — scoring **46/50** after remediation.
@@ -87,12 +94,12 @@ Error codes use namespaced prefixes: `IO_`, `CONFIG_`, `PERM_`, `DEP_`, `RUNTIME
 
 | Category | Score | Notes |
 |----------|-------|-------|
-| A. Security | 10/10 | SECURITY.md, no executable code, no data collection |
-| B. Error Handling | N/A | Standards repo — no code to error |
-| C. Operator Docs | 10/10 | README, CHANGELOG, ADOPTION, all templates documented |
-| D. Shipping Hygiene | 8/10 | No code to verify/test, all standards versioned |
-| E. Identity | 10/10 | Logo, translations, landing page, metadata |
-| **Total** | **38/40** | B excluded (not applicable) |
+| A. Security | 6/8 | SECURITY.md, trust model, no secrets/telemetry. MCP items skipped (not an MCP server) |
+| B. Error Handling | 3/7 | Structured error shape + exit codes + no raw stacks. MCP/desktop/vscode skipped |
+| C. Operator Docs | 4/7 | README, CHANGELOG, LICENSE, --help. Logging/MCP/complex skipped |
+| D. Shipping Hygiene | 6/9 | verify script, version=tag, npm audit in CI, engines.node, lockfile. Zero deps = no update mechanism |
+| E. Identity | 4/4 | Logo, translations, landing page, metadata |
+| **Total** | **23/31** | 14 items skipped with justification · `shipcheck audit` passes 100% |
 
 ## License
 

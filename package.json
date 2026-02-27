@@ -1,10 +1,13 @@
 {
   "name": "@mcptoolshop/shipcheck",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Product standards for MCP Tool Shop — Ship Gate checklist, error contract, and adoption guides.",
   "type": "module",
   "bin": {
     "shipcheck": "bin/shipcheck.mjs"
+  },
+  "scripts": {
+    "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs init && echo '✓ verify passed'"
   },
   "files": [
     "bin",
@@ -12,6 +15,7 @@
     "contracts",
     "ADOPTION.md",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "license": "MIT",

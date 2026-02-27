@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.1] - 2026-02-27
+
+### Added
+- Trust model paragraph in README (Ship Gate A2)
+- Structured error shape in CLI — `fail()` with code/message/hint (Ship Gate B1)
+- Proper exit codes: 0 ok, 1 user error, 2 runtime error (Ship Gate B2)
+- `verify` script in package.json (Ship Gate D1)
+- CI workflow with npm audit (Ship Gate D3)
+- CHANGELOG.md included in npm tarball (Ship Gate D5)
+- package-lock.json committed (Ship Gate D7)
+- SHIP_GATE.md filled with actual audit results (23/31 checked, 14 skipped, 100% pass)
+
+### Changed
+- Scorecard in README reflects actual `shipcheck audit` results, not estimates
+
 ## [1.0.0] - 2026-02-27
 
 ### Overview

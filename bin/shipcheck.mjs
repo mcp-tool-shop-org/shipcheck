@@ -20,6 +20,18 @@ function ok(msg) { log(`${GREEN}✓${RESET} ${msg}`); }
 function skip(msg) { log(`${DIM}  skip${RESET} ${msg}`); }
 function warn(msg) { log(`${YELLOW}!${RESET} ${msg}`); }
 
+// Structured error shape (Tier 1) + exit codes (Tier 2)
+function fail(code, message, hint, exitCode = 1) {
+  const error = { code, message, hint };
+  if (process.env.SHIPCHECK_JSON) {
+    console.error(JSON.stringify(error));
+  } else {
+    console.error(`${YELLOW}Error [${code}]:${RESET} ${message}`);
+    console.error(`${DIM}Hint: ${hint}${RESET}`);
+  }
+  process.exit(exitCode);
+}
+
 // --- Detect repo type ---
 
 function detectTypes() {
@@ -101,8 +113,7 @@ function initCommand() {
     }
     const srcPath = join(PKG_ROOT, src);
     if (!existsSync(srcPath)) {
-      warn(`Template not found: ${src}`);
-      continue;
+      fail("IO_TEMPLATE_MISSING", `Template not found: ${src}`, "Reinstall @mcptoolshop/shipcheck", 2);
     }
 
     let content = readFileSync(srcPath, "utf8");
@@ -145,8 +156,7 @@ function auditCommand() {
   log(`\n${BOLD}shipcheck audit${RESET}\n`);
 
   if (!existsSync(join(CWD, "SHIP_GATE.md"))) {
-    warn("No SHIP_GATE.md found. Run 'shipcheck init' first.\n");
-    process.exit(1);
+    fail("STATE_MISSING_GATE", "No SHIP_GATE.md found", "Run 'shipcheck init' first");
   }
 
   const content = readFileSync(join(CWD, "SHIP_GATE.md"), "utf8");
@@ -239,7 +249,5 @@ switch (command) {
     helpCommand();
     break;
   default:
-    warn(`Unknown command: ${command}`);
-    helpCommand();
-    process.exit(1);
+    fail("INPUT_UNKNOWN_COMMAND", `Unknown command: ${command}`, "Run 'shipcheck help' to see available commands");
 }
