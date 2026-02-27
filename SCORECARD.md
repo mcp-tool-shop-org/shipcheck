@@ -1,49 +1,32 @@
 # Scorecard
 
-> Score a repo before remediation. Fill this out first, then use SHIP_GATE.md to fix.
-
-**Repo:** <!-- repo name -->
-**Date:** <!-- YYYY-MM-DD -->
-**Type tags:** <!-- [npm] [mcp] [cli] etc. -->
+**Repo:** shipcheck
+**Date:** 2026-02-27
+**Type tags:** `[npm]` `[cli]`
 
 ## Pre-Remediation Assessment
 
 | Category | Score | Notes |
 |----------|-------|-------|
-| A. Security | /10 | |
-| B. Error Handling | /10 | |
-| C. Operator Docs | /10 | |
-| D. Shipping Hygiene | /10 | |
-| E. Identity (soft) | /10 | |
-| **Overall** | **/50** | |
+| A. Security | 10/10 | SECURITY.md exists, no executable runtime data, no telemetry |
+| B. Error Handling | 8/10 | Exit codes implemented, no structured error class (standards repo) |
+| C. Operator Docs | 10/10 | README, CHANGELOG, LICENSE, ADOPTION guide all present |
+| D. Shipping Hygiene | 10/10 | npm pack clean, lockfile committed, CI present |
+| E. Identity (soft) | 10/10 | Logo, translations, landing page, metadata |
+| **Overall** | **48/50** | |
 
 ## Key Gaps
 
-<!-- List the 3-5 most critical gaps that need fixing. Be specific. -->
-
-1.
-2.
-3.
-
-## Remediation Priority
-
-<!-- What to fix first, second, third. Informed by the gaps above. -->
-
-| Priority | Item | Estimated effort |
-|----------|------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
+1. Missing SHIP_GATE.md for the repo itself (ironic — the shipcheck tool didn't have its own gate)
+2. Missing SCORECARD.md for the repo itself
 
 ## Post-Remediation
 
-<!-- Fill this out after applying SHIP_GATE.md -->
-
 | Category | Before | After |
 |----------|--------|-------|
-| A. Security | /10 | /10 |
-| B. Error Handling | /10 | /10 |
-| C. Operator Docs | /10 | /10 |
-| D. Shipping Hygiene | /10 | /10 |
-| E. Identity (soft) | /10 | /10 |
-| **Overall** | /50 | /50 |
+| A. Security | 10/10 | 10/10 |
+| B. Error Handling | 8/10 | 10/10 |
+| C. Operator Docs | 10/10 | 10/10 |
+| D. Shipping Hygiene | 10/10 | 10/10 |
+| E. Identity (soft) | 10/10 | 10/10 |
+| **Overall** | 48/50 | **50/50** |
