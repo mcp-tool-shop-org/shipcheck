@@ -1,24 +1,37 @@
 <p align="center">
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="README.ja.md">日本語</a> | <a href="README.zh.md">中文</a> | <a href="README.es.md">Español</a> | <a href="README.fr.md">Français</a> | <a href="README.hi.md">हिन्दी</a> | <a href="README.it.md">Italiano</a> | <a href="README.pt-BR.md">Português (BR)</a>
 </p>
 
-Product standards for MCP Tool Shop. Templates, contracts, and adoption guides that define what "done" means before anything ships.
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/shipcheck/readme.jpg" alt="Shipcheck" width="400">
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
+  <a href="https://mcp-tool-shop-org.github.io/shipcheck/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
+</p>
+
+<p align="center">
+  Product standards for MCP Tool Shop.<br>
+  Templates, contracts, and adoption guides that define what "done" means before anything ships.
+</p>
+
+---
+
+## Why
+
+"Done" used to mean the code works. That's not enough. A product is code + safety + error handling + docs + identity + shipping hygiene. Shipcheck defines the bar.
 
 ## What's in here
 
-```
-templates/
-  SHIP_GATE.md      Pre-release checklist (copy into each repo)
-  SECURITY.md       Security policy baseline
-  HANDBOOK.md       Operational field manual skeleton
-  CHANGELOG.md      Keep a Changelog starter
-  SCORECARD.md      Pre/post remediation scoring (internal)
-
-contracts/
-  error-contract.md Structured error standard (2-tier)
-
-ADOPTION.md         How to apply shipcheck to a repo in <30 minutes
-```
+| Standard | What it covers |
+|----------|----------------|
+| [Ship Gate](templates/SHIP_GATE.md) | 27 hard-gate + 4 soft-gate pre-release checklist |
+| [Error Contract](contracts/error-contract.md) | 2-tier structured error standard with code registry |
+| [Security Baseline](templates/SECURITY.md) | Report email, response timeline, threat scope |
+| [Handbook](templates/HANDBOOK.md) | Operational field manual for complex tools |
+| [Scorecard](templates/SCORECARD.md) | Pre/post remediation scoring |
+| [Adoption Guide](ADOPTION.md) | Apply shipcheck to any repo in <30 minutes |
 
 ## Quick start
 
@@ -27,27 +40,66 @@ ADOPTION.md         How to apply shipcheck to a repo in <30 minutes
 3. Check off applicable items, mark non-applicable with `SKIP:`
 4. Ship when all hard gates pass
 
-## Philosophy
+## How it works
 
-- **Hard gates** (Security, Error Handling, Operator Docs, Shipping Hygiene) block release
-- **Soft gates** (Identity) don't block release but define "whole"
-- The gate says **what** must be true, not **how** to implement it
-- Applicability tags prevent checkbox shame on repos where items don't apply
+**Hard gates** (A-D) block release:
 
-## Standards
+- **A. Security Baseline** — SECURITY.md, threat model, no secrets, no telemetry, default safety posture
+- **B. Error Handling** — structured error shape (code/message/hint/retryable), safe output, graceful degradation
+- **C. Operator Docs** — README, CHANGELOG, LICENSE, tool documentation
+- **D. Shipping Hygiene** — verify script, version alignment, dependency scanning, lockfile
 
-| Standard | Covers |
-|----------|--------|
-| [Ship Gate](templates/SHIP_GATE.md) | 27 hard-gate + 4 soft-gate checks across all repo types |
-| [Error Contract](contracts/error-contract.md) | Tier 1: error shape (all repos) / Tier 2: base type + exit codes (CLI/MCP/desktop) |
-| [Security Baseline](templates/SECURITY.md) | Report email, response timeline, threat scope |
-| [Handbook](templates/HANDBOOK.md) | Operational field manual for complex tools |
-| [Scorecard](templates/SCORECARD.md) | Pre/post remediation scoring for tracking maturity |
+**Soft gate** (E) doesn't block but defines "whole":
+
+- **E. Identity** — logo, translations, landing page, repo metadata
+
+The gate says **what** must be true, not **how** to implement it. Applicability tags (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) prevent checkbox shame on repos where items don't apply.
+
+## Error contract at a glance
+
+**Tier 1 — Shape (mandatory everywhere):**
+
+```json
+{
+  "code": "INPUT_TEXT_EMPTY",
+  "message": "Text must not be empty",
+  "hint": "Provide at least one character of text",
+  "retryable": false
+}
+```
+
+**Tier 2 — Base type + exit codes (CLI/MCP/desktop):**
+
+| Exit code | Meaning |
+|-----------|---------|
+| 0 | OK |
+| 1 | User error (bad input, missing config) |
+| 2 | Runtime error (crash, backend failure) |
+| 3 | Partial success (some items succeeded) |
+
+Error codes use namespaced prefixes: `IO_`, `CONFIG_`, `PERM_`, `DEP_`, `RUNTIME_`, `PARTIAL_`, `INPUT_`, `STATE_`. Codes are stable once released.
+
+## Reference implementation
+
+[mcp-voice-soundboard](https://github.com/mcp-tool-shop-org/mcp-voice-soundboard) was the first repo to pass Ship Gate — scoring **46/50** after remediation.
+
+## Scorecard
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| A. Security | 10/10 | SECURITY.md, no executable code, no data collection |
+| B. Error Handling | N/A | Standards repo — no code to error |
+| C. Operator Docs | 10/10 | README, CHANGELOG, ADOPTION, all templates documented |
+| D. Shipping Hygiene | 8/10 | No code to verify/test, all standards versioned |
+| E. Identity | 10/10 | Logo, translations, landing page, metadata |
+| **Total** | **38/40** | B excluded (not applicable) |
 
 ## License
 
-MIT
+[MIT](LICENSE)
 
 ---
 
-Built by [MCP Tool Shop](https://mcp-tool-shop.github.io/)
+<p align="center">
+  Built by <a href="https://mcp-tool-shop.github.io/">MCP Tool Shop</a>
+</p>
