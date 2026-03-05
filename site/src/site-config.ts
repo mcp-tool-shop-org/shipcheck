@@ -14,7 +14,7 @@ export const config: SiteConfig = {
     headlineAccent: 'not prototypes.',
     description: '27 hard gates, 4 soft gates, a structured error contract, and an adoption guide. Define what "done" means before anything ships.',
     primaryCta: { href: '#quickstart', label: 'Get started' },
-    secondaryCta: { href: '#standards', label: 'See the standards' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       {
         label: 'Quick start',
