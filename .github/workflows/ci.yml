@@ -2,9 +2,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ["bin/**", "templates/**", "contracts/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "package.json", ".github/workflows/**"]
   pull_request:
-    paths: ["bin/**", "templates/**", "contracts/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "package.json", ".github/workflows/**"]
   workflow_dispatch:
 
 concurrency:
@@ -19,6 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm test
       - run: npm run verify
       - run: npm audit --audit-level=moderate
       - run: npm pack --dry-run

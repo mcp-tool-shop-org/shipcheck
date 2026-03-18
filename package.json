@@ -7,6 +7,7 @@
     "shipcheck": "bin/shipcheck.mjs"
   },
   "scripts": {
+    "test": "node --test test/*.test.mjs",
     "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs init && echo '✓ verify passed'"
   },
   "files": [
