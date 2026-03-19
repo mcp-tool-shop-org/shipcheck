@@ -1,0 +1,56 @@
+scenario_id: self-gate-real-repo
+scenario_name: "Self-gate against real repo"
+scenario_version: "1.0.0"
+
+product_surface: cli
+
+execution_mode: bot
+
+description: >
+  Run shipcheck against itself to prove the CLI produces meaningful
+  gate output. This is better than just running tests because it
+  exercises the actual product surface — the audit command that
+  users run against their repos.
+
+preconditions:
+  - "shipcheck is installed and runnable"
+  - "Current working directory is a valid repo"
+
+steps:
+  - id: run-help
+    action: "Run shipcheck help and verify exit code 0"
+    verifiable: true
+    expected: "Exit code 0, output contains usage info"
+
+  - id: run-init
+    action: "Run shipcheck init and verify templates are created"
+    verifiable: true
+    expected: "Exit code 0, SHIP_GATE.md exists after run"
+
+  - id: run-audit
+    action: "Run shipcheck audit against the repo"
+    verifiable: true
+    expected: "Exit code 0 or 3, produces gate output with pass/fail/skip results"
+
+  - id: verify-output
+    action: "Verify audit output contains actionable gate results"
+    verifiable: true
+    expected: "Output includes gate identifiers and status for each check"
+
+success_criteria:
+  required_steps:
+    - run-help
+    - run-init
+    - run-audit
+  minimum_evidence:
+    - kind: log
+      description: "Shipcheck audit output log"
+    - kind: artifact
+      description: "SHIP_GATE.md produced by init"
+
+tags:
+  - self-dogfood
+  - cli
+  - pilot-1
+
+automation: null

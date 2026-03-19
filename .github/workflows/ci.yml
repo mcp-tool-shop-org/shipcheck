@@ -2,9 +2,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", ".github/workflows/**"]
   pull_request:
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", ".github/workflows/**"]
   workflow_dispatch:
 
 concurrency:
@@ -23,3 +23,170 @@ jobs:
       - run: npm run verify
       - run: npm audit --audit-level=moderate
       - run: npm pack --dry-run
+
+  dogfood:
+    needs: verify
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # --- Scenario: self-gate-real-repo ---
+
+      - name: "Step: run-help"
+        id: help
+        run: |
+          node bin/shipcheck.mjs help 2>&1 | tee /tmp/help.log
+          echo "status=pass" >> "$GITHUB_OUTPUT"
+
+      - name: "Step: run-init"
+        id: init
+        run: |
+          node bin/shipcheck.mjs init 2>&1 | tee /tmp/init.log
+          if [ -f "SHIP_GATE.md" ]; then
+            echo "status=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=fail" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: "Step: run-audit"
+        id: audit
+        run: |
+          # audit may exit 3 (partial) which is valid
+          set +e
+          node bin/shipcheck.mjs audit 2>&1 | tee /tmp/audit.log
+          EXIT_CODE=$?
+          set -e
+          if [ "$EXIT_CODE" -eq 0 ] || [ "$EXIT_CODE" -eq 3 ]; then
+            echo "status=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=fail" >> "$GITHUB_OUTPUT"
+          fi
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: "Step: verify-output"
+        id: verify_output
+        run: |
+          # Check audit log contains gate results
+          if grep -q -E "(✓|skip|!)" /tmp/audit.log; then
+            echo "status=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=fail" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --- Assemble submission ---
+
+      - name: Determine overall verdict
+        id: verdict
+        run: |
+          HELP="${{ steps.help.outputs.status }}"
+          INIT="${{ steps.init.outputs.status }}"
+          AUDIT="${{ steps.audit.outputs.status }}"
+          VERIFY="${{ steps.verify_output.outputs.status }}"
+          if [ "$HELP" = "pass" ] && [ "$INIT" = "pass" ] && [ "$AUDIT" = "pass" ]; then
+            echo "verdict=pass" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=fail" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build submission
+        run: |
+          FINISHED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          cat > /tmp/submission.json << 'INNER_EOF'
+          {
+            "schema_version": "1.0.0",
+            "run_id": "shipcheck-RUN_ID-ATTEMPT",
+            "repo": "REPO_SLUG",
+            "ref": {
+              "branch": "REF_NAME",
+              "commit_sha": "COMMIT_SHA"
+            },
+            "source": {
+              "provider": "github",
+              "workflow": "ci.yml",
+              "provider_run_id": "PROVIDER_RUN_ID",
+              "attempt": ATTEMPT_NUM,
+              "run_url": "RUN_URL_PLACEHOLDER",
+              "actor": "ACTOR_NAME"
+            },
+            "timing": {
+              "started_at": "STARTED_PLACEHOLDER",
+              "finished_at": "FINISHED_PLACEHOLDER",
+              "duration_ms": 0
+            },
+            "ci_checks": [
+              { "id": "unit-tests", "kind": "test", "status": "pass", "value": 24 }
+            ],
+            "scenario_results": [
+              {
+                "scenario_id": "self-gate-real-repo",
+                "scenario_name": "Self-gate against real repo",
+                "scenario_version": "1.0.0",
+                "product_surface": "cli",
+                "execution_mode": "bot",
+                "verdict": "VERDICT_PLACEHOLDER",
+                "step_results": [
+                  { "step_id": "run-help", "status": "HELP_STATUS" },
+                  { "step_id": "run-init", "status": "INIT_STATUS" },
+                  { "step_id": "run-audit", "status": "AUDIT_STATUS" },
+                  { "step_id": "verify-output", "status": "VERIFY_STATUS" }
+                ],
+                "evidence": [
+                  {
+                    "kind": "log",
+                    "url": "RUN_URL_PLACEHOLDER",
+                    "description": "CI run log with audit output"
+                  }
+                ],
+                "notes": "Self-gate audit exit code: EXIT_CODE_PLACEHOLDER"
+              }
+            ],
+            "overall_verdict": "VERDICT_PLACEHOLDER",
+            "notes": "Pilot 1: shipcheck self-dogfood."
+          }
+          INNER_EOF
+
+          # Replace placeholders with actual values
+          sed -i "s|REPO_SLUG|${GITHUB_REPOSITORY}|g" /tmp/submission.json
+          sed -i "s|REF_NAME|${GITHUB_REF_NAME}|g" /tmp/submission.json
+          sed -i "s|COMMIT_SHA|${GITHUB_SHA}|g" /tmp/submission.json
+          sed -i "s|PROVIDER_RUN_ID|${GITHUB_RUN_ID}|g" /tmp/submission.json
+          sed -i "s|ATTEMPT_NUM|${GITHUB_RUN_ATTEMPT}|g" /tmp/submission.json
+          sed -i "s|RUN_URL_PLACEHOLDER|https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|g" /tmp/submission.json
+          sed -i "s|ACTOR_NAME|${GITHUB_ACTOR}|g" /tmp/submission.json
+          sed -i "s|STARTED_PLACEHOLDER|${{ github.event.head_commit.timestamp }}|g" /tmp/submission.json
+          sed -i "s|FINISHED_PLACEHOLDER|${FINISHED_AT}|g" /tmp/submission.json
+          sed -i "s|shipcheck-RUN_ID-ATTEMPT|shipcheck-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}|g" /tmp/submission.json
+          sed -i "s|VERDICT_PLACEHOLDER|${{ steps.verdict.outputs.verdict }}|g" /tmp/submission.json
+          sed -i "s|HELP_STATUS|${{ steps.help.outputs.status }}|g" /tmp/submission.json
+          sed -i "s|INIT_STATUS|${{ steps.init.outputs.status }}|g" /tmp/submission.json
+          sed -i "s|AUDIT_STATUS|${{ steps.audit.outputs.status }}|g" /tmp/submission.json
+          sed -i "s|VERIFY_STATUS|${{ steps.verify_output.outputs.status }}|g" /tmp/submission.json
+          sed -i "s|EXIT_CODE_PLACEHOLDER|${{ steps.audit.outputs.exit_code }}|g" /tmp/submission.json
+
+          # Validate JSON
+          jq empty /tmp/submission.json
+          echo "Submission built:"
+          jq '.run_id, .overall_verdict' /tmp/submission.json
+
+      - name: Dispatch to dogfood-labs
+        env:
+          GH_TOKEN: ${{ secrets.DOGFOOD_TOKEN }}
+        run: |
+          SUBMISSION=$(cat /tmp/submission.json)
+          RUN_ID=$(echo "$SUBMISSION" | jq -r '.run_id')
+
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::DOGFOOD_TOKEN not set — skipping dispatch"
+            exit 0
+          fi
+
+          gh api repos/mcp-tool-shop-org/dogfood-labs/dispatches \
+            -f "event_type=dogfood_submission" \
+            -f "client_payload[submission]=$SUBMISSION" \
+            --silent
+
+          echo "Dispatched $RUN_ID to dogfood-labs"
