@@ -86,7 +86,7 @@ jobs:
           INIT="${{ steps.init.outputs.status }}"
           AUDIT="${{ steps.audit.outputs.status }}"
           VERIFY="${{ steps.verify_output.outputs.status }}"
-          if [ "$HELP" = "pass" ] && [ "$INIT" = "pass" ] && [ "$AUDIT" = "pass" ]; then
+          if [ "$HELP" = "pass" ] && [ "$INIT" = "pass" ] && [ "$AUDIT" = "pass" ] && [ "$VERIFY" = "pass" ]; then
             echo "verdict=pass" >> "$GITHUB_OUTPUT"
           else
             echo "verdict=fail" >> "$GITHUB_OUTPUT"
@@ -184,9 +184,10 @@ jobs:
             exit 0
           fi
 
-          gh api repos/mcp-tool-shop-org/dogfood-labs/dispatches \
-            -f "event_type=dogfood_submission" \
-            -f "client_payload[submission]=$SUBMISSION" \
-            --silent
+          # Build payload with submission as a proper JSON object (not string)
+          jq -n --argjson sub "$SUBMISSION" \
+            '{"event_type":"dogfood_submission","client_payload":{"submission":$sub}}' \
+            | gh api repos/mcp-tool-shop-org/dogfood-labs/dispatches \
+              --input - --silent
 
           echo "Dispatched $RUN_ID to dogfood-labs"
