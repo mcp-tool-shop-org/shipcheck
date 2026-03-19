@@ -70,8 +70,8 @@ jobs:
       - name: "Step: verify-output"
         id: verify_output
         run: |
-          # Check audit log contains gate results
-          if grep -q -E "(✓|skip|!)" /tmp/audit.log; then
+          # Check audit log contains gate results (shipcheck outputs summary lines)
+          if grep -q -E "(Checked:|Unchecked:|Skipped:|Pass rate:)" /tmp/audit.log; then
             echo "status=pass" >> "$GITHUB_OUTPUT"
           else
             echo "status=fail" >> "$GITHUB_OUTPUT"
