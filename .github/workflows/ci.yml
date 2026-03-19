@@ -139,6 +139,11 @@ jobs:
                     "kind": "log",
                     "url": "RUN_URL_PLACEHOLDER",
                     "description": "CI run log with audit output"
+                  },
+                  {
+                    "kind": "artifact",
+                    "url": "RUN_URL_PLACEHOLDER/artifacts",
+                    "description": "Audit log artifact (dogfood-audit-log)"
                   }
                 ],
                 "notes": "Self-gate audit exit code: EXIT_CODE_PLACEHOLDER"
@@ -171,6 +176,13 @@ jobs:
           jq empty /tmp/submission.json
           echo "Submission built:"
           jq '.run_id, .overall_verdict' /tmp/submission.json
+
+      - name: Upload audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dogfood-audit-log
+          path: /tmp/audit.log
+          retention-days: 30
 
       - name: Dispatch to dogfood-labs
         env:
