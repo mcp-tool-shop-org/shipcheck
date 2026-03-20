@@ -217,6 +217,26 @@ const DEFAULT_DOGFOOD_REPO = "mcp-tool-shop-org/dogfood-labs";
 const DEFAULT_DOGFOOD_REF = "main";
 const DEFAULT_FRESHNESS_DAYS = 30;
 
+async function fetchEnforcementMode(dogfoodRepo, dogfoodRef, repo) {
+  // Extract org/name from repo slug to build policy path
+  const policyPath = `policies/repos/${repo}.yaml`;
+  const url = `https://raw.githubusercontent.com/${dogfoodRepo}/${dogfoodRef}/${policyPath}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    // No policy file = default to required
+    return { mode: "required", reason: null, review_after: null };
+  }
+  const text = await res.text();
+  // Simple extraction — no YAML parser needed
+  const modeMatch = text.match(/enforcement:\s*\n\s+mode:\s*(\S+)/);
+  const mode = modeMatch ? modeMatch[1] : "required";
+  const reasonMatch = text.match(/enforcement:[\s\S]*?reason:\s*(.+)/);
+  const reason = reasonMatch ? reasonMatch[1].trim() : null;
+  const reviewMatch = text.match(/enforcement:[\s\S]*?review_after:\s*(\S+)/);
+  const review_after = reviewMatch ? reviewMatch[1] : null;
+  return { mode, reason: reason === "null" ? null : reason, review_after: review_after === "null" ? null : review_after };
+}
+
 async function fetchDogfoodIndex(dogfoodRepo, dogfoodRef) {
   const url = `https://raw.githubusercontent.com/${dogfoodRepo}/${dogfoodRef}/indexes/latest-by-repo.json`;
   const res = await fetch(url);
@@ -258,10 +278,24 @@ function evaluateDogfoodGate(index, repo, surface, freshnessDays) {
   return { pass: true, run_id: surfaceEntry.run_id, ageDays };
 }
 
-function renderDogfoodGateResult(result, repo, surface) {
+function renderDogfoodGateResult(result, repo, surface, enforcement) {
+  if (enforcement.mode === "exempt") {
+    log(`${DIM}${BOLD}Gate F: exempt${RESET}`);
+    log(`  ${DIM}○${RESET} ${repo} [${surface}] — exempt from dogfood enforcement`);
+    if (enforcement.reason) log(`  ${DIM}Reason: ${enforcement.reason}${RESET}`);
+    if (enforcement.review_after) log(`  ${DIM}Review after: ${enforcement.review_after}${RESET}`);
+    log("");
+    return;
+  }
+
   if (result.pass) {
     log(`${GREEN}${BOLD}Gate F: dogfood passed${RESET}`);
     log(`  ${GREEN}✓${RESET} ${repo} [${surface}] — verified pass, ${result.ageDays}d old (run: ${result.run_id})`);
+  } else if (enforcement.mode === "warn-only") {
+    log(`${YELLOW}${BOLD}Gate F: dogfood warning${RESET}`);
+    log(`  ${YELLOW}!${RESET} ${result.detail}`);
+    log(`  ${DIM}Reason: ${result.reason} (warn-only — not blocking)${RESET}`);
+    if (enforcement.reason) log(`  ${DIM}Policy note: ${enforcement.reason}${RESET}`);
   } else {
     log(`${RED}${BOLD}Gate F: dogfood failed${RESET}`);
     log(`  ${RED}✗${RESET} ${result.detail}`);
@@ -297,7 +331,16 @@ async function dogfoodCommand() {
     fail("INPUT_MISSING_SURFACE", "Missing --surface flag", "Usage: shipcheck dogfood --repo org/repo --surface cli");
   }
 
-  // Fetch
+  // Fetch enforcement mode
+  const enforcement = await fetchEnforcementMode(dogfoodRepo, dogfoodRef, repo);
+
+  // Exempt — report and exit clean
+  if (enforcement.mode === "exempt") {
+    renderDogfoodGateResult(null, repo, surface, enforcement);
+    return;
+  }
+
+  // Fetch index
   const fetchResult = await fetchDogfoodIndex(dogfoodRepo, dogfoodRef);
   if (!fetchResult.ok) {
     fail(fetchResult.error, fetchResult.detail, "Check that dogfood-labs repo and indexes/latest-by-repo.json exist");
@@ -307,9 +350,12 @@ async function dogfoodCommand() {
   const result = evaluateDogfoodGate(fetchResult.index, repo, surface, freshnessDays);
 
   // Render
-  renderDogfoodGateResult(result, repo, surface);
+  renderDogfoodGateResult(result, repo, surface, enforcement);
 
   if (!result.pass) {
+    if (enforcement.mode === "warn-only") {
+      return; // warn but don't block
+    }
     if (process.env.SHIPCHECK_JSON) {
       console.error(JSON.stringify({ code: result.reason, message: result.detail }));
     }
@@ -351,7 +397,7 @@ ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 const command = process.argv[2] || "help";
 
 // Exports for testing
-export { evaluateDogfoodGate };
+export { evaluateDogfoodGate, fetchEnforcementMode };
 
 switch (command) {
   case "init":

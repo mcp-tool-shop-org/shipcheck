@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { evaluateDogfoodGate } from "../bin/shipcheck.mjs";
+import { evaluateDogfoodGate, fetchEnforcementMode } from "../bin/shipcheck.mjs";
 
 const BIN = join(import.meta.dirname, "..", "bin", "shipcheck.mjs");
 
@@ -389,6 +389,47 @@ describe("dogfood command (CLI)", () => {
   });
 
   it("fails for a repo with no record (live)", () => {
+    const { exitCode, stdout } = run(
+      ["dogfood", "--repo", "mcp-tool-shop-org/nonexistent", "--surface", "cli"],
+      process.cwd()
+    );
+    assert.equal(exitCode, 1);
+    assert.ok(stdout.includes("failed"));
+  });
+});
+
+// --- Gate F: enforcement mode ---
+
+describe("fetchEnforcementMode", () => {
+  it("returns required for a repo with enforcement: required (live)", async () => {
+    const result = await fetchEnforcementMode(
+      "mcp-tool-shop-org/dogfood-labs", "main", "mcp-tool-shop-org/shipcheck"
+    );
+    assert.equal(result.mode, "required");
+    assert.equal(result.reason, null);
+    assert.equal(result.review_after, null);
+  });
+
+  it("returns required when policy file does not exist (live)", async () => {
+    const result = await fetchEnforcementMode(
+      "mcp-tool-shop-org/dogfood-labs", "main", "mcp-tool-shop-org/nonexistent-repo-xyz"
+    );
+    assert.equal(result.mode, "required");
+  });
+});
+
+describe("dogfood enforcement CLI", () => {
+  it("passes with required mode for a known good repo (live)", () => {
+    const { exitCode, stdout } = run(
+      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
+      process.cwd()
+    );
+    assert.equal(exitCode, 0);
+    assert.ok(stdout.includes("Gate F"));
+    assert.ok(stdout.includes("passed"));
+  });
+
+  it("fails with required mode for a missing repo (live)", () => {
     const { exitCode, stdout } = run(
       ["dogfood", "--repo", "mcp-tool-shop-org/nonexistent", "--surface", "cli"],
       process.cwd()
