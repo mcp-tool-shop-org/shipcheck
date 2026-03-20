@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
+import { evaluateDogfoodGate } from "../bin/shipcheck.mjs";
 
 const BIN = join(import.meta.dirname, "..", "bin", "shipcheck.mjs");
 
@@ -274,5 +275,125 @@ describe("audit command", () => {
     );
     const { exitCode } = run(["audit"], tmp);
     assert.equal(exitCode, 0);
+  });
+});
+
+// --- Gate F: dogfood (evaluateDogfoodGate unit tests) ---
+
+describe("evaluateDogfoodGate", () => {
+  const freshDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(); // 2 days ago
+  const staleDate = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(); // 60 days ago
+
+  const goodIndex = {
+    "mcp-tool-shop-org/shipcheck": {
+      "cli": {
+        run_id: "shipcheck-123-1",
+        verified: "pass",
+        verification_status: "accepted",
+        finished_at: freshDate,
+        path: "records/mcp-tool-shop-org/shipcheck/2026/03/19/run-shipcheck-123-1.json"
+      }
+    }
+  };
+
+  it("passes on fresh accepted/pass record", () => {
+    const result = evaluateDogfoodGate(goodIndex, "mcp-tool-shop-org/shipcheck", "cli", 30);
+    assert.equal(result.pass, true);
+    assert.equal(result.run_id, "shipcheck-123-1");
+    assert.ok(result.ageDays <= 2);
+  });
+
+  it("fails on missing repo", () => {
+    const result = evaluateDogfoodGate(goodIndex, "mcp-tool-shop-org/unknown", "cli", 30);
+    assert.equal(result.pass, false);
+    assert.equal(result.reason, "DOGFOOD_NO_RECORD");
+  });
+
+  it("fails on missing surface", () => {
+    const result = evaluateDogfoodGate(goodIndex, "mcp-tool-shop-org/shipcheck", "desktop", 30);
+    assert.equal(result.pass, false);
+    assert.equal(result.reason, "DOGFOOD_NO_SURFACE");
+    assert.ok(result.detail.includes("cli"));
+  });
+
+  it("fails on rejected verification", () => {
+    const index = {
+      "org/repo": {
+        "cli": { run_id: "r-1", verified: "pass", verification_status: "rejected", finished_at: freshDate }
+      }
+    };
+    const result = evaluateDogfoodGate(index, "org/repo", "cli", 30);
+    assert.equal(result.pass, false);
+    assert.equal(result.reason, "DOGFOOD_REJECTED");
+  });
+
+  it("fails on non-pass verdict", () => {
+    const index = {
+      "org/repo": {
+        "cli": { run_id: "r-1", verified: "fail", verification_status: "accepted", finished_at: freshDate }
+      }
+    };
+    const result = evaluateDogfoodGate(index, "org/repo", "cli", 30);
+    assert.equal(result.pass, false);
+    assert.equal(result.reason, "DOGFOOD_VERDICT_FAIL");
+    assert.ok(result.detail.includes("fail"));
+  });
+
+  it("fails on stale record", () => {
+    const index = {
+      "org/repo": {
+        "cli": { run_id: "r-1", verified: "pass", verification_status: "accepted", finished_at: staleDate }
+      }
+    };
+    const result = evaluateDogfoodGate(index, "org/repo", "cli", 30);
+    assert.equal(result.pass, false);
+    assert.equal(result.reason, "DOGFOOD_STALE");
+    assert.ok(result.detail.includes("60"));
+  });
+
+  it("respects custom freshness window", () => {
+    const index = {
+      "org/repo": {
+        "cli": { run_id: "r-1", verified: "pass", verification_status: "accepted", finished_at: staleDate }
+      }
+    };
+    // 90-day window should accept a 60-day-old record
+    const result = evaluateDogfoodGate(index, "org/repo", "cli", 90);
+    assert.equal(result.pass, true);
+  });
+});
+
+// --- Gate F: dogfood CLI ---
+
+describe("dogfood command (CLI)", () => {
+  it("fails with missing --repo", () => {
+    const { exitCode, stderr } = run(["dogfood", "--surface", "cli"], process.cwd());
+    assert.notEqual(exitCode, 0);
+    assert.ok(stderr.includes("INPUT_MISSING_REPO") || stderr.includes("--repo"));
+  });
+
+  it("fails with missing --surface", () => {
+    const { exitCode, stderr } = run(["dogfood", "--repo", "org/repo"], process.cwd());
+    assert.notEqual(exitCode, 0);
+    assert.ok(stderr.includes("INPUT_MISSING_SURFACE") || stderr.includes("--surface"));
+  });
+
+  it("passes for a known good repo+surface (live)", () => {
+    const { exitCode, stdout } = run(
+      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
+      process.cwd()
+    );
+    assert.equal(exitCode, 0);
+    assert.ok(stdout.includes("Gate F"));
+    assert.ok(stdout.includes("passed"));
+  });
+
+  it("fails for a repo with no record (live)", () => {
+    const { exitCode, stdout } = run(
+      ["dogfood", "--repo", "mcp-tool-shop-org/nonexistent", "--surface", "cli"],
+      process.cwd()
+    );
+    assert.equal(exitCode, 1);
+    assert.ok(stdout.includes("failed"));
   });
 });

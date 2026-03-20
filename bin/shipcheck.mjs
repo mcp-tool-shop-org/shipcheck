@@ -8,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = resolve(__dirname, "..");
 const CWD = process.cwd();
 
+const RED = "\x1b[31m";
 const BOLD = "\x1b[1m";
 const GREEN = "\x1b[32m";
 const YELLOW = "\x1b[33m";
@@ -210,6 +211,112 @@ function auditCommand() {
   }
 }
 
+// --- Gate F: Dogfood freshness ---
+
+const DEFAULT_DOGFOOD_REPO = "mcp-tool-shop-org/dogfood-labs";
+const DEFAULT_DOGFOOD_REF = "main";
+const DEFAULT_FRESHNESS_DAYS = 30;
+
+async function fetchDogfoodIndex(dogfoodRepo, dogfoodRef) {
+  const url = `https://raw.githubusercontent.com/${dogfoodRepo}/${dogfoodRef}/indexes/latest-by-repo.json`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    return { ok: false, error: `DOGFOOD_INDEX_FETCH_FAILED`, detail: `${res.status} from ${url}` };
+  }
+  const index = await res.json();
+  return { ok: true, index };
+}
+
+function evaluateDogfoodGate(index, repo, surface, freshnessDays) {
+  const repoEntry = index[repo];
+  if (!repoEntry) {
+    return { pass: false, reason: "DOGFOOD_NO_RECORD", detail: `No dogfood record found for ${repo}` };
+  }
+
+  const surfaceEntry = repoEntry[surface];
+  if (!surfaceEntry) {
+    const available = Object.keys(repoEntry).join(", ");
+    return { pass: false, reason: "DOGFOOD_NO_SURFACE", detail: `No dogfood record for surface "${surface}" on ${repo}. Available: ${available || "none"}` };
+  }
+
+  if (surfaceEntry.verification_status !== "accepted") {
+    return { pass: false, reason: "DOGFOOD_REJECTED", detail: `Latest record was rejected by verifier (status: ${surfaceEntry.verification_status})` };
+  }
+
+  if (surfaceEntry.verified !== "pass") {
+    return { pass: false, reason: "DOGFOOD_VERDICT_FAIL", detail: `Latest verified verdict is "${surfaceEntry.verified}" (run: ${surfaceEntry.run_id})` };
+  }
+
+  const finishedAt = new Date(surfaceEntry.finished_at);
+  const now = new Date();
+  const ageMs = now - finishedAt;
+  const ageDays = Math.floor(ageMs / (1000 * 60 * 60 * 24));
+  if (ageDays > freshnessDays) {
+    return { pass: false, reason: "DOGFOOD_STALE", detail: `Latest dogfood is ${ageDays} days old (limit: ${freshnessDays} days, run: ${surfaceEntry.run_id})` };
+  }
+
+  return { pass: true, run_id: surfaceEntry.run_id, ageDays };
+}
+
+function renderDogfoodGateResult(result, repo, surface) {
+  if (result.pass) {
+    log(`${GREEN}${BOLD}Gate F: dogfood passed${RESET}`);
+    log(`  ${GREEN}✓${RESET} ${repo} [${surface}] — verified pass, ${result.ageDays}d old (run: ${result.run_id})`);
+  } else {
+    log(`${RED}${BOLD}Gate F: dogfood failed${RESET}`);
+    log(`  ${RED}✗${RESET} ${result.detail}`);
+    log(`  ${DIM}Reason: ${result.reason}${RESET}`);
+  }
+  log("");
+}
+
+async function dogfoodCommand() {
+  log(`\n${BOLD}shipcheck dogfood${RESET}\n`);
+
+  const args = process.argv.slice(3);
+
+  // Parse flags
+  let repo = null;
+  let surface = null;
+  let dogfoodRepo = DEFAULT_DOGFOOD_REPO;
+  let dogfoodRef = DEFAULT_DOGFOOD_REF;
+  let freshnessDays = DEFAULT_FRESHNESS_DAYS;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--repo" && args[i + 1]) { repo = args[++i]; }
+    else if (args[i] === "--surface" && args[i + 1]) { surface = args[++i]; }
+    else if (args[i] === "--dogfood-repo" && args[i + 1]) { dogfoodRepo = args[++i]; }
+    else if (args[i] === "--dogfood-ref" && args[i + 1]) { dogfoodRef = args[++i]; }
+    else if (args[i] === "--freshness-days" && args[i + 1]) { freshnessDays = parseInt(args[++i], 10); }
+  }
+
+  if (!repo) {
+    fail("INPUT_MISSING_REPO", "Missing --repo flag", "Usage: shipcheck dogfood --repo org/repo --surface cli");
+  }
+  if (!surface) {
+    fail("INPUT_MISSING_SURFACE", "Missing --surface flag", "Usage: shipcheck dogfood --repo org/repo --surface cli");
+  }
+
+  // Fetch
+  const fetchResult = await fetchDogfoodIndex(dogfoodRepo, dogfoodRef);
+  if (!fetchResult.ok) {
+    fail(fetchResult.error, fetchResult.detail, "Check that dogfood-labs repo and indexes/latest-by-repo.json exist");
+  }
+
+  // Evaluate
+  const result = evaluateDogfoodGate(fetchResult.index, repo, surface, freshnessDays);
+
+  // Render
+  renderDogfoodGateResult(result, repo, surface);
+
+  if (!result.pass) {
+    if (process.env.SHIPCHECK_JSON) {
+      console.error(JSON.stringify({ code: result.reason, message: result.detail }));
+    }
+    process.exit(1);
+  }
+}
+
 function helpCommand() {
   log(`
 ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
@@ -217,16 +324,23 @@ ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
 ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck init     Copy templates into current repo
   npx @mcptoolshop/shipcheck audit    Check SHIP_GATE.md progress
+  npx @mcptoolshop/shipcheck dogfood  Check dogfood freshness (Gate F)
   npx @mcptoolshop/shipcheck help     Show this message
 
 ${BOLD}What it does:${RESET}
-  init   Detects repo type (npm, pypi, mcp, cli, etc.)
-         Copies SHIP_GATE.md, SECURITY.md, CHANGELOG.md, SCORECARD.md
-         Skips files that already exist (except SHIP_GATE + SCORECARD)
+  init     Detects repo type (npm, pypi, mcp, cli, etc.)
+           Copies SHIP_GATE.md, SECURITY.md, CHANGELOG.md, SCORECARD.md
+           Skips files that already exist (except SHIP_GATE + SCORECARD)
 
-  audit  Counts checked/unchecked/skipped items in SHIP_GATE.md
-         Reports pass rate and lists remaining gaps
-         Exits 0 if all gates pass, 1 if gaps remain
+  audit    Counts checked/unchecked/skipped items in SHIP_GATE.md
+           Reports pass rate and lists remaining gaps
+           Exits 0 if all gates pass, 1 if gaps remain
+
+  dogfood  Checks dogfood-labs for a fresh, passing record
+           --repo org/repo       Target repo (required)
+           --surface cli|desktop  Product surface (required)
+           --freshness-days 30   Max age in days (default: 30)
+           Exits 0 if accepted + pass + fresh, 1 otherwise
 
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
@@ -236,12 +350,18 @@ ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 
 const command = process.argv[2] || "help";
 
+// Exports for testing
+export { evaluateDogfoodGate };
+
 switch (command) {
   case "init":
     initCommand();
     break;
   case "audit":
     auditCommand();
+    break;
+  case "dogfood":
+    await dogfoodCommand();
     break;
   case "help":
   case "--help":
