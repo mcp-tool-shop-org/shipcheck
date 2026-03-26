@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = resolve(__dirname, "..");
 const CWD = process.cwd();
+const PKG = JSON.parse(readFileSync(join(PKG_ROOT, "package.json"), "utf8"));
 
 const RED = "\x1b[31m";
 const BOLD = "\x1b[1m";
@@ -372,6 +373,7 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck audit    Check SHIP_GATE.md progress
   npx @mcptoolshop/shipcheck dogfood  Check dogfood freshness (Gate F)
   npx @mcptoolshop/shipcheck help     Show this message
+  npx @mcptoolshop/shipcheck --version Show version
 
 ${BOLD}What it does:${RESET}
   init     Detects repo type (npm, pypi, mcp, cli, etc.)
@@ -408,6 +410,10 @@ switch (command) {
     break;
   case "dogfood":
     await dogfoodCommand();
+    break;
+  case "--version":
+  case "-V":
+    log(`shipcheck ${PKG.version}`);
     break;
   case "help":
   case "--help":

@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/shipcheck",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Product standards for MCP Tool Shop — Ship Gate checklist, error contract, and adoption guides.",
   "type": "module",
   "bin": {
