@@ -1,11 +1,11 @@
 ---
 title: Ship Gate
-description: The 31-item checklist that defines "done."
+description: The 35-item checklist that defines "done."
 sidebar:
-  order: 2
+  order: 3
 ---
 
-The Ship Gate is a 31-item pre-release checklist organized into 5 categories. Hard gates (A-D) block release. The soft gate (E) doesn't block but defines what "whole" looks like.
+The Ship Gate is a 35-item pre-release checklist organized into 5 categories (31 hard-gate items in A-D, plus 4 soft-gate items in E). Hard gates (A-D) block release. The soft gate (E) doesn't block but defines what "whole" looks like.
 
 ## A. Security Baseline (8 items)
 
@@ -76,5 +76,6 @@ Each item has a tag indicating which repo types it applies to:
 | `[mcp]` | MCP servers |
 | `[cli]` | Command-line tools |
 | `[complex]` | Complex tools with operational surface |
+| `[org]` | Repos in the mcp-tool-shop-org GitHub org |
 
 Items tagged with a type that doesn't match your repo should be marked `SKIP: not a [type]`.

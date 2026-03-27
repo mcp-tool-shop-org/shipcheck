@@ -2,7 +2,7 @@
 title: Getting Started
 description: Apply Shipcheck to any repo in under 30 minutes.
 sidebar:
-  order: 1
+  order: 2
 ---
 
 ## Install
@@ -84,3 +84,13 @@ npx @mcptoolshop/shipcheck audit
 ```
 
 Exits 0 when all hard gates pass. Exits 1 if gaps remain.
+
+### 8. Dogfood check (optional)
+
+If your org uses [dogfood-labs](https://github.com/mcp-tool-shop-org/dogfood-labs) for verification, you can also check Gate F:
+
+```bash
+npx @mcptoolshop/shipcheck dogfood --repo org/repo --surface cli
+```
+
+This verifies that a fresh, passing dogfood record exists. See the [Reference](/shipcheck/handbook/reference/) page for all flags and enforcement modes.

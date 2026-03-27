@@ -2,7 +2,7 @@
 title: Error Contract
 description: Structured error shape and exit codes.
 sidebar:
-  order: 3
+  order: 4
 ---
 
 The error contract defines how products communicate failures to users and machines.

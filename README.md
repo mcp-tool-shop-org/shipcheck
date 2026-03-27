@@ -26,19 +26,32 @@
 
 | Standard | What it covers |
 |----------|----------------|
-| [Ship Gate](templates/SHIP_GATE.md) | 27 hard-gate + 4 soft-gate pre-release checklist |
+| [Ship Gate](templates/SHIP_GATE.md) | 31 hard-gate + 4 soft-gate pre-release checklist |
 | [Error Contract](contracts/error-contract.md) | 2-tier structured error standard with code registry |
 | [Security Baseline](templates/SECURITY.md) | Report email, response timeline, threat scope |
 | [Handbook](templates/HANDBOOK.md) | Operational field manual for complex tools |
 | [Scorecard](templates/SCORECARD.md) | Pre/post remediation scoring |
 | [Adoption Guide](ADOPTION.md) | Apply shipcheck to any repo in <30 minutes |
 
+## CLI usage
+
+```bash
+npx @mcptoolshop/shipcheck init       # Copy templates into current repo
+npx @mcptoolshop/shipcheck audit      # Check SHIP_GATE.md progress
+npx @mcptoolshop/shipcheck dogfood    # Check dogfood freshness (Gate F)
+npx @mcptoolshop/shipcheck help       # Show help
+npx @mcptoolshop/shipcheck --version  # Show version
+```
+
+Set `SHIPCHECK_JSON=1` to get structured JSON error output instead of coloured text.
+
 ## Quick start
 
 1. Read [ADOPTION.md](ADOPTION.md)
-2. Copy `templates/SHIP_GATE.md` into your repo root
-3. Check off applicable items, mark non-applicable with `SKIP:`
-4. Ship when all hard gates pass
+2. Run `npx @mcptoolshop/shipcheck init` in your repo root
+3. Check off applicable items in `SHIP_GATE.md`, mark non-applicable with `SKIP:`
+4. Run `npx @mcptoolshop/shipcheck audit` — exits 0 when all hard gates pass
+5. Ship when audit passes
 
 ## How it works
 
@@ -52,6 +65,12 @@
 **Soft gate** (E) doesn't block but defines "whole":
 
 - **E. Identity** — logo, translations, landing page, repo metadata
+
+**Gate F — Dogfood Freshness** (optional, requires dogfood-labs):
+
+- Checks for a fresh, verified, passing dogfood record
+- Supports enforcement modes: `required`, `warn-only`, `exempt`
+- Configurable freshness window (default: 30 days)
 
 The gate says **what** must be true, not **how** to implement it. Applicability tags (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) prevent checkbox shame on repos where items don't apply.
 

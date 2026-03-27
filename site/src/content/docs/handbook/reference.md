@@ -2,7 +2,7 @@
 title: Reference
 description: Templates, scorecard, and CLI commands.
 sidebar:
-  order: 4
+  order: 5
 ---
 
 ## CLI commands
@@ -31,11 +31,57 @@ Reads `SHIP_GATE.md`, counts checked/unchecked/skipped items, and reports:
 - Exit 0 if all hard gates pass
 - Exit 1 if gaps remain
 
+### dogfood
+
+```bash
+npx @mcptoolshop/shipcheck dogfood --repo org/repo --surface cli
+```
+
+Checks the dogfood-labs index for a fresh, verified, passing dogfood record. This is Gate F.
+
+**Flags:**
+
+| Flag | Required | Default | Description |
+|------|----------|---------|-------------|
+| `--repo` | yes | — | Target repo slug (e.g. `mcp-tool-shop-org/shipcheck`) |
+| `--surface` | yes | — | Product surface (e.g. `cli`, `desktop`) |
+| `--freshness-days` | no | 30 | Maximum age in days for the dogfood record |
+| `--dogfood-repo` | no | `mcp-tool-shop-org/dogfood-labs` | Override the dogfood-labs repo |
+| `--dogfood-ref` | no | `main` | Override the dogfood-labs branch |
+
+**Enforcement modes** (set via per-repo policy files in dogfood-labs):
+
+- `required` — Gate F blocks on failure (default)
+- `warn-only` — Prints a warning but exits 0
+- `exempt` — Skips the check entirely
+
+### help
+
+```bash
+npx @mcptoolshop/shipcheck help
+```
+
+Prints usage information. Also available via `--help` or `-h`. Running with no arguments defaults to `help`.
+
+### --version
+
+```bash
+npx @mcptoolshop/shipcheck --version
+```
+
+Prints the current version. Also available via `-V`.
+
+## Environment variables
+
+| Variable | Effect |
+|----------|--------|
+| `SHIPCHECK_JSON` | When set to any truthy value, error output is emitted as structured JSON instead of coloured text |
+
 ## Templates included
 
 | Template | Purpose |
 |----------|---------|
-| `SHIP_GATE.md` | 27 hard + 4 soft pre-release checklist |
+| `SHIP_GATE.md` | 31 hard + 4 soft pre-release checklist |
 | `SECURITY.md` | Vulnerability report email, response timeline, threat scope |
 | `CHANGELOG.md` | Structured change log (Keep a Changelog format) |
 | `SCORECARD.md` | Pre/post remediation scoring by category |
