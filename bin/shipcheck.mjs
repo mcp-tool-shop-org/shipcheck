@@ -214,7 +214,7 @@ function auditCommand() {
 
 // --- Gate F: Dogfood freshness ---
 
-const DEFAULT_DOGFOOD_REPO = "mcp-tool-shop-org/dogfood-labs";
+const DEFAULT_DOGFOOD_REPO = "dogfood-lab/testing-os";
 const DEFAULT_DOGFOOD_REF = "main";
 const DEFAULT_FRESHNESS_DAYS = 30;
 
@@ -344,7 +344,7 @@ async function dogfoodCommand() {
   // Fetch index
   const fetchResult = await fetchDogfoodIndex(dogfoodRepo, dogfoodRef);
   if (!fetchResult.ok) {
-    fail(fetchResult.error, fetchResult.detail, "Check that dogfood-labs repo and indexes/latest-by-repo.json exist");
+    fail(fetchResult.error, fetchResult.detail, "Check that dogfood-lab/testing-os repo and indexes/latest-by-repo.json exist");
   }
 
   // Evaluate
@@ -384,7 +384,7 @@ ${BOLD}What it does:${RESET}
            Reports pass rate and lists remaining gaps
            Exits 0 if all gates pass, 1 if gaps remain
 
-  dogfood  Checks dogfood-labs for a fresh, passing record
+  dogfood  Checks dogfood-lab/testing-os for a fresh, passing record
            --repo org/repo       Target repo (required)
            --surface cli|desktop  Product surface (required)
            --freshness-days 30   Max age in days (default: 30)
