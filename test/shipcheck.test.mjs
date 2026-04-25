@@ -403,7 +403,7 @@ describe("dogfood command (CLI)", () => {
 describe("fetchEnforcementMode", () => {
   it("returns required for a repo with enforcement: required (live)", async () => {
     const result = await fetchEnforcementMode(
-      "mcp-tool-shop-org/dogfood-labs", "main", "mcp-tool-shop-org/shipcheck"
+      "dogfood-lab/testing-os", "main", "mcp-tool-shop-org/shipcheck"
     );
     assert.equal(result.mode, "required");
     assert.equal(result.reason, null);
@@ -412,7 +412,7 @@ describe("fetchEnforcementMode", () => {
 
   it("returns required when policy file does not exist (live)", async () => {
     const result = await fetchEnforcementMode(
-      "mcp-tool-shop-org/dogfood-labs", "main", "mcp-tool-shop-org/nonexistent-repo-xyz"
+      "dogfood-lab/testing-os", "main", "mcp-tool-shop-org/nonexistent-repo-xyz"
     );
     assert.equal(result.mode, "required");
   });

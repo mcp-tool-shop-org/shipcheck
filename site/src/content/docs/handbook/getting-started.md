@@ -87,7 +87,7 @@ Exits 0 when all hard gates pass. Exits 1 if gaps remain.
 
 ### 8. Dogfood check (optional)
 
-If your org uses [dogfood-labs](https://github.com/mcp-tool-shop-org/dogfood-labs) for verification, you can also check Gate F:
+If your org uses [testing-os](https://github.com/dogfood-lab/testing-os) for verification, you can also check Gate F:
 
 ```bash
 npx @mcptoolshop/shipcheck dogfood --repo org/repo --surface cli

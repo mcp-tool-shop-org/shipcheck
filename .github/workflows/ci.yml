@@ -199,7 +199,7 @@ jobs:
           # Build payload with submission as a proper JSON object (not string)
           jq -n --argjson sub "$SUBMISSION" \
             '{"event_type":"dogfood_submission","client_payload":{"submission":$sub}}' \
-            | gh api repos/mcp-tool-shop-org/dogfood-labs/dispatches \
+            | gh api repos/dogfood-lab/testing-os/dispatches \
               --input - --silent
 
-          echo "Dispatched $RUN_ID to dogfood-labs"
+          echo "Dispatched $RUN_ID to testing-os"
