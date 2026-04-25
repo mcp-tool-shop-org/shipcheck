@@ -37,7 +37,7 @@ Reads `SHIP_GATE.md`, counts checked/unchecked/skipped items, and reports:
 npx @mcptoolshop/shipcheck dogfood --repo org/repo --surface cli
 ```
 
-Checks the dogfood-labs index for a fresh, verified, passing dogfood record. This is Gate F.
+Checks the testing-os index for a fresh, verified, passing dogfood record. This is Gate F.
 
 **Flags:**
 
@@ -46,10 +46,10 @@ Checks the dogfood-labs index for a fresh, verified, passing dogfood record. Thi
 | `--repo` | yes | — | Target repo slug (e.g. `mcp-tool-shop-org/shipcheck`) |
 | `--surface` | yes | — | Product surface (e.g. `cli`, `desktop`) |
 | `--freshness-days` | no | 30 | Maximum age in days for the dogfood record |
-| `--dogfood-repo` | no | `mcp-tool-shop-org/dogfood-labs` | Override the dogfood-labs repo |
-| `--dogfood-ref` | no | `main` | Override the dogfood-labs branch |
+| `--dogfood-repo` | no | `dogfood-lab/testing-os` | Override the dogfood evidence repo |
+| `--dogfood-ref` | no | `main` | Override the dogfood evidence branch |
 
-**Enforcement modes** (set via per-repo policy files in dogfood-labs):
+**Enforcement modes** (set via per-repo policy files in testing-os):
 
 - `required` — Gate F blocks on failure (default)
 - `warn-only` — Prints a warning but exits 0
