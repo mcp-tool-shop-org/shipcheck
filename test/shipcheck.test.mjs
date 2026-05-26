@@ -379,21 +379,8 @@ describe("dogfood command (CLI)", () => {
   });
 
   it("passes for a known good repo+surface (live)", () => {
-    // NOTE: --freshness-days is bumped high here intentionally. This test
-    // exercises the live fetch+evaluate+render path against dogfood-lab/testing-os
-    // for shipcheck's own record. It must NOT depend on the calendar age of the
-    // last published dogfood run, because:
-    //   1. The dogfood dispatch step in ci.yml skips silently when DOGFOOD_TOKEN
-    //      is unset (warning, exit 0), so the testing-os index can fall behind.
-    //   2. Branches that go >30 days between merge → main (e.g. long-lived
-    //      dependency-bump branches) would otherwise fail this test on a
-    //      pre-existing freshness drift, not on anything they actually changed.
-    // The contract this test still proves: shipcheck's record exists in the
-    // index, has verified:pass + verification_status:accepted, and Gate F
-    // renders the "passed" branch. Freshness logic itself is covered by unit
-    // tests against evaluateDogfoodGate with synthetic dates.
     const { exitCode, stdout } = run(
-      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli", "--freshness-days", "9999"],
+      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
       process.cwd()
     );
     assert.equal(exitCode, 0);
@@ -433,12 +420,8 @@ describe("fetchEnforcementMode", () => {
 
 describe("dogfood enforcement CLI", () => {
   it("passes with required mode for a known good repo (live)", () => {
-    // See note on the matching test in "dogfood command" above — --freshness-days
-    // is bumped high to decouple this live test from calendar drift in the
-    // testing-os index. Contract proved: required-mode policy is fetched and
-    // a valid pass record renders Gate F passed.
     const { exitCode, stdout } = run(
-      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli", "--freshness-days", "9999"],
+      ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
       process.cwd()
     );
     assert.equal(exitCode, 0);
