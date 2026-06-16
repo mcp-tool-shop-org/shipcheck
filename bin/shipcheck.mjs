@@ -364,6 +364,163 @@ async function dogfoodCommand() {
   }
 }
 
+// --- Gate G: AI-native front door (delegates to @mcptoolshop/site-theme) ---
+//
+// Verifies that a repo's AI-native front door (README / AGENTS.md / llms.txt)
+// tells the truth, by consuming the `front-door` verifier shipped in
+// @mcptoolshop/site-theme (>=2.0.0). The verifier is read-only and makes no
+// network requests. site-theme is an OPTIONAL peer dependency — a hard dep
+// would drag astro/vite/sharp (~280 packages) into this zero-dep CLI — so when
+// it is not installed this gate SKIPS gracefully (exit 0) and never crashes the
+// audit. It is the machine-readable complement to the Operator Docs (C) and
+// Identity (E) gates.
+//
+// --- Standards compliance (memory/workflow_standards.md) ---
+// PIN_PER_STEP              2 — deterministic: same files in, same scorecard out.
+// ANDON_AUTHORITY          2 — exit 1 on any gate-failing finding; bad docs never ship.
+// NAMED_COMPENSATORS       n/a — read-only verify, no irreversible tool calls.
+// DECOMPOSE_BY_SECRETS     3 — own subcommand; the verifier engine lives in site-theme.
+// UNCERTAINTY_GATED_HUMANS 2 — a missing/unloadable dep SKIPS with a clear message, never asserts pass.
+// EXTERNAL_VERIFIER        3 — the verifier is a separate package (different codebase), not self-graded.
+
+const FRONT_DOOR_MODULE = "@mcptoolshop/site-theme/front-door";
+// Severity order mirrors site-theme's front-door model (risk-ordered, worst first).
+const FRONT_DOOR_SEVERITIES = ["contradicted", "unbacked", "stale", "bloat", "hygiene", "style"];
+// Severities that fail the gate (the front door makes a claim the repo does not back).
+const FRONT_DOOR_GATE_FAIL = new Set(["contradicted", "unbacked", "stale"]);
+
+// Map a front-door scorecard into shipcheck's dimension summary. Pure + defensive:
+// tolerates a partial/malformed scorecard so a verifier change can never crash the audit.
+function summarizeFrontDoor(scorecard) {
+  const findings = Array.isArray(scorecard?.findings) ? scorecard.findings : [];
+
+  const bySeverity = {};
+  for (const s of FRONT_DOOR_SEVERITIES) bySeverity[s] = 0;
+  const counts = scorecard?.counts?.bySeverity;
+  if (counts && typeof counts === "object") {
+    for (const s of FRONT_DOOR_SEVERITIES) bySeverity[s] = counts[s] ?? 0;
+  } else {
+    for (const f of findings) {
+      if (f && Object.prototype.hasOwnProperty.call(bySeverity, f.severity)) bySeverity[f.severity] += 1;
+    }
+  }
+
+  const topFindings = findings.filter((f) => f && FRONT_DOOR_GATE_FAIL.has(f.severity)).slice(0, 5);
+  const failing = scorecard?.gate?.failing ?? findings.filter((f) => f && FRONT_DOOR_GATE_FAIL.has(f.severity)).length;
+  const pass = scorecard?.gate ? scorecard.gate.pass === true : failing === 0;
+  const total = scorecard?.counts?.total ?? findings.length;
+  const reason =
+    scorecard?.gate?.reason ??
+    (pass
+      ? "No contradicted, unbacked, or stale claims."
+      : `${failing} gate-failing finding(s): the front door makes claims the repo does not back.`);
+
+  return { pass, failing, total, bySeverity, reason, topFindings };
+}
+
+// Run the front-door gate against `root`. `loadVerify` is injectable for tests;
+// it defaults to importing the optional site-theme peer. Never throws: any
+// failure to load or run the verifier becomes a graceful skip.
+async function runFrontDoorGate({ root = CWD, loadVerify } = {}) {
+  const load = loadVerify ?? (() => import(FRONT_DOOR_MODULE));
+
+  let mod;
+  try {
+    mod = await load();
+  } catch (err) {
+    return {
+      status: "skip",
+      reason: `${FRONT_DOOR_MODULE} not installed`,
+      detail: "Install @mcptoolshop/site-theme (>=2.0.0) to enable the AI-native front-door gate.",
+      error: err?.message || String(err),
+    };
+  }
+
+  const verify = mod?.verify;
+  if (typeof verify !== "function") {
+    return {
+      status: "skip",
+      reason: `${FRONT_DOOR_MODULE} did not export verify()`,
+      detail: "Upgrade @mcptoolshop/site-theme to >=2.0.0 — its front-door entry must export verify({ root }).",
+    };
+  }
+
+  let scorecard;
+  try {
+    scorecard = verify({ root });
+  } catch (err) {
+    return {
+      status: "skip",
+      reason: "front-door verify() threw",
+      detail: "The front-door verifier errored — audit continues without this gate.",
+      error: err?.message || String(err),
+    };
+  }
+
+  const summary = summarizeFrontDoor(scorecard);
+  return { status: summary.pass ? "pass" : "fail", summary };
+}
+
+function renderFrontDoorSeverityLine(bySeverity) {
+  return FRONT_DOOR_SEVERITIES.map((s) => `${s} ${bySeverity[s]}`).join(" · ");
+}
+
+function renderFrontDoorResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate G: front door skipped${RESET}`);
+    log(`  ${DIM}○${RESET} ${result.reason}`);
+    if (result.detail) log(`  ${DIM}${result.detail}${RESET}`);
+    log("");
+    return;
+  }
+
+  const { summary } = result;
+  if (result.status === "pass") {
+    log(`${GREEN}${BOLD}Gate G: front door passed${RESET}`);
+    log(`  ${GREEN}✓${RESET} ${summary.reason}`);
+  } else {
+    log(`${RED}${BOLD}Gate G: front door failed${RESET}`);
+    log(`  ${RED}✗${RESET} ${summary.reason}`);
+  }
+  log(`  ${DIM}Severity: ${renderFrontDoorSeverityLine(summary.bySeverity)} (total ${summary.total})${RESET}`);
+  if (summary.topFindings.length > 0) {
+    log(`  ${YELLOW}${BOLD}Gate-failing findings:${RESET}`);
+    for (const f of summary.topFindings) {
+      const loc = f.line ? `${f.file}:${f.line}` : f.file;
+      log(`    ${RED}✗${RESET} [${f.severity}] ${f.title} ${DIM}(${loc})${RESET}`);
+    }
+  }
+  log("");
+}
+
+async function frontDoorCommand() {
+  log(`\n${BOLD}shipcheck front-door${RESET}\n`);
+
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  const result = await runFrontDoorGate({ root });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderFrontDoorResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      console.error(JSON.stringify({ code: "FRONTDOOR_GATE_FAIL", message: result.summary.reason }));
+    }
+    process.exit(1);
+  }
+  // skip + pass exit 0 — a missing verifier never blocks the audit.
+}
+
 function helpCommand() {
   log(`
 ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
@@ -372,6 +529,7 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck init     Copy templates into current repo
   npx @mcptoolshop/shipcheck audit    Check SHIP_GATE.md progress
   npx @mcptoolshop/shipcheck dogfood  Check dogfood freshness (Gate F)
+  npx @mcptoolshop/shipcheck front-door  Verify the AI-native front door (Gate G)
   npx @mcptoolshop/shipcheck help     Show this message
   npx @mcptoolshop/shipcheck --version Show version
 
@@ -390,6 +548,13 @@ ${BOLD}What it does:${RESET}
            --freshness-days 30   Max age in days (default: 30)
            Exits 0 if accepted + pass + fresh, 1 otherwise
 
+  front-door  Verifies the AI-native front door (README / AGENTS.md / llms.txt)
+           via @mcptoolshop/site-theme's front-door verifier
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 on contradicted/unbacked/stale claims, 0 on pass
+           SKIPS gracefully (exit 0) when site-theme is not installed
+
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
 }
@@ -399,7 +564,7 @@ ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 const command = process.argv[2] || "help";
 
 // Exports for testing
-export { evaluateDogfoodGate, fetchEnforcementMode };
+export { evaluateDogfoodGate, fetchEnforcementMode, summarizeFrontDoor, runFrontDoorGate };
 
 switch (command) {
   case "init":
@@ -410,6 +575,9 @@ switch (command) {
     break;
   case "dogfood":
     await dogfoodCommand();
+    break;
+  case "front-door":
+    await frontDoorCommand();
     break;
   case "--version":
   case "-V":

@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.6] - 2026-06-16
+
+### Added
+- **Gate G — AI-native front door**: `shipcheck front-door` verifies a repo's
+  README / AGENTS.md / llms.txt by consuming the `front-door` verifier shipped in
+  `@mcptoolshop/site-theme` (>=2.0.0). Maps the verifier's risk-ordered scorecard
+  (contradicted > unbacked > stale > bloat > hygiene > style) into a shipcheck
+  dimension, prints a counts-by-severity summary + gate verdict, and exits 1 when
+  the front-door gate fails (`scorecard.gate.pass === false`).
+- `@mcptoolshop/site-theme` as an **optional peer dependency** (a hard dependency
+  would pull astro/vite/sharp — ~280 packages — into this zero-dep CLI). When it is
+  not installed the gate SKIPS gracefully (exit 0) and never crashes the audit.
+- Tests for `summarizeFrontDoor` (scorecard mapping) and `runFrontDoorGate`
+  (pass / fail / skip paths via an injected loader, plus CLI E2E).
+
 ## [1.0.5] - 2026-03-25
 
 ### Added
