@@ -1,0 +1,86 @@
+# Release — publish @mcptoolshop/shipcheck to npm via OIDC Trusted Publishing.
+#
+# Named `release.yml` to match the npm Trusted Publisher binding for this package
+# (npmjs.com -> @mcptoolshop/shipcheck -> Trusted Publishers ->
+# mcp-tool-shop-org/shipcheck, workflow `release.yml`). Supersedes the old
+# token-based `publish.yml`; the legacy NPM_TOKEN secret is retired. Auth is
+# OIDC — there is intentionally NO NODE_AUTH_TOKEN.
+#
+# Workflow standards compliance:
+#   PIN_PER_STEP (2)       — actions SHA-pinned; node version fixed.
+#   ANDON_AUTHORITY (2)    — test/verify/audit/pack gates run BEFORE publish; any failure halts.
+#   NAMED_COMPENSATORS (3) — compensators table below; npm publish has a named undo.
+#
+# Compensators (irreversible — NO skip allowed):
+#   | Action                | Undo                                                | Post-rollback state          | Owner |
+#   |-----------------------|-----------------------------------------------------|------------------------------|-------|
+#   | npm publish <version> | `npm deprecate @mcptoolshop/shipcheck@<v> "broken"` | version on registry, marked  | Mike  |
+#   |                       | (npm forbids unpublish after 72h); ship fixed <v+1> | deprecated; ship <v+1>       |       |
+#   | gh release create     | `gh release delete <tag> --cleanup-tag`             | release + tag removed        | Mike  |
+
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Publish to npm (OIDC trusted publisher)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write # OIDC: npm trusted publishing + Sigstore provenance
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Install npm >= 11.5 in sandbox for OIDC trusted-publishing auth
+        run: |
+          # Node 22 bundles npm 10.x (no OIDC); an in-place `npm i -g npm@latest`
+          # races its own arborist rebuild. Install into an isolated sandbox.
+          SANDBOX="$HOME/.npm-cli-sandbox"
+          mkdir -p "$SANDBOX"
+          pushd "$SANDBOX" >/dev/null
+          echo '{"name":"npm-cli-sandbox","version":"0.0.0","private":true}' > package.json
+          npm install --no-save --no-audit --no-fund --silent npm@latest
+          popd >/dev/null
+          echo "$SANDBOX/node_modules/.bin" >> "$GITHUB_PATH"
+          "$SANDBOX/node_modules/.bin/npm" --version
+
+      - name: Verify release tag matches package.json version
+        if: github.event_name == 'release'
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          echo "Tag: ${GITHUB_REF_NAME} -> ${TAG_VERSION} | Package: ${PKG_VERSION}"
+          if [ "${PKG_VERSION}" != "${TAG_VERSION}" ]; then
+            echo "::error::Release tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}"
+            exit 1
+          fi
+
+      - name: Test
+        run: npm test
+
+      - name: Verify (shipcheck self-audit + help)
+        run: npm run verify
+
+      - name: Dependency audit
+        run: npm audit --audit-level=moderate
+
+      - name: npm pack dry-run (verify tarball shape)
+        run: npm pack --dry-run
+
+      - name: Publish to npm with provenance (OIDC trusted publisher)
+        # Auth via npm Trusted Publishing (OIDC) — intentionally NO NODE_AUTH_TOKEN.
+        run: npm publish --provenance --access public
