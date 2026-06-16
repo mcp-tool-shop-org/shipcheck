@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/shipcheck/readme.png" alt="Shipcheck" width="400">
+  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/shipcheck/readme.jpg" alt="Shipcheck" width="400">
 </p>
 
 <p align="center">
@@ -20,44 +20,71 @@
 
 ## ¿Por qué?
 
-Antes, "hecho" significaba que el código funcionaba. Eso ya no es suficiente. Un producto es código + seguridad + manejo de errores + documentación + identidad + buenas prácticas de publicación. Shipcheck define el estándar.
+"Hecho" solía significar que el código funciona. Eso no es suficiente. Un producto es código + seguridad + manejo de errores + documentación + identidad + higiene de lanzamiento. Shipcheck define el estándar.
 
 ## ¿Qué hay aquí?
 
-| Estándar | ¿Qué cubre? |
+| Estándar | Qué cubre |
 |----------|----------------|
-| [Ship Gate](templates/SHIP_GATE.md) | Lista de verificación de pre-lanzamiento con 27 puntos obligatorios + 4 puntos opcionales. |
-| [Error Contract](contracts/error-contract.md) | Estándar estructurado de manejo de errores con registro de código. |
-| [Security Baseline](templates/SECURITY.md) | Correo electrónico de informe, plazo de respuesta, alcance de las amenazas. |
-| [Handbook](templates/HANDBOOK.md) | Manual de operación para herramientas complejas. |
-| [Scorecard](templates/SCORECARD.md) | Puntuación antes/después de la corrección. |
-| [Adoption Guide](ADOPTION.md) | Aplica Shipcheck a cualquier repositorio en menos de 30 minutos. |
+| [Ship Gate](templates/SHIP_GATE.md) | Lista de verificación de pre-lanzamiento con 31 elementos obligatorios + 4 elementos opcionales |
+| [Error Contract](contracts/error-contract.md) | Estándar estructurado de errores en dos niveles con registro de código |
+| [Security Baseline](templates/SECURITY.md) | Informe por correo electrónico, cronograma de respuesta, alcance de la amenaza |
+| [Handbook](templates/HANDBOOK.md) | Manual operativo de campo para herramientas complejas |
+| [Scorecard](templates/SCORECARD.md) | Puntuación pre/post-remediación |
+| [Adoption Guide](ADOPTION.md) | Aplicar Shipcheck a cualquier repositorio en <30 minutos |
 
-## Cómo empezar
+## Uso de la CLI
+
+```bash
+npx @mcptoolshop/shipcheck init        # Copy templates into current repo
+npx @mcptoolshop/shipcheck audit       # Check SHIP_GATE.md progress
+npx @mcptoolshop/shipcheck dogfood     # Check dogfood freshness (Gate F)
+npx @mcptoolshop/shipcheck front-door  # Verify the AI-native front door (Gate G)
+npx @mcptoolshop/shipcheck help        # Show help
+npx @mcptoolshop/shipcheck --version   # Show version
+```
+
+Establece `SHIPCHECK_JSON=1` para obtener una salida de errores JSON estructurada en lugar de texto con colores.
+
+## Guía rápida
 
 1. Lee [ADOPTION.md](ADOPTION.md)
-2. Copia `templates/SHIP_GATE.md` en la raíz de tu repositorio.
-3. Marca los elementos aplicables, y marca los no aplicables con `SKIP:`.
-4. Publica cuando todos los puntos obligatorios hayan sido superados.
+2. Ejecuta `npx @mcptoolshop/shipcheck init` en la raíz de tu repositorio
+3. Marca los elementos aplicables en `SHIP_GATE.md`, marca los no aplicables con `SKIP:`
+4. Ejecuta `npx @mcptoolshop/shipcheck audit`; sale con 0 cuando todas las puertas obligatorias se superan
+5. Lanza el producto cuando la auditoría sea exitosa
 
 ## Cómo funciona
 
-Las **etapas obligatorias** (A-D) bloquean el lanzamiento:
+**Puertas obligatorias** (A-D) bloquean el lanzamiento:
 
-- **A. Seguridad básica** — SECURITY.md, modelo de amenazas, sin secretos, sin telemetría, postura de seguridad predeterminada.
-- **B. Manejo de errores** — estructura de errores definida (código/mensaje/sugerencia/reintentable), salida segura, degradación controlada.
-- **C. Documentación para el usuario** — README, CHANGELOG, LICENCIA, documentación de la herramienta.
-- **D. Buenas prácticas de publicación** — verificación de scripts, alineación de versiones, análisis de dependencias, archivo de bloqueo.
+- **A. Línea de base de seguridad:** SECURITY.md, modelo de amenazas, sin secretos, sin telemetría, postura de seguridad predeterminada
+- **B. Manejo de errores:** forma estructurada de error (código/mensaje/sugerencia/reintentable), salida segura, degradación gradual
+- **C. Documentación para operadores:** README, CHANGELOG, LICENSE, documentación de la herramienta
+- **D. Higiene de lanzamiento:** script de verificación, alineación de versiones, análisis de dependencias, archivo de bloqueo
 
-La **etapa opcional** (E) no bloquea, pero define el "conjunto completo":
+**Puerta opcional** (E) no bloquea pero define el "conjunto completo":
 
-- **E. Identidad** — logotipo, traducciones, página de inicio, metadatos del repositorio.
+- **E. Identidad:** logotipo, traducciones, página de destino, metadatos del repositorio
 
-La etapa indica **qué** debe ser cierto, no **cómo** implementarlo. Las etiquetas de aplicabilidad (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) evitan que se marquen casillas de verificación innecesariamente en repositorios donde los elementos no son aplicables.
+**Puerta F: Frescura de Dogfood** (opcional, requiere dogfood-labs):
 
-## Contrato de errores de un vistazo
+- Verifica si hay un registro de dogfood reciente, verificado y exitoso
+- Admite modos de aplicación: `required` (obligatorio), `warn-only` (solo advertencia), `exempt` (exento)
+- Ventana de frescura configurable (predeterminada: 30 días)
 
-**Nivel 1 — Estructura (obligatorio en todas partes):**
+**Puerta G: Puerta frontal nativa de IA** (opcional, requiere `@mcptoolshop/site-theme` >=2.0.0):
+
+- Verifica que la puerta frontal nativa de IA del repositorio (README / AGENTS.md / llms.txt) diga la verdad: el complemento legible por máquina de la documentación para operadores (C) y las puertas de identidad (E)
+- Delega al verificador [`front-door`](https://github.com/mcp-tool-shop-org/site-theme) de site-theme (`verify({ root })`), que enruta las afirmaciones documentadas a los canales de evidencia y devuelve una puntuación ordenada por riesgo
+- Muestra recuentos por gravedad (contradictorio · sin respaldo · obsoleto · hinchazón · higiene · estilo) más el veredicto de la puerta; **falla (sale con 1) en las afirmaciones contradictorias / sin respaldo / obsoletas**
+- site-theme es una **dependencia opcional** (una dependencia estricta incluiría astro en esta CLI de cero dependencias). Cuando no está instalado, la puerta **se omite correctamente** (sale con 0); nunca interrumpe la auditoría
+
+La puerta indica **qué** debe ser verdadero, no **cómo** implementarlo. Las etiquetas de aplicabilidad (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) evitan la vergüenza de las casillas de verificación en los repositorios donde los elementos no aplican.
+
+## Contrato de errores a primera vista
+
+**Nivel 1: Forma (obligatorio en todas partes):**
 
 ```json
 {
@@ -68,7 +95,7 @@ La etapa indica **qué** debe ser cierto, no **cómo** implementarlo. Las etique
 }
 ```
 
-**Nivel 2 — Tipo base + códigos de salida (CLI/MCP/escritorio):**
+**Nivel 2: Tipo base + códigos de salida (CLI/MCP/escritorio):**
 
 | Código de salida | Significado |
 |-----------|---------|
@@ -77,22 +104,29 @@ La etapa indica **qué** debe ser cierto, no **cómo** implementarlo. Las etique
 | 2 | Error en tiempo de ejecución (fallo, fallo del backend) |
 | 3 | Éxito parcial (algunos elementos tuvieron éxito) |
 
-Los códigos de error utilizan prefijos con espacio de nombres: `IO_`, `CONFIG_`, `PERM_`, `DEP_`, `RUNTIME_`, `PARTIAL_`, `INPUT_`, `STATE_`. Los códigos son estables una vez que se publican.
+Los códigos de error utilizan prefijos con nombres: `IO_`, `CONFIG_`, `PERM_`, `DEP_`, `RUNTIME_`, `PARTIAL_`, `INPUT_`, `STATE_`. Los códigos son estables una vez que se lanzan.
+
+## Modelo de confianza
+
+**Datos afectados:** lee `package.json`, `pyproject.toml` y `SHIP_GATE.md` en el directorio de trabajo actual. Escribe archivos de plantilla (`SHIP_GATE.md`, `SECURITY.md`, `CHANGELOG.md`, `SCORECARD.md`) solo en el directorio actual.
+**No se realizan solicitudes a la red.** Todas las operaciones son lecturas y escrituras locales de archivos.
+**No se manejan secretos.** No lee, almacena ni transmite credenciales.
+**No se recopila ni envía telemetría**.
 
 ## Implementación de referencia
 
-[mcp-voice-soundboard](https://github.com/mcp-tool-shop-org/mcp-voice-soundboard) fue el primer repositorio en superar la etapa de publicación, obteniendo una puntuación de **46/50** después de la corrección.
+[mcp-voice-soundboard](https://github.com/mcp-tool-shop-org/mcp-voice-soundboard) fue el primer repositorio en pasar la Puerta Ship, obteniendo una puntuación de **46/50** después de la remediación.
 
-## Cuadro de puntuación
+## Puntuación
 
 | Categoría | Puntuación | Notas |
 |----------|-------|-------|
-| A. Seguridad | 10/10 | SECURITY.md, sin código ejecutable, sin recopilación de datos. |
-| B. Manejo de errores | N/A | Repositorio de estándares — no hay código para generar errores. |
-| C. Documentación para el usuario | 10/10 | README, CHANGELOG, ADOPTION, todas las plantillas documentadas. |
-| D. Buenas prácticas de publicación | 8/10 | Sin código para verificar/probar, todas las versiones de los estándares. |
-| E. Identidad | 10/10 | Logotipo, traducciones, página de inicio, metadatos. |
-| **Total** | **38/40** | B excluido (no aplicable). |
+| A. Seguridad | 6/8 | SECURITY.md, modelo de confianza, sin secretos/telemetría. Los elementos de MCP se omitieron (no es un servidor MCP) |
+| B. Manejo de errores | 3/7 | Forma estructurada de error + códigos de salida + sin pilas en bruto. Se omitieron los elementos de MCP/escritorio/vscode |
+| C. Documentación para operadores | 4/7 | README, CHANGELOG, LICENSE, --help. Se omitió la documentación/MCP/compleja |
+| D. Higiene de lanzamiento | 6/9 | script de verificación, versión=etiqueta, auditoría npm en CI, engines.node, archivo de bloqueo. Cero dependencias = sin mecanismo de actualización |
+| E. Identidad | 4/4 | Logotipo, traducciones, página de destino, metadatos |
+| **Total** | **23/31** | 14 elementos omitidos con justificación · `shipcheck audit` pasa al 100% |
 
 ## Licencia
 
