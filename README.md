@@ -36,11 +36,12 @@
 ## CLI usage
 
 ```bash
-npx @mcptoolshop/shipcheck init       # Copy templates into current repo
-npx @mcptoolshop/shipcheck audit      # Check SHIP_GATE.md progress
-npx @mcptoolshop/shipcheck dogfood    # Check dogfood freshness (Gate F)
-npx @mcptoolshop/shipcheck help       # Show help
-npx @mcptoolshop/shipcheck --version  # Show version
+npx @mcptoolshop/shipcheck init        # Copy templates into current repo
+npx @mcptoolshop/shipcheck audit       # Check SHIP_GATE.md progress
+npx @mcptoolshop/shipcheck dogfood     # Check dogfood freshness (Gate F)
+npx @mcptoolshop/shipcheck front-door  # Verify the AI-native front door (Gate G)
+npx @mcptoolshop/shipcheck help        # Show help
+npx @mcptoolshop/shipcheck --version   # Show version
 ```
 
 Set `SHIPCHECK_JSON=1` to get structured JSON error output instead of coloured text.
@@ -71,6 +72,13 @@ Set `SHIPCHECK_JSON=1` to get structured JSON error output instead of coloured t
 - Checks for a fresh, verified, passing dogfood record
 - Supports enforcement modes: `required`, `warn-only`, `exempt`
 - Configurable freshness window (default: 30 days)
+
+**Gate G — AI-native front door** (optional, requires `@mcptoolshop/site-theme` >=2.0.0):
+
+- Verifies that the repo's AI-native front door (README / AGENTS.md / llms.txt) tells the truth — the machine-readable complement to the Operator Docs (C) and Identity (E) gates
+- Delegates to site-theme's [`front-door`](https://github.com/mcp-tool-shop-org/site-theme) verifier (`verify({ root })`), which routes documented claims to evidence channels and returns a risk-ordered scorecard
+- Surfaces counts by severity (contradicted · unbacked · stale · bloat · hygiene · style) plus the gate verdict; **fails (exit 1) on contradicted / unbacked / stale claims**
+- site-theme is an **optional peer dependency** (a hard dep would pull astro into this zero-dep CLI). When it isn't installed, the gate **skips gracefully** (exit 0) — it never crashes the audit
 
 The gate says **what** must be true, not **how** to implement it. Applicability tags (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) prevent checkbox shame on repos where items don't apply.
 
