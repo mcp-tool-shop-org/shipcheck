@@ -4,6 +4,93 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.8] - 2026-07-07
+
+### Added
+
+Three more Ship Gate lines converted from human-checked boxes into **executed
+checks** — code that reads the real artifact and exits 1 on the real defect,
+following the Gate H template. Each ships with a RED meta-test that mutates the
+protected thing and asserts the gate fires (a gate that only passes on a good
+repo is not verified). All three are wired into `verify`.
+
+- **Gate I — `shipcheck secrets`** (converts A3 "No secrets in source"). Scans
+  every publishable package's **tarball surface** (the same `npm pack` file set as
+  Gate H) for high-signal credentials — provider-prefixed API keys, tokens, and
+  private-key blocks. Matches are **redacted** (a scanner that echoes a key into a
+  public CI log is itself the leak); a `shipcheck-allow-secret` inline comment
+  whitelists a documented example. Exits 1 if any credential would ship.
+- **Gate J — `shipcheck manifest`** (converts D6, D7, D2). Executes three
+  release-hygiene facts: every publishable package sets `engines.node` /
+  `requires-python` (D6); a lockfile is committed (D7); the manifest version is not
+  **behind** the newest released git tag (D2, with `--expect <version>` for strict
+  release-time exact-match). D2 is the portable, inheritable form of the ad-hoc
+  "verify tag matches package.json" step that today lives only in shipcheck's own
+  `release.yml`; it skips cleanly when no git tags are present.
+- **Gate K — `shipcheck security-docs`** (converts A1, A2). Verifies SECURITY.md
+  exists (`./`, `.github/`, or `docs/`) with a real reporting contact — not an
+  empty stub that ticks the box green — and that the README states a trust/threat
+  model with a substantive body. Honest ceiling, disclosed not faked: it checks
+  **presence + contact**, not whether the threat model is correct or complete
+  (that needs a separate-family verifier — named as residual).
+- **Gate L — `shipcheck ci`** (converts provenance/OIDC + D3-*config*). Reads
+  `.github/workflows` and executes two facts: every `npm publish` workflow uses
+  OIDC trusted publishing (`id-token: write`) **and** `--provenance` (the config /
+  intent layer), and a recognized vulnerability scanner is *configured* in CI or
+  dependabot is present. `--registry <pkg>[@<ver>]` adds the **outcome** layer,
+  confirming the published tarball actually carries a provenance attestation on
+  npm — intent **and** outcome, two complementary layers rather than a choice
+  between them.
+- **Gate M — `shipcheck deps`** (the dependency-security OUTCOME). Gate L's
+  dependency-scan check only proves a scanner is *configured* — a repo can pass it
+  while a whole subtree is unaudited and vulnerability alerting is switched off.
+  Gate M reads the real trees and the real advisory database: it runs `npm audit`
+  in **every** lockfile'd tree (root **and** subtrees like `site/`, not just the
+  root — the same monorepo blind spot D5 had) and fails on anything at/above
+  `--level` (default high); and it checks whether GitHub Dependabot **alerts are
+  even enabled** for the repo — a repo with alerting off has no monitoring at all.
+  `--publishable` scopes to non-private (shipped) trees; `--no-alerts` skips the
+  GitHub check; `--level low|moderate|high|critical` sets the floor. `verify` runs
+  `deps --publishable --no-alerts` so the shipped surface is gated deterministically.
+
+### Security
+
+- **shipcheck's own `site/` landing page had 7 high-severity vulnerabilities** that
+  a root-only audit never saw (root is zero-dep; the Astro build subtree was
+  unaudited). **All 7 are now fixed.** Six went with semver-compatible `npm audit
+  fix`; the seventh (Astro Host-header SSRF, GHSA-2pvr-wf23-7pc7, patched in Astro
+  6.4.6) needed a real upgrade — a *targeted* one, not the `--force` jump to Astro 7
+  that broke the docs build: Astro `^6.4.6` + `@astrojs/starlight` `^0.40.0`, the
+  Starlight-0.39 sidebar-config migration (`autogenerate` wrapped in `items`), and a
+  `vite: ^7.3.2` override (Astro 6 declares vite 7, but vite 8 leaked in and broke
+  the `@tailwindcss/vite` rolldown binding). Build verified; `shipcheck deps` is
+  green across both trees. Four low-severity build-time advisories remain (below the
+  `high` gate threshold).
+- **shipcheck's Dependabot vulnerability alerts were disabled** — the reason vulns
+  accrue unnoticed. Enabling requires an org-repo settings change (owner action):
+  `gh api -X PUT repos/mcp-tool-shop-org/shipcheck/vulnerability-alerts`. Alerts are
+  free (no CI minutes, no PRs) and are distinct from the auto-update-PR bot the org
+  rules restrict.
+
+### Fixed
+
+- **`--json` now emits pure JSON** on every gate (`pack`, `front-door`, `secrets`,
+  `manifest`, `security-docs`, `ci`) — the human-readable header line is suppressed
+  in `--json` mode, so the entire stdout parses. Previously a header preceded the
+  JSON, forcing consumers to hunt for the `{` line.
+
+### Notes
+
+- Every gate exposes a pure, injectable core (`runSecretsGate` / `runManifestGate`
+  / `runSecurityDocsGate` / `runCiGate`, plus the sub-checks) so unit + RED
+  meta-tests never shell out; real-artifact integration tests exercise the CLI end
+  to end. ~55 new tests.
+- **D4 (automated dependency-update mechanism) deliberately left attested.** The
+  org's own `github-actions` rule says *don't add dependabot unless explicitly
+  requested* — a hard executed gate that failed a repo for lacking an update bot
+  would punish repos for following that policy. This checklist-vs-policy conflict
+  is a decision, not a coding gap; recorded in `docs/executed-vs-attested-audit.md`.
+
 ## [1.0.7] - 2026-07-07
 
 ### Added
