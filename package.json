@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs audit && node bin/shipcheck.mjs pack && node bin/shipcheck.mjs secrets && node bin/shipcheck.mjs manifest && node bin/shipcheck.mjs security-docs && node bin/shipcheck.mjs ci && echo '✓ verify passed'"
+    "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs audit && node bin/shipcheck.mjs pack && node bin/shipcheck.mjs secrets && node bin/shipcheck.mjs manifest && node bin/shipcheck.mjs security-docs && node bin/shipcheck.mjs ci && node bin/shipcheck.mjs deps --publishable --no-alerts && echo '✓ verify passed'"
   },
   "files": [
     "bin",

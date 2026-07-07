@@ -1355,6 +1355,200 @@ async function ciCommand() {
   }
 }
 
+// --- Gate M: deps — actual known-vulnerable dependencies (the OUTCOME, not the mechanism) ---
+//
+// This gate exists because Gate L's dependency-scan check (D3) was itself theater:
+// it verifies a scanner is *configured in a workflow*, and passes green on a repo
+// whose real posture is "vulnerability alerting disabled, a whole subtree unaudited."
+// A configured scanner that only audits the root of a monorepo is exactly the D5
+// blind spot one layer up. This gate reads the REAL dependency trees and the REAL
+// advisory database and fails on actual vulnerabilities:
+//   vulnerabilities — runs `npm audit` in EVERY lockfile'd tree in the repo (root +
+//     site/ + any subtree), not just the root, and fails on anything at/above --level
+//     (default high). Catches the shipped-and-unshipped vulns a root-only audit misses.
+//   alerting        — checks whether GitHub Dependabot vulnerability *alerts* are even
+//     ENABLED for the repo. A repo with alerting off has no monitoring at all — the
+//     silent root cause of "vulns rot across repos". This is orthogonal to the org's
+//     "no auto-update-PR bot" rule: alerts are free (no CI minutes, no PRs), the bot
+//     is not. The right posture is alerts ON, auto-update-bot optional.
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic given the lockfiles + a pinned advisory/alerts response.
+// ANDON_AUTHORITY 2 — exit 1 on any tree with vulns ≥ level, or on disabled alerting.
+// NAMED_COMPENSATORS n/a — read-only (`npm audit`, a GitHub GET).
+// DECOMPOSE_BY_SECRETS 3 — its own gate; the outcome-of-dependencies, distinct from CI config (Gate L).
+// UNCERTAINTY_GATED_HUMANS 2 — no trees / no token / indeterminate alert status → explicit skip, never a false pass.
+// EXTERNAL_VERIFIER 3 — verified against npm's advisory DB and GitHub's alert state, not a maintainer checkbox or a workflow that merely *mentions* a scanner.
+
+const SEVERITY_ORDER = ["info", "low", "moderate", "high", "critical"];
+
+function countAtOrAbove(vulnMeta, level) {
+  const li = Math.max(0, SEVERITY_ORDER.indexOf(level));
+  let n = 0;
+  for (let i = li; i < SEVERITY_ORDER.length; i++) n += Number(vulnMeta?.[SEVERITY_ORDER[i]] || 0);
+  return n;
+}
+
+function relFromRoot(root, dir) {
+  if (dir === root) return ".";
+  const r = dir.startsWith(root) ? dir.slice(root.length) : dir;
+  return r.replace(/^[\\/]+/, "").replace(/\\/g, "/") || ".";
+}
+
+// Every lockfile'd npm tree in the repo (root + subtrees), excluding installed/build dirs.
+function findNpmTrees(root, { maxDepth = 3 } = {}) {
+  const skip = new Set(["node_modules", "dist", "build", "coverage", ".astro", ".next", ".git", ".cache"]);
+  const trees = [];
+  const walk = (dir, depth) => {
+    if (existsSync(join(dir, "package.json")) && NPM_LOCKFILES.some((l) => existsSync(join(dir, l)))) {
+      trees.push(dir);
+    }
+    if (depth >= maxDepth) return;
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.isDirectory() && !skip.has(e.name) && !e.name.startsWith(".")) walk(join(dir, e.name), depth + 1);
+    }
+  };
+  walk(root, 0);
+  return trees;
+}
+
+// Default audit runner: `npm audit --json` reads the lockfile (no install needed) and
+// EXITS NON-ZERO when vulns exist — so its JSON arrives on stdout even as npm "fails".
+function defaultAuditRunner(dir) {
+  let out = "";
+  try {
+    out = execFileSync("npm", ["audit", "--json"], { cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout: 180_000, shell: true });
+  } catch (err) {
+    out = err.stdout || "";
+  }
+  try { return JSON.parse(out); } catch { return null; }
+}
+
+// Is GitHub Dependabot alerting enabled? 204 = on, 404 = off (definitively), else indeterminate.
+async function defaultAlertsChecker(owner, repo, { fetchImpl = fetch, token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN } = {}) {
+  if (!token) return { status: "skip", detail: "no GITHUB_TOKEN/GH_TOKEN in env — set one to verify Dependabot alerting is enabled" };
+  try {
+    const res = await fetchImpl(`https://api.github.com/repos/${owner}/${repo}/vulnerability-alerts`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json", "User-Agent": "shipcheck" },
+    });
+    if (res.status === 204) return { status: "pass", detail: `Dependabot vulnerability alerts are enabled for ${owner}/${repo}` };
+    if (res.status === 404) return { status: "fail", detail: `Dependabot vulnerability alerts are DISABLED for ${owner}/${repo} — no vulnerability monitoring. Enable: gh api -X PUT repos/${owner}/${repo}/vulnerability-alerts` };
+    return { status: "skip", detail: `could not determine alert status (HTTP ${res.status}) — token may lack scope` };
+  } catch (err) {
+    return { status: "skip", detail: `could not reach GitHub: ${err?.message || String(err)}` };
+  }
+}
+
+function parseGitRemote(root) {
+  try {
+    const url = execFileSync("git", ["remote", "get-url", "origin"], { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    const m = url.match(/github\.com[:/]([^/]+)\/(.+?)(?:\.git)?$/i);
+    return m ? { owner: m[1], repo: m[2] } : null;
+  } catch { return null; }
+}
+
+async function runDepsGate({
+  root = CWD,
+  level = "high",
+  publishableOnly = false,
+  findTrees = findNpmTrees,
+  auditRunner = defaultAuditRunner,
+  alerting = true,
+  github = null,
+  alertsChecker = defaultAlertsChecker,
+  remote = parseGitRemote,
+} = {}) {
+  let trees = findTrees(root);
+  if (publishableOnly) {
+    // Only trees whose own package.json is NOT private (i.e., what actually ships).
+    trees = trees.filter((dir) => {
+      const pj = readJsonSafe(join(dir, "package.json"));
+      return pj && pj.private !== true;
+    });
+  }
+
+  const findings = [];
+  for (const dir of trees) {
+    const report = auditRunner(dir);
+    const meta = report?.metadata?.vulnerabilities;
+    if (!meta) { findings.push({ tree: relFromRoot(root, dir), error: "npm audit produced no parseable result (npm/network unavailable?)" }); continue; }
+    const n = countAtOrAbove(meta, level);
+    if (n > 0) findings.push({ tree: relFromRoot(root, dir), atOrAbove: n, counts: meta });
+  }
+
+  const auditCheck = trees.length === 0
+    ? { id: "vulnerabilities", status: "skip", detail: "no npm dependency trees (lockfiles) found" }
+    : findings.length
+      ? { id: "vulnerabilities", status: "fail", detail: `${findings.length} of ${trees.length} tree(s) have vulnerabilities ≥ ${level}`, findings }
+      : { id: "vulnerabilities", status: "pass", detail: `${trees.length} tree(s) audited — no vulnerabilities ≥ ${level}` };
+
+  const checks = [auditCheck];
+  if (alerting) {
+    const gh = github || (remote ? remote(root) : null);
+    checks.push(gh
+      ? { id: "alerting", ...(await alertsChecker(gh.owner, gh.repo)) }
+      : { id: "alerting", status: "skip", detail: "no GitHub remote to check Dependabot alert status" });
+  }
+
+  const status = checks.some((c) => c.status === "fail") ? "fail" : checks.every((c) => c.status === "skip") ? "skip" : "pass";
+  return { status, checks, trees: trees.length };
+}
+
+function renderDepsResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate M: deps skipped${RESET}`);
+    for (const c of result.checks) log(`  ${DIM}○${RESET} ${c.id}: ${c.detail}`);
+    log("");
+    return;
+  }
+  log(result.status === "pass" ? `${GREEN}${BOLD}Gate M: deps passed${RESET}` : `${RED}${BOLD}Gate M: deps failed${RESET}`);
+  for (const c of result.checks) {
+    log(`  ${CHECK_GLYPH[c.status]} ${BOLD}${c.id}${RESET}: ${c.detail}`);
+    for (const f of c.findings || []) {
+      if (f.error) { log(`      ${YELLOW}○${RESET} ${f.tree}: ${f.error}`); continue; }
+      const s = SEVERITY_ORDER.filter((k) => f.counts[k]).map((k) => `${f.counts[k]} ${k}`).join(", ");
+      log(`      ${RED}✗${RESET} ${f.tree}/ — ${s}`);
+    }
+  }
+  log("");
+}
+
+async function depsCommand() {
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  let level = "high";
+  let alerting = true;
+  let github = null;
+  let publishableOnly = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--level" && args[i + 1]) { level = args[++i]; }
+    else if (args[i] === "--github" && args[i + 1]) { const [o, r] = args[++i].split("/"); github = { owner: o, repo: r }; }
+    else if (args[i] === "--no-alerts") { alerting = false; }
+    else if (args[i] === "--publishable") { publishableOnly = true; }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  if (!json) log(`\n${BOLD}shipcheck deps${RESET}\n`);
+  const result = await runDepsGate({ root, level, alerting, github, publishableOnly });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderDepsResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      console.error(JSON.stringify({ code: "DEPS_VULNERABLE", message: result.checks.filter((c) => c.status === "fail").map((c) => c.id).join(", ") }));
+    }
+    process.exit(1);
+  }
+}
+
 function helpCommand() {
   log(`
 ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
@@ -1369,6 +1563,7 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck manifest Verify engines/lockfile/version-vs-tag (Gate J)
   npx @mcptoolshop/shipcheck security-docs  Verify SECURITY.md + README trust model (Gate K)
   npx @mcptoolshop/shipcheck ci       Verify OIDC/provenance + dependency scanning (Gate L)
+  npx @mcptoolshop/shipcheck deps     Audit every tree for real vulnerabilities + alerting (Gate M)
   npx @mcptoolshop/shipcheck help     Show this message
   npx @mcptoolshop/shipcheck --version Show version
 
@@ -1443,6 +1638,20 @@ ${BOLD}What it does:${RESET}
            --json                Machine-readable result
            Exits 1 if a publish path is un-hardened or CI runs no scanner
 
+  deps     The OUTCOME check (vs 'ci' which checks the scanner is configured):
+             vulnerabilities  runs 'npm audit' in EVERY lockfile'd tree (root +
+                              subtrees like site/, not just the root) and fails on
+                              anything at/above --level
+             alerting         checks whether GitHub Dependabot alerts are even
+                              ENABLED for the repo (the silent root cause)
+           --level <sev>         low|moderate|high|critical (default: high)
+           --publishable         only audit non-private (shipped) trees
+           --no-alerts           skip the GitHub alerting check
+           --github <owner/repo> override remote autodetection
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 if any tree has vulnerabilities ≥ level, or alerting is disabled
+
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
 }
@@ -1459,6 +1668,7 @@ export {
   checkEngines, checkLockfile, checkVersionTag, runManifestGate, parseSemver,
   checkSecurityMd, checkThreatModel, runSecurityDocsGate,
   checkProvenanceConfig, checkProvenancePublished, checkDependencyScan, runCiGate,
+  countAtOrAbove, findNpmTrees, runDepsGate,
 };
 
 switch (command) {
@@ -1488,6 +1698,9 @@ switch (command) {
     break;
   case "ci":
     await ciCommand();
+    break;
+  case "deps":
+    await depsCommand();
     break;
   case "--version":
   case "-V":

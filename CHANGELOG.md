@@ -33,14 +33,40 @@ repo is not verified). All three are wired into `verify`.
   model with a substantive body. Honest ceiling, disclosed not faked: it checks
   **presence + contact**, not whether the threat model is correct or complete
   (that needs a separate-family verifier — named as residual).
-- **Gate L — `shipcheck ci`** (converts provenance/OIDC + D3). Reads
+- **Gate L — `shipcheck ci`** (converts provenance/OIDC + D3-*config*). Reads
   `.github/workflows` and executes two facts: every `npm publish` workflow uses
   OIDC trusted publishing (`id-token: write`) **and** `--provenance` (the config /
-  intent layer), and a recognized vulnerability scanner runs in CI or dependabot
-  is configured (D3). `--registry <pkg>[@<ver>]` adds the **outcome** layer,
+  intent layer), and a recognized vulnerability scanner is *configured* in CI or
+  dependabot is present. `--registry <pkg>[@<ver>]` adds the **outcome** layer,
   confirming the published tarball actually carries a provenance attestation on
   npm — intent **and** outcome, two complementary layers rather than a choice
   between them.
+- **Gate M — `shipcheck deps`** (the dependency-security OUTCOME). Gate L's
+  dependency-scan check only proves a scanner is *configured* — a repo can pass it
+  while a whole subtree is unaudited and vulnerability alerting is switched off.
+  Gate M reads the real trees and the real advisory database: it runs `npm audit`
+  in **every** lockfile'd tree (root **and** subtrees like `site/`, not just the
+  root — the same monorepo blind spot D5 had) and fails on anything at/above
+  `--level` (default high); and it checks whether GitHub Dependabot **alerts are
+  even enabled** for the repo — a repo with alerting off has no monitoring at all.
+  `--publishable` scopes to non-private (shipped) trees; `--no-alerts` skips the
+  GitHub check; `--level low|moderate|high|critical` sets the floor. `verify` runs
+  `deps --publishable --no-alerts` so the shipped surface is gated deterministically.
+
+### Security
+
+- **shipcheck's own `site/` landing page had 7 high-severity vulnerabilities** that
+  a root-only audit never saw (root is zero-dep; the Astro build subtree was
+  unaudited). Ran `npm audit fix` — **6 of 7 highs resolved** with semver-compatible
+  patches, build verified. The 7th (Astro Host-header SSRF, GHSA-2pvr-wf23-7pc7)
+  requires a breaking Astro major that fails the Starlight build, and is a tracked
+  residual — `site/` is `private: true` and is not part of the published npm tarball.
+  Gate M flags it on every full `shipcheck deps` run so it can't hide again.
+- **shipcheck's Dependabot vulnerability alerts were disabled** — the reason vulns
+  accrue unnoticed. Enabling requires an org-repo settings change (owner action):
+  `gh api -X PUT repos/mcp-tool-shop-org/shipcheck/vulnerability-alerts`. Alerts are
+  free (no CI minutes, no PRs) and are distinct from the auto-update-PR bot the org
+  rules restrict.
 
 ### Fixed
 

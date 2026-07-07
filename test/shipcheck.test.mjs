@@ -10,6 +10,7 @@ import {
   checkEngines, checkLockfile, checkVersionTag, runManifestGate,
   checkSecurityMd, checkThreatModel, runSecurityDocsGate,
   checkProvenanceConfig, checkProvenancePublished, checkDependencyScan, runCiGate,
+  countAtOrAbove, runDepsGate,
 } from "../bin/shipcheck.mjs";
 
 const BIN = join(import.meta.dirname, "..", "bin", "shipcheck.mjs");
@@ -992,5 +993,114 @@ describe("--json output is pure (no header)", () => {
     writeFileSync(join(tmp, "README.md"), "# T\n\n## Trust model\n\nReads nothing. No telemetry.\n");
     const parsed = JSON.parse(run(["security-docs", "--json"], tmp).stdout.trim());
     assert.ok(["pass", "fail", "skip"].includes(parsed.status));
+  });
+});
+
+// --- deps (Gate M: real vulnerabilities across every tree + alerting) ---
+
+describe("countAtOrAbove (Gate M)", () => {
+  it("sums vulnerability counts at or above the level", () => {
+    const m = { info: 5, low: 3, moderate: 2, high: 1, critical: 1 };
+    assert.equal(countAtOrAbove(m, "high"), 2);
+    assert.equal(countAtOrAbove(m, "moderate"), 4);
+    assert.equal(countAtOrAbove(m, "critical"), 1);
+    assert.equal(countAtOrAbove(m, "low"), 7);
+  });
+});
+
+describe("runDepsGate (Gate M core, injected — no network/npm)", () => {
+  const clean = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0 } } };
+  const dirty = { metadata: { vulnerabilities: { info: 0, low: 3, moderate: 0, high: 1, critical: 0 } } };
+
+  it("passes when every tree is clean (GREEN)", async () => {
+    const r = await runDepsGate({ root: "/r", findTrees: () => ["/r", "/r/site"], auditRunner: () => clean, alerting: false });
+    assert.equal(r.status, "pass");
+    assert.equal(r.trees, 2);
+  });
+
+  it("RED meta: fails when a SUBTREE has a high vuln that a root-only audit would miss (the site/ blind spot)", async () => {
+    const r = await runDepsGate({
+      root: "/r",
+      findTrees: () => ["/r", "/r/site"],
+      auditRunner: (dir) => (dir.endsWith("site") ? dirty : clean),
+      alerting: false,
+    });
+    assert.equal(r.status, "fail");
+    const v = r.checks.find((c) => c.id === "vulnerabilities");
+    assert.equal(v.findings.length, 1);
+    assert.equal(v.findings[0].tree, "site");
+    assert.equal(v.findings[0].atOrAbove, 1);
+  });
+
+  it("--level moderate catches a moderate that --level high passes", async () => {
+    const mod = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 2, high: 0, critical: 0 } } };
+    assert.equal((await runDepsGate({ root: "/r", findTrees: () => ["/r"], auditRunner: () => mod, level: "high", alerting: false })).status, "pass");
+    assert.equal((await runDepsGate({ root: "/r", findTrees: () => ["/r"], auditRunner: () => mod, level: "moderate", alerting: false })).status, "fail");
+  });
+
+  it("fails when an audit can't be run (cannot certify clean)", async () => {
+    const r = await runDepsGate({ root: "/r", findTrees: () => ["/r"], auditRunner: () => null, alerting: false });
+    assert.equal(r.status, "fail");
+  });
+
+  it("skips when there are no npm trees", async () => {
+    assert.equal((await runDepsGate({ root: "/r", findTrees: () => [], alerting: false })).status, "skip");
+  });
+
+  it("RED meta: fails when Dependabot alerting is DISABLED (the silent root cause)", async () => {
+    const r = await runDepsGate({
+      root: "/r", findTrees: () => ["/r"], auditRunner: () => clean,
+      github: { owner: "o", repo: "r" },
+      alertsChecker: async () => ({ status: "fail", detail: "alerts DISABLED" }),
+    });
+    assert.equal(r.status, "fail");
+    assert.ok(r.checks.some((c) => c.id === "alerting" && c.status === "fail"));
+  });
+
+  it("does not fail on alerting when the status is merely indeterminate (no token → skip)", async () => {
+    const r = await runDepsGate({
+      root: "/r", findTrees: () => ["/r"], auditRunner: () => clean,
+      github: { owner: "o", repo: "r" },
+      alertsChecker: async () => ({ status: "skip", detail: "no token" }),
+    });
+    assert.equal(r.status, "pass"); // clean audit + alerting-skip ⇒ pass, never a false fail
+  });
+});
+
+describe("deps --publishable (Gate M, real tree discovery + injected audit)", () => {
+  let tmp;
+  beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), "shipcheck-deps-")); });
+  afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
+
+  const clean = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 0, critical: 0 } } };
+  const dirty = { metadata: { vulnerabilities: { info: 0, low: 0, moderate: 0, high: 1, critical: 0 } } };
+
+  it("full audit flags a private subtree; --publishable excludes it (what ships)", async () => {
+    // shipped package (non-private)
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/pkg", version: "1.0.0" }));
+    writeFileSync(join(tmp, "package-lock.json"), "{}");
+    // private landing-page subtree (like shipcheck's site/)
+    mkdirSync(join(tmp, "site"), { recursive: true });
+    writeFileSync(join(tmp, "site", "package.json"), JSON.stringify({ name: "site", private: true }));
+    writeFileSync(join(tmp, "site", "package-lock.json"), "{}");
+
+    const audit = (dir) => (dir.replace(/\\/g, "/").endsWith("site") ? dirty : clean);
+
+    // Full audit sees the private subtree's vuln → RED
+    const full = await runDepsGate({ root: tmp, auditRunner: audit, alerting: false });
+    assert.equal(full.status, "fail");
+    assert.equal(full.trees, 2);
+
+    // --publishable audits only what npm publishes → the private site is excluded → PASS
+    const pub = await runDepsGate({ root: tmp, auditRunner: audit, alerting: false, publishableOnly: true });
+    assert.equal(pub.status, "pass");
+    assert.equal(pub.trees, 1);
+  });
+
+  it("real CLI: `deps --publishable --no-alerts` exits 0 on a zero-dep tree (real npm audit)", () => {
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/zerodep", version: "1.0.0" }));
+    writeFileSync(join(tmp, "package-lock.json"), JSON.stringify({ name: "@x/zerodep", version: "1.0.0", lockfileVersion: 3, packages: { "": { name: "@x/zerodep", version: "1.0.0" } } }));
+    const { exitCode } = run(["deps", "--publishable", "--no-alerts"], tmp);
+    assert.equal(exitCode, 0);
   });
 });
