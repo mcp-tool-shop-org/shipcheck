@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.7] - 2026-07-07
+
+### Added
+- **Gate H — publish surface**: `shipcheck pack` runs `npm pack --dry-run` on
+  every publishable workspace package (npm `workspaces` or `pnpm-workspace.yaml`)
+  and fails if any tarball is missing its README or LICENSE, if a `files[]` entry
+  does not resolve, or if `package.json` has no `license` field. This **executes**
+  the check that Ship Gate D5 previously only asserted — closing the monorepo
+  blind spot where the root package is verified but the N *published* packages are
+  not. It found six packages shipping without a LICENSE (and two without a README)
+  that a green D5 checkbox had waved through. Wired into `verify` so shipcheck
+  holds itself to the gate; `runPublishGate` / `discoverPublishablePackages`
+  exported for programmatic use.
+
 ## [1.0.6] - 2026-06-16
 
 ### Added

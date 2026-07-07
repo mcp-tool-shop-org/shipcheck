@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { evaluateDogfoodGate, fetchEnforcementMode } from "../bin/shipcheck.mjs";
+import { evaluateDogfoodGate, fetchEnforcementMode, runPublishGate, discoverPublishablePackages } from "../bin/shipcheck.mjs";
 
 const BIN = join(import.meta.dirname, "..", "bin", "shipcheck.mjs");
 
@@ -436,5 +436,92 @@ describe("dogfood enforcement CLI", () => {
     );
     assert.equal(exitCode, 1);
     assert.ok(stdout.includes("failed"));
+  });
+});
+
+// --- pack (Gate H: publish surface) ---
+
+describe("pack command (Gate H)", () => {
+  let tmp;
+  beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), "shipcheck-pack-")); });
+  afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
+
+  // Build a workspace package on disk. `disk` lists files to actually create.
+  function makePkg(rel, pj, disk = []) {
+    const dir = join(tmp, rel);
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "package.json"), JSON.stringify(pj, null, 2));
+    for (const f of disk) writeFileSync(join(dir, f), `${f} content`);
+    return dir;
+  }
+  function rootWorkspaces(globs) {
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "root", private: true, workspaces: globs }));
+  }
+
+  it("passes when every publishable package tarball has README + LICENSE", () => {
+    makePkg("packages/a", { name: "@x/a", version: "1.0.0", license: "MIT", files: ["README.md", "LICENSE"] }, ["README.md", "LICENSE"]);
+    rootWorkspaces(["packages/*"]);
+    const packRunner = () => ["package/package.json", "package/README.md", "package/LICENSE"];
+    const result = runPublishGate({ root: tmp, packRunner });
+    assert.equal(result.status, "pass");
+    assert.equal(result.checked, 1);
+    assert.equal(result.findings.length, 0);
+  });
+
+  it("FAILS a package whose tarball is missing the README (the storyboard-os defect)", () => {
+    makePkg("packages/a", { name: "@x/a", version: "1.0.0", license: "MIT", files: ["README.md", "LICENSE"] }, ["LICENSE"]);
+    rootWorkspaces(["packages/*"]);
+    const packRunner = () => ["package/package.json", "package/LICENSE"];
+    const result = runPublishGate({ root: tmp, packRunner });
+    assert.equal(result.status, "fail");
+    assert.equal(result.findings.length, 1);
+    assert.equal(result.findings[0].name, "@x/a");
+    assert.ok(result.findings[0].issues.some((i) => /tarball contains no README/i.test(i)));
+    assert.ok(result.findings[0].issues.some((i) => /files\[\] promises "README\.md"/.test(i)));
+  });
+
+  it("FAILS a package whose tarball is missing the LICENSE (all six storyboard-os packages)", () => {
+    makePkg("packages/a", { name: "@x/a", version: "1.0.0", license: "MIT", files: ["README.md", "LICENSE"] }, ["README.md"]);
+    rootWorkspaces(["packages/*"]);
+    const packRunner = () => ["package/README.md"];
+    const result = runPublishGate({ root: tmp, packRunner });
+    assert.equal(result.status, "fail");
+    assert.ok(result.findings[0].issues.some((i) => /tarball contains no LICENSE/i.test(i)));
+  });
+
+  it("FAILS a package with no license field", () => {
+    makePkg("packages/a", { name: "@x/a", version: "1.0.0", files: ["README.md", "LICENSE"] }, ["README.md", "LICENSE"]);
+    rootWorkspaces(["packages/*"]);
+    const result = runPublishGate({ root: tmp, packRunner: () => ["package/README.md", "package/LICENSE"] });
+    assert.equal(result.status, "fail");
+    assert.ok(result.findings[0].issues.some((i) => /no `license` field/.test(i)));
+  });
+
+  it("excludes private packages; skips when nothing is publishable", () => {
+    makePkg("packages/priv", { name: "@x/priv", version: "1.0.0", private: true }, []);
+    rootWorkspaces(["packages/*"]);
+    const result = runPublishGate({ root: tmp, packRunner: () => [] });
+    assert.equal(result.status, "skip");
+    assert.equal(result.checked, 0);
+  });
+
+  it("discoverPublishablePackages reads pnpm-workspace.yaml and excludes private", () => {
+    makePkg("packages/pub", { name: "@x/pub", version: "1.0.0", license: "MIT" }, []);
+    makePkg("packages/priv", { name: "@x/priv", version: "1.0.0", private: true }, []);
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "root", private: true }));
+    writeFileSync(join(tmp, "pnpm-workspace.yaml"), "packages:\n  - 'packages/*'\n");
+    const names = discoverPublishablePackages(tmp).map((p) => p.name);
+    assert.ok(names.includes("@x/pub"));
+    assert.ok(!names.includes("@x/priv"));
+  });
+
+  it("integration: `shipcheck pack` exits 1 and names the incomplete package (real npm pack)", () => {
+    makePkg("packages/good", { name: "@x/good", version: "1.0.0", license: "MIT", files: ["README.md", "LICENSE"] }, ["README.md", "LICENSE"]);
+    makePkg("packages/bad", { name: "@x/bad", version: "1.0.0", license: "MIT", files: ["README.md", "LICENSE"] }, []);
+    rootWorkspaces(["packages/*"]);
+    const { exitCode, stdout } = run(["pack"], tmp);
+    assert.equal(exitCode, 1);
+    assert.ok(stdout.includes("@x/bad"));
+    assert.ok(stdout.includes("1 of 2"));
   });
 });
