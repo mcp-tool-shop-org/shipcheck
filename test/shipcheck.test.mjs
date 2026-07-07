@@ -26,6 +26,13 @@ function run(args, cwd, env = {}) {
   }
 }
 
+// Live tests hit dogfood-lab and assert a *fresh* (<=30d) passing record — an
+// external, time-sensitive dependency that must not gate CI or a release. Opt in
+// with SHIPCHECK_LIVE=1 to run them (e.g. a nightly job).
+const SKIP_LIVE = process.env.SHIPCHECK_LIVE
+  ? false
+  : "live: needs a fresh dogfood-lab record — opt in with SHIPCHECK_LIVE=1";
+
 // --- help ---
 
 describe("help command", () => {
@@ -378,7 +385,7 @@ describe("dogfood command (CLI)", () => {
     assert.ok(stderr.includes("INPUT_MISSING_SURFACE") || stderr.includes("--surface"));
   });
 
-  it("passes for a known good repo+surface (live)", () => {
+  it("passes for a known good repo+surface (live)", { skip: SKIP_LIVE }, () => {
     const { exitCode, stdout } = run(
       ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
       process.cwd()
@@ -419,7 +426,7 @@ describe("fetchEnforcementMode", () => {
 });
 
 describe("dogfood enforcement CLI", () => {
-  it("passes with required mode for a known good repo (live)", () => {
+  it("passes with required mode for a known good repo (live)", { skip: SKIP_LIVE }, () => {
     const { exitCode, stdout } = run(
       ["dogfood", "--repo", "mcp-tool-shop-org/shipcheck", "--surface", "cli"],
       process.cwd()
