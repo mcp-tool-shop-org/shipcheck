@@ -47,7 +47,7 @@
 - [ ] `[all]` Version in manifest matches git tag
 - [ ] `[all]` Dependency scanning runs in CI (ecosystem-appropriate)
 - [ ] `[all]` Automated dependency update mechanism exists
-- [ ] `[npm]` `npm pack --dry-run` includes: dist/, README.md, CHANGELOG.md, LICENSE
+- [ ] `[npm]` **Every publishable package** passes `npx @mcptoolshop/shipcheck pack` — `npm pack --dry-run` on each workspace package includes README.md + LICENSE and all `files[]` entries resolve (executed check, not a manual attestation; in a monorepo it verifies all packages, not just the root)
 - [ ] `[npm]` `engines.node` set · `[pypi]` `python_requires` set
 - [ ] `[npm]` Lockfile committed · `[pypi]` Clean wheel + sdist build
 - [ ] `[vsix]` `vsce package` produces clean .vsix with correct metadata

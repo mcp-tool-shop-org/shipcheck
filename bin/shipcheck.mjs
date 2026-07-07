@@ -3,6 +3,7 @@
 import { readFileSync, readdirSync, writeFileSync, existsSync, copyFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_ROOT = resolve(__dirname, "..");
@@ -521,6 +522,185 @@ async function frontDoorCommand() {
   // skip + pass exit 0 — a missing verifier never blocks the audit.
 }
 
+// --- Gate H: publish surface — every publishable package ships a complete tarball ---
+//
+// The failure this gate exists to prevent: a package whose package.json `files`
+// field PROMISES README.md + LICENSE but whose published tarball ships without
+// them. The D5 SHIP_GATE line ("npm pack --dry-run includes README/LICENSE") is a
+// human-checked box — it can be checked while false, and in a monorepo it is easy
+// to verify the ROOT package and never the N *published* workspace packages. This
+// gate EXECUTES the check, per publishable package, so the box cannot be green
+// while a tarball is incomplete.
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic: same tree in, same findings out.
+// ANDON_AUTHORITY 2 — exit 1 on any incomplete tarball; an unlicensed package never ships green.
+// NAMED_COMPENSATORS n/a — read-only (`npm pack --dry-run` writes nothing).
+// DECOMPOSE_BY_SECRETS 3 — its own gate; changes when packaging rules change.
+// UNCERTAINTY_GATED_HUMANS 2 — no publishable packages → explicit skip, never a false pass.
+// EXTERNAL_VERIFIER 3 — npm's own packer computes the tarball contents, not shipcheck's self-grade.
+
+function readJsonSafe(path) {
+  try { return JSON.parse(readFileSync(path, "utf8")); } catch { return null; }
+}
+
+// Expand a workspace glob ("packages/*", "apps/*", or a literal "packages/core")
+// into directories that contain a package.json. Deliberately supports only the
+// trailing "/*" form the org uses — not full globbing — to stay zero-dep.
+function expandWorkspaceGlob(root, pattern) {
+  const clean = String(pattern).trim().replace(/\/+$/, "");
+  const dirs = [];
+  if (clean.endsWith("/*")) {
+    const baseDir = join(root, clean.slice(0, -2));
+    if (!existsSync(baseDir)) return dirs;
+    let entries;
+    try { entries = readdirSync(baseDir, { withFileTypes: true }); } catch { return dirs; }
+    for (const e of entries) {
+      if (e.isDirectory() && existsSync(join(baseDir, e.name, "package.json"))) {
+        dirs.push(join(baseDir, e.name));
+      }
+    }
+  } else if (existsSync(join(root, clean, "package.json"))) {
+    dirs.push(join(root, clean));
+  }
+  return dirs;
+}
+
+// Collect workspace globs from npm (package.json `workspaces`) OR pnpm
+// (pnpm-workspace.yaml `packages:`). Line-parses the YAML list rather than
+// pulling a YAML dependency, matching the dogfood gate's approach.
+function workspaceGlobs(root) {
+  const globs = [];
+  const rootPkg = readJsonSafe(join(root, "package.json"));
+  if (rootPkg?.workspaces) {
+    const ws = Array.isArray(rootPkg.workspaces) ? rootPkg.workspaces : (rootPkg.workspaces.packages || []);
+    globs.push(...ws);
+  }
+  const pnpmWs = join(root, "pnpm-workspace.yaml");
+  if (existsSync(pnpmWs)) {
+    let inPackages = false;
+    for (const line of readFileSync(pnpmWs, "utf8").split("\n")) {
+      if (/^packages:\s*$/.test(line)) { inPackages = true; continue; }
+      if (!inPackages) continue;
+      const m = line.match(/^\s*-\s*['"]?([^'"#\s]+)['"]?\s*$/);
+      if (m) globs.push(m[1]);
+      else if (/^\S/.test(line)) inPackages = false; // dedent ends the list
+    }
+  }
+  return [...new Set(globs)];
+}
+
+// Every package that WOULD publish to a registry: a package.json with a name
+// that is not marked `private: true`. In a non-workspace repo, that's the root.
+function discoverPublishablePackages(root = CWD) {
+  const globs = workspaceGlobs(root);
+  const dirs = globs.length === 0
+    ? (existsSync(join(root, "package.json")) ? [root] : [])
+    : globs.flatMap((g) => expandWorkspaceGlob(root, g));
+
+  const pkgs = [];
+  for (const dir of [...new Set(dirs)]) {
+    const pj = readJsonSafe(join(dir, "package.json"));
+    if (!pj || !pj.name || pj.private === true) continue;
+    pkgs.push({ dir, name: pj.name, pj });
+  }
+  return pkgs;
+}
+
+// Default packer: ask npm what the tarball WOULD contain. Read-only. Injectable
+// in tests so the unit suite never shells out.
+function defaultPackRunner(dir) {
+  // `shell: true` so `npm` resolves to npm.cmd on Windows — execFileSync cannot
+  // spawn a .cmd directly on current Node (EINVAL). Args are fixed literals with
+  // no injection surface; `dir` is passed via cwd, never interpolated.
+  const out = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+    cwd: dir, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 120_000, shell: true,
+  });
+  const parsed = JSON.parse(out);
+  return (parsed?.[0]?.files || []).map((f) => f.path);
+}
+
+// Gate H core. Pure given `packRunner`; returns { status, checked, findings }.
+function runPublishGate({ root = CWD, packRunner = defaultPackRunner } = {}) {
+  const pkgs = discoverPublishablePackages(root);
+  if (pkgs.length === 0) {
+    return { status: "skip", reason: "no publishable packages found", checked: 0, findings: [] };
+  }
+
+  const hasReadme = (files) => files.some((f) => /(^|\/)readme\.md$/i.test(f) || /(^|\/)readme$/i.test(f));
+  const hasLicense = (files) => files.some((f) => /(^|\/)licen[cs]e(\.[^/]+)?$/i.test(f));
+
+  const findings = [];
+  for (const p of pkgs) {
+    const issues = [];
+    if (!p.pj.license) issues.push("package.json has no `license` field");
+    for (const entry of p.pj.files || []) {
+      const base = String(entry).replace(/\/+$/, "");
+      if (!existsSync(join(p.dir, base))) issues.push(`files[] promises "${entry}" but it is not on disk`);
+    }
+    let files = null;
+    try { files = packRunner(p.dir); }
+    catch (err) { issues.push(`npm pack failed: ${err?.message || String(err)}`); }
+    if (files) {
+      if (!hasReadme(files)) issues.push("published tarball contains no README");
+      if (!hasLicense(files)) issues.push("published tarball contains no LICENSE");
+    }
+    if (issues.length) findings.push({ name: p.name, dir: p.dir, issues });
+  }
+
+  return { status: findings.length === 0 ? "pass" : "fail", checked: pkgs.length, findings };
+}
+
+function renderPublishResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate H: publish surface skipped${RESET}`);
+    log(`  ${DIM}○${RESET} ${result.reason}`);
+    log("");
+    return;
+  }
+  if (result.status === "pass") {
+    log(`${GREEN}${BOLD}Gate H: publish surface passed${RESET}`);
+    log(`  ${GREEN}✓${RESET} ${result.checked} publishable package(s) — each tarball ships README + LICENSE and every files[] entry resolves`);
+    log("");
+    return;
+  }
+  log(`${RED}${BOLD}Gate H: publish surface failed${RESET}`);
+  log(`  ${RED}✗${RESET} ${result.findings.length} of ${result.checked} publishable package(s) ship an incomplete tarball:`);
+  for (const f of result.findings) {
+    log(`  ${RED}✗${RESET} ${BOLD}${f.name}${RESET} ${DIM}(${f.dir})${RESET}`);
+    for (const issue of f.issues) log(`      ${YELLOW}○${RESET} ${issue}`);
+  }
+  log("");
+}
+
+function packCommand() {
+  log(`\n${BOLD}shipcheck pack${RESET}\n`);
+
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  const result = runPublishGate({ root });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderPublishResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      console.error(JSON.stringify({ code: "PACK_INCOMPLETE_TARBALL", message: `${result.findings.length} publishable package(s) ship an incomplete tarball` }));
+    }
+    process.exit(1);
+  }
+  // pass + skip exit 0.
+}
+
 function helpCommand() {
   log(`
 ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
@@ -530,6 +710,7 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck audit    Check SHIP_GATE.md progress
   npx @mcptoolshop/shipcheck dogfood  Check dogfood freshness (Gate F)
   npx @mcptoolshop/shipcheck front-door  Verify the AI-native front door (Gate G)
+  npx @mcptoolshop/shipcheck pack     Verify every publishable package's tarball (Gate H)
   npx @mcptoolshop/shipcheck help     Show this message
   npx @mcptoolshop/shipcheck --version Show version
 
@@ -555,6 +736,16 @@ ${BOLD}What it does:${RESET}
            Exits 1 on contradicted/unbacked/stale claims, 0 on pass
            SKIPS gracefully (exit 0) when site-theme is not installed
 
+  pack     Runs 'npm pack --dry-run' on EVERY publishable workspace package
+           (npm workspaces or pnpm-workspace.yaml) and fails if any tarball
+           is missing its README or LICENSE, if a files[] entry doesn't
+           resolve, or if package.json has no license field. Executes the
+           check that SHIP_GATE D5 otherwise only asserts — so an unlicensed
+           or README-less package cannot ship green in a monorepo.
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 if any publishable package ships an incomplete tarball
+
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
 }
@@ -564,7 +755,7 @@ ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 const command = process.argv[2] || "help";
 
 // Exports for testing
-export { evaluateDogfoodGate, fetchEnforcementMode, summarizeFrontDoor, runFrontDoorGate };
+export { evaluateDogfoodGate, fetchEnforcementMode, summarizeFrontDoor, runFrontDoorGate, runPublishGate, discoverPublishablePackages };
 
 switch (command) {
   case "init":
@@ -578,6 +769,9 @@ switch (command) {
     break;
   case "front-door":
     await frontDoorCommand();
+    break;
+  case "pack":
+    packCommand();
     break;
   case "--version":
   case "-V":
