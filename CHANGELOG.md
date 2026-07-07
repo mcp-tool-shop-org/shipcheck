@@ -57,11 +57,15 @@ repo is not verified). All three are wired into `verify`.
 
 - **shipcheck's own `site/` landing page had 7 high-severity vulnerabilities** that
   a root-only audit never saw (root is zero-dep; the Astro build subtree was
-  unaudited). Ran `npm audit fix` — **6 of 7 highs resolved** with semver-compatible
-  patches, build verified. The 7th (Astro Host-header SSRF, GHSA-2pvr-wf23-7pc7)
-  requires a breaking Astro major that fails the Starlight build, and is a tracked
-  residual — `site/` is `private: true` and is not part of the published npm tarball.
-  Gate M flags it on every full `shipcheck deps` run so it can't hide again.
+  unaudited). **All 7 are now fixed.** Six went with semver-compatible `npm audit
+  fix`; the seventh (Astro Host-header SSRF, GHSA-2pvr-wf23-7pc7, patched in Astro
+  6.4.6) needed a real upgrade — a *targeted* one, not the `--force` jump to Astro 7
+  that broke the docs build: Astro `^6.4.6` + `@astrojs/starlight` `^0.40.0`, the
+  Starlight-0.39 sidebar-config migration (`autogenerate` wrapped in `items`), and a
+  `vite: ^7.3.2` override (Astro 6 declares vite 7, but vite 8 leaked in and broke
+  the `@tailwindcss/vite` rolldown binding). Build verified; `shipcheck deps` is
+  green across both trees. Four low-severity build-time advisories remain (below the
+  `high` gate threshold).
 - **shipcheck's Dependabot vulnerability alerts were disabled** — the reason vulns
   accrue unnoticed. Enabling requires an org-repo settings change (owner action):
   `gh api -X PUT repos/mcp-tool-shop-org/shipcheck/vulnerability-alerts`. Alerts are
