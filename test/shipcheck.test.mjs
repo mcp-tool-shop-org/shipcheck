@@ -9,6 +9,7 @@ import {
   scanTextForSecrets, runSecretsGate,
   checkEngines, checkLockfile, checkVersionTag, runManifestGate,
   checkSecurityMd, checkThreatModel, runSecurityDocsGate,
+  checkProvenanceConfig, checkProvenancePublished, checkDependencyScan, runCiGate,
 } from "../bin/shipcheck.mjs";
 
 const BIN = join(import.meta.dirname, "..", "bin", "shipcheck.mjs");
@@ -847,5 +848,149 @@ describe("security-docs command (Gate K integration, real run)", () => {
     const { exitCode, stdout } = run(["security-docs"], tmp);
     assert.equal(exitCode, 0);
     assert.ok(stdout.includes("passed"));
+  });
+});
+
+// --- ci (Gate L: provenance/OIDC config + outcome, dependency-scan) ---
+
+const wf = (name, text) => ({ name, text });
+
+describe("checkProvenanceConfig (Gate L RED meta — intent layer)", () => {
+  it("passes when the publish workflow uses OIDC + --provenance", () => {
+    const r = checkProvenanceConfig([wf("release.yml", "permissions:\n  id-token: write\nrun: npm publish --provenance --access public")]);
+    assert.equal(r.status, "pass");
+  });
+  it("RED meta: fails a publish workflow missing BOTH OIDC and --provenance", () => {
+    const r = checkProvenanceConfig([wf("publish.yml", "steps:\n  - run: npm publish")]);
+    assert.equal(r.status, "fail");
+    assert.equal(r.findings[0].issues.length, 2);
+  });
+  it("RED meta: fails a publish workflow with OIDC but no --provenance", () => {
+    const r = checkProvenanceConfig([wf("publish.yml", "permissions:\n  id-token: write\nrun: npm publish")]);
+    assert.equal(r.status, "fail");
+    assert.ok(r.findings[0].issues.some((i) => /provenance/.test(i)));
+  });
+  it("skips when there is no publish workflow", () => {
+    assert.equal(checkProvenanceConfig([wf("ci.yml", "run: npm test")]).status, "skip");
+  });
+});
+
+describe("checkProvenancePublished (Gate L — outcome layer, injected fetch)", () => {
+  const fakeFetch = (doc, ok = true, status = 200) => async () => ({ ok, status, json: async () => doc });
+  it("passes when the published version carries an attestation", async () => {
+    const doc = { "dist-tags": { latest: "1.0.0" }, versions: { "1.0.0": { dist: { attestations: { url: "x" } } } } };
+    assert.equal((await checkProvenancePublished("@x/y@1.0.0", fakeFetch(doc))).status, "pass");
+  });
+  it("RED meta: fails when the published version has NO attestation", async () => {
+    const doc = { "dist-tags": { latest: "1.0.0" }, versions: { "1.0.0": { dist: {} } } };
+    const r = await checkProvenancePublished("@x/y@1.0.0", fakeFetch(doc));
+    assert.equal(r.status, "fail");
+    assert.ok(r.detail.includes("NO provenance"));
+  });
+  it("resolves latest when no version is given", async () => {
+    const doc = { "dist-tags": { latest: "2.3.4" }, versions: { "2.3.4": { dist: { attestations: {} } } } };
+    assert.equal((await checkProvenancePublished("@x/y", fakeFetch(doc))).status, "pass");
+  });
+  it("skips gracefully when the registry is unreachable", async () => {
+    const r = await checkProvenancePublished("@x/y", async () => { throw new Error("offline"); });
+    assert.equal(r.status, "skip");
+  });
+});
+
+describe("checkDependencyScan (Gate L RED meta — D3)", () => {
+  const existsFor = (present) => (p) => present.some((n) => p.replace(/\\/g, "/").endsWith(n));
+  it("passes when a scanner runs in CI", () => {
+    const r = checkDependencyScan("/r", [wf("ci.yml", "run: npm audit --audit-level=moderate")], { exists: existsFor(["package.json"]) });
+    assert.equal(r.status, "pass");
+  });
+  it("passes when dependabot is configured", () => {
+    const r = checkDependencyScan("/r", [], { exists: existsFor(["package.json", ".github/dependabot.yml"]) });
+    assert.equal(r.status, "pass");
+    assert.ok(r.detail.includes("dependabot"));
+  });
+  it("RED meta: fails when a manifest exists but no scanner or dependabot", () => {
+    const r = checkDependencyScan("/r", [wf("ci.yml", "run: npm test")], { exists: existsFor(["package.json"]) });
+    assert.equal(r.status, "fail");
+  });
+  it("skips when there is no dependency manifest", () => {
+    assert.equal(checkDependencyScan("/r", [], { exists: () => false }).status, "skip");
+  });
+});
+
+describe("runCiGate (Gate L core)", () => {
+  it("passes a hardened repo (OIDC+provenance publish + npm audit)", async () => {
+    const readWorkflows = () => [
+      wf("release.yml", "id-token: write\nrun: npm publish --provenance"),
+      wf("ci.yml", "run: npm audit"),
+    ];
+    const r = await runCiGate({ root: "/r", readWorkflows, exists: (p) => p.endsWith("package.json") });
+    assert.equal(r.status, "pass");
+  });
+  it("RED meta: fails when publish is un-hardened AND no scanner runs", async () => {
+    const readWorkflows = () => [wf("publish.yml", "run: npm publish")];
+    const r = await runCiGate({ root: "/r", readWorkflows, exists: (p) => p.endsWith("package.json") });
+    assert.equal(r.status, "fail");
+    assert.equal(r.checks.filter((c) => c.status === "fail").length, 2);
+  });
+  it("adds the outcome layer when --registry is supplied", async () => {
+    const readWorkflows = () => [wf("release.yml", "id-token: write\nrun: npm publish --provenance"), wf("ci.yml", "run: npm audit")];
+    const doc = { "dist-tags": { latest: "1.0.0" }, versions: { "1.0.0": { dist: { attestations: {} } } } };
+    const r = await runCiGate({ root: "/r", readWorkflows, exists: (p) => p.endsWith("package.json"), registry: "@x/y@1.0.0", fetchImpl: async () => ({ ok: true, status: 200, json: async () => doc }) });
+    assert.equal(r.status, "pass");
+    assert.ok(r.checks.some((c) => c.id === "provenance-published" && c.status === "pass"));
+  });
+});
+
+describe("ci command (Gate L integration + pure --json)", () => {
+  let tmp;
+  beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), "shipcheck-ci-")); });
+  afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
+
+  it("RED meta: exits 1 on an un-hardened publish + no scanner (real run)", () => {
+    mkdirSync(join(tmp, ".github/workflows"), { recursive: true });
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/y", version: "1.0.0" }));
+    writeFileSync(join(tmp, ".github/workflows/publish.yml"), "on: [release]\njobs:\n  p:\n    steps:\n      - run: npm publish\n");
+    const { exitCode, stdout } = run(["ci"], tmp);
+    assert.equal(exitCode, 1);
+    assert.ok(stdout.includes("provenance"));
+    assert.ok(stdout.includes("dependency-scan"));
+  });
+
+  it("exits 0 on a hardened repo", () => {
+    mkdirSync(join(tmp, ".github/workflows"), { recursive: true });
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/y", version: "1.0.0" }));
+    writeFileSync(join(tmp, ".github/workflows/release.yml"), "permissions:\n  id-token: write\njobs:\n  p:\n    steps:\n      - run: npm publish --provenance\n");
+    writeFileSync(join(tmp, ".github/workflows/ci.yml"), "jobs:\n  t:\n    steps:\n      - run: npm audit\n");
+    assert.equal(run(["ci"], tmp).exitCode, 0);
+  });
+});
+
+// The whole point of the feedback: don't preserve a broken convention. `--json`
+// must be PURE json — the entire stdout parses, with no header line to strip.
+describe("--json output is pure (no header)", () => {
+  let tmp;
+  beforeEach(() => { tmp = mkdtempSync(join(tmpdir(), "shipcheck-json-")); });
+  afterEach(() => { rmSync(tmp, { recursive: true, force: true }); });
+
+  it("manifest --json", () => {
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/y", version: "1.0.0", engines: { node: ">=18" } }));
+    writeFileSync(join(tmp, "package-lock.json"), "{}");
+    const parsed = JSON.parse(run(["manifest", "--json"], tmp).stdout.trim());
+    assert.ok(["pass", "fail", "skip"].includes(parsed.status));
+  });
+
+  it("ci --json", () => {
+    mkdirSync(join(tmp, ".github/workflows"), { recursive: true });
+    writeFileSync(join(tmp, "package.json"), JSON.stringify({ name: "@x/y", version: "1.0.0" }));
+    writeFileSync(join(tmp, ".github/workflows/ci.yml"), "jobs:\n  t:\n    steps:\n      - run: npm audit\n");
+    const parsed = JSON.parse(run(["ci", "--json"], tmp).stdout.trim());
+    assert.ok(["pass", "fail", "skip"].includes(parsed.status));
+  });
+
+  it("security-docs --json", () => {
+    writeFileSync(join(tmp, "SECURITY.md"), "# Sec\n\nReport to sec@example.com please.\n");
+    writeFileSync(join(tmp, "README.md"), "# T\n\n## Trust model\n\nReads nothing. No telemetry.\n");
+    const parsed = JSON.parse(run(["security-docs", "--json"], tmp).stdout.trim());
+    assert.ok(["pass", "fail", "skip"].includes(parsed.status));
   });
 });

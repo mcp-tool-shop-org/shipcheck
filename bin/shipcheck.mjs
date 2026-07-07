@@ -495,8 +495,6 @@ function renderFrontDoorResult(result) {
 }
 
 async function frontDoorCommand() {
-  log(`\n${BOLD}shipcheck front-door${RESET}\n`);
-
   const args = process.argv.slice(3);
   let root = CWD;
   let json = false;
@@ -505,6 +503,7 @@ async function frontDoorCommand() {
     else if (args[i] === "--json") { json = true; }
   }
 
+  if (!json) log(`\n${BOLD}shipcheck front-door${RESET}\n`);
   const result = await runFrontDoorGate({ root });
 
   if (json) {
@@ -674,8 +673,6 @@ function renderPublishResult(result) {
 }
 
 function packCommand() {
-  log(`\n${BOLD}shipcheck pack${RESET}\n`);
-
   const args = process.argv.slice(3);
   let root = CWD;
   let json = false;
@@ -684,6 +681,7 @@ function packCommand() {
     else if (args[i] === "--json") { json = true; }
   }
 
+  if (!json) log(`\n${BOLD}shipcheck pack${RESET}\n`);
   const result = runPublishGate({ root });
 
   if (json) {
@@ -855,8 +853,6 @@ function renderSecretsResult(result) {
 }
 
 function secretsCommand() {
-  log(`\n${BOLD}shipcheck secrets${RESET}\n`);
-
   const args = process.argv.slice(3);
   let root = CWD;
   let json = false;
@@ -865,6 +861,7 @@ function secretsCommand() {
     else if (args[i] === "--json") { json = true; }
   }
 
+  if (!json) log(`\n${BOLD}shipcheck secrets${RESET}\n`);
   const result = runSecretsGate({ root });
 
   if (json) {
@@ -1052,8 +1049,6 @@ function renderManifestResult(result) {
 }
 
 function manifestCommand() {
-  log(`\n${BOLD}shipcheck manifest${RESET}\n`);
-
   const args = process.argv.slice(3);
   let root = CWD;
   let json = false;
@@ -1064,6 +1059,7 @@ function manifestCommand() {
     else if (args[i] === "--json") { json = true; }
   }
 
+  if (!json) log(`\n${BOLD}shipcheck manifest${RESET}\n`);
   const result = runManifestGate({ root, expect });
 
   if (json) {
@@ -1170,8 +1166,6 @@ function renderSecurityDocsResult(result) {
 }
 
 function securityDocsCommand() {
-  log(`\n${BOLD}shipcheck security-docs${RESET}\n`);
-
   const args = process.argv.slice(3);
   let root = CWD;
   let json = false;
@@ -1180,6 +1174,7 @@ function securityDocsCommand() {
     else if (args[i] === "--json") { json = true; }
   }
 
+  if (!json) log(`\n${BOLD}shipcheck security-docs${RESET}\n`);
   const result = runSecurityDocsGate({ root });
 
   if (json) {
@@ -1192,6 +1187,169 @@ function securityDocsCommand() {
     if (process.env.SHIPCHECK_JSON && !json) {
       const failed = result.checks.filter((c) => c.status === "fail").map((c) => c.id);
       console.error(JSON.stringify({ code: "SECURITY_DOCS_MISSING", message: `failing checks: ${failed.join(", ")}` }));
+    }
+    process.exit(1);
+  }
+}
+
+// --- Gate L: ci — supply-chain publish integrity + dependency scanning ---
+//
+// Converts two attested facts into executed checks by reading the repo's CI
+// configuration (and, opt-in, the npm registry):
+//   provenance      — every workflow that runs `npm publish` uses OIDC trusted
+//                     publishing (`id-token: write`) AND publishes with `--provenance`.
+//                     This is the CONFIG/intent layer. `--registry <pkg>[@<ver>]` adds
+//                     the OUTCOME layer: it confirms the published tarball actually
+//                     carries a provenance attestation on the registry. Intent AND
+//                     outcome — two complementary layers, not a choice between them.
+//   dependency-scan — a recognized vulnerability scanner runs in CI, or a dependabot
+//                     config is present (SHIP_GATE D3).
+//
+// Note on D4 (automated dependency-update mechanism): deliberately NOT executed here.
+// The org's own github-actions rule says "do NOT add dependabot.yml unless explicitly
+// requested" — so a hard gate that fails a repo for lacking an update bot would punish
+// repos for following policy. D4 stays a per-repo attestation until that policy conflict
+// is resolved (see docs/executed-vs-attested-audit.md).
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic given the workflow files (+ a pinned registry response).
+// ANDON_AUTHORITY 2 — exit 1 when a publish path is un-hardened or CI runs no scanner.
+// NAMED_COMPENSATORS n/a — read-only (reads workflow files; opt-in registry GET).
+// DECOMPOSE_BY_SECRETS 3 — its own gate; the CI-config facts change together when release/CI policy changes.
+// UNCERTAINTY_GATED_HUMANS 2 — no publish workflow / no manifest → explicit skip, never a false pass.
+// EXTERNAL_VERIFIER 3 — verified against the actual workflow files and the registry, not the maintainer's checkbox.
+
+const WORKFLOW_DIR = ".github/workflows";
+const DEP_SCAN_SIGNALS = [
+  { id: "npm-audit", re: /\bnpm audit\b/ },
+  { id: "pnpm-audit", re: /\bpnpm audit\b/ },
+  { id: "yarn-audit", re: /\byarn(?: npm)? audit\b/ },
+  { id: "pip-audit", re: /\bpip-audit\b/ },
+  { id: "osv-scanner", re: /osv-scanner/i },
+  { id: "snyk", re: /\bsnyk\b/i },
+  { id: "cargo-audit", re: /\bcargo audit\b/ },
+  { id: "govulncheck", re: /\bgovulncheck\b/ },
+  { id: "trivy", re: /aquasecurity\/trivy|\btrivy\b/i },
+  { id: "dependency-review", re: /actions\/dependency-review-action/ },
+];
+
+function defaultReadWorkflows(root = CWD) {
+  const dir = join(root, WORKFLOW_DIR);
+  if (!existsSync(dir)) return [];
+  let files = [];
+  try { files = readdirSync(dir).filter((f) => /\.ya?ml$/i.test(f)); } catch { return []; }
+  const out = [];
+  for (const f of files) {
+    try { out.push({ name: `${WORKFLOW_DIR}/${f}`, text: readFileSync(join(dir, f), "utf8") }); } catch {}
+  }
+  return out;
+}
+
+// Config/intent layer: publish workflows must use OIDC + provenance.
+function checkProvenanceConfig(workflows) {
+  const publishers = workflows.filter((w) => /npm publish/.test(w.text));
+  if (publishers.length === 0) {
+    return { id: "provenance", status: "skip", detail: "no npm-publish workflow found — publish via a workflow with OIDC + --provenance to enable this check" };
+  }
+  const bad = [];
+  for (const w of publishers) {
+    const issues = [];
+    if (!/id-token:\s*write/.test(w.text)) issues.push("no `id-token: write` (OIDC trusted publishing off)");
+    if (!/--provenance\b/.test(w.text) && !/provenance:\s*true/.test(w.text)) issues.push("`npm publish` without `--provenance`");
+    if (issues.length) bad.push({ workflow: w.name, issues });
+  }
+  return bad.length
+    ? { id: "provenance", status: "fail", detail: `${bad.length} of ${publishers.length} publish workflow(s) not provenance-hardened`, findings: bad }
+    : { id: "provenance", status: "pass", detail: `${publishers.length} publish workflow(s) use OIDC + --provenance` };
+}
+
+// Outcome layer: the published tarball actually carries a provenance attestation.
+async function checkProvenancePublished(spec, fetchImpl = fetch) {
+  const at = spec.lastIndexOf("@");
+  const name = at > 0 ? spec.slice(0, at) : spec;
+  const wantVer = at > 0 ? spec.slice(at + 1) : null;
+  const url = `https://registry.npmjs.org/${name.replace(/\//g, "%2f")}`;
+  let doc;
+  try {
+    const res = await fetchImpl(url);
+    if (!res.ok) return { id: "provenance-published", status: "fail", detail: `registry returned ${res.status} for ${name}` };
+    doc = await res.json();
+  } catch (err) {
+    return { id: "provenance-published", status: "skip", detail: `could not reach registry: ${err?.message || String(err)}` };
+  }
+  const ver = wantVer || doc["dist-tags"]?.latest;
+  const dist = doc?.versions?.[ver]?.dist;
+  if (!dist) return { id: "provenance-published", status: "fail", detail: `${name}@${ver} not found on registry` };
+  return dist.attestations
+    ? { id: "provenance-published", status: "pass", detail: `${name}@${ver} was published with a provenance attestation` }
+    : { id: "provenance-published", status: "fail", detail: `${name}@${ver} has NO provenance attestation on the registry` };
+}
+
+// SHIP_GATE D3: a dependency scanner runs in CI (or dependabot is configured).
+function checkDependencyScan(root, workflows, { exists = (p) => existsSync(p) } = {}) {
+  const hasManifest = ["package.json", "pyproject.toml", "Cargo.toml", "go.mod"].some((m) => exists(join(root, m)));
+  if (!hasManifest) return { id: "dependency-scan", status: "skip", detail: "no dependency manifest to scan" };
+  const hits = [];
+  for (const w of workflows) for (const s of DEP_SCAN_SIGNALS) if (s.re.test(w.text)) hits.push(s.id);
+  if (exists(join(root, ".github/dependabot.yml")) || exists(join(root, ".github/dependabot.yaml"))) hits.push("dependabot");
+  const found = [...new Set(hits)];
+  return found.length
+    ? { id: "dependency-scan", status: "pass", detail: `dependency scanning runs in CI: ${found.join(", ")}` }
+    : { id: "dependency-scan", status: "fail", detail: "no dependency scanner found in CI (npm audit / osv-scanner / snyk / dependabot / …)" };
+}
+
+async function runCiGate({ root = CWD, readWorkflows = defaultReadWorkflows, exists = (p) => existsSync(p), registry = null, fetchImpl = fetch } = {}) {
+  const workflows = readWorkflows(root);
+  const checks = [checkProvenanceConfig(workflows), checkDependencyScan(root, workflows, { exists })];
+  if (registry) checks.push(await checkProvenancePublished(registry, fetchImpl));
+  const status = checks.some((c) => c.status === "fail")
+    ? "fail"
+    : checks.every((c) => c.status === "skip") ? "skip" : "pass";
+  return { status, checks };
+}
+
+function renderCiResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate L: ci skipped${RESET}`);
+    for (const c of result.checks) log(`  ${DIM}○${RESET} ${c.id}: ${c.detail}`);
+    log("");
+    return;
+  }
+  log(result.status === "pass" ? `${GREEN}${BOLD}Gate L: ci passed${RESET}` : `${RED}${BOLD}Gate L: ci failed${RESET}`);
+  for (const c of result.checks) {
+    log(`  ${CHECK_GLYPH[c.status]} ${BOLD}${c.id}${RESET}: ${c.detail}`);
+    for (const f of c.findings || []) {
+      log(`      ${DIM}${f.workflow}${RESET}`);
+      for (const issue of f.issues) log(`        ${YELLOW}○${RESET} ${issue}`);
+    }
+  }
+  log("");
+}
+
+async function ciCommand() {
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  let registry = null;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--registry" && args[i + 1]) { registry = args[++i]; }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  if (!json) log(`\n${BOLD}shipcheck ci${RESET}\n`);
+  const result = await runCiGate({ root, registry });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderCiResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      const failed = result.checks.filter((c) => c.status === "fail").map((c) => c.id);
+      console.error(JSON.stringify({ code: "CI_HARDENING_FAIL", message: `failing checks: ${failed.join(", ")}` }));
     }
     process.exit(1);
   }
@@ -1210,6 +1368,7 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck secrets  Scan every publishable tarball for credentials (Gate I)
   npx @mcptoolshop/shipcheck manifest Verify engines/lockfile/version-vs-tag (Gate J)
   npx @mcptoolshop/shipcheck security-docs  Verify SECURITY.md + README trust model (Gate K)
+  npx @mcptoolshop/shipcheck ci       Verify OIDC/provenance + dependency scanning (Gate L)
   npx @mcptoolshop/shipcheck help     Show this message
   npx @mcptoolshop/shipcheck --version Show version
 
@@ -1274,6 +1433,16 @@ ${BOLD}What it does:${RESET}
            --json                Machine-readable result
            Exits 1 if the security surface is absent or empty
 
+  ci       Reads .github/workflows to execute two attested facts:
+             provenance       every 'npm publish' workflow uses OIDC
+                              (id-token: write) + --provenance (config/intent)
+             dependency-scan  a scanner runs in CI or dependabot is configured (D3)
+           --registry <pkg>[@<ver>]  ALSO confirm the published tarball carries a
+                              provenance attestation on npm (outcome — both layers)
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 if a publish path is un-hardened or CI runs no scanner
+
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
 }
@@ -1289,6 +1458,7 @@ export {
   scanTextForSecrets, runSecretsGate,
   checkEngines, checkLockfile, checkVersionTag, runManifestGate, parseSemver,
   checkSecurityMd, checkThreatModel, runSecurityDocsGate,
+  checkProvenanceConfig, checkProvenancePublished, checkDependencyScan, runCiGate,
 };
 
 switch (command) {
@@ -1315,6 +1485,9 @@ switch (command) {
     break;
   case "security-docs":
     securityDocsCommand();
+    break;
+  case "ci":
+    await ciCommand();
     break;
   case "--version":
   case "-V":

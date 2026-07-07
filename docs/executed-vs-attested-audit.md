@@ -40,8 +40,9 @@ Verified only by `shipcheck audit` (checkbox count) except where an executed gat
 | C7 | `[complex]` HANDBOOK.md | attested | Presence executable; niche | residual (low) |
 | D1 | `verify` script exists | attested | Presence executable (package.json scripts.verify); low blast radius | residual (low) |
 | D2 | Version matches git tag | ~~attested~~ **executed** | `checkVersionTag`: manifest version not behind newest semver tag; `--expect` strict | **Gate J (this PR)** |
-| D3 | Dependency scanning runs in CI | attested | Executable by parsing `.github/workflows` for a scan step — brittle | **residual (director decision)** |
-| D4 | Automated dep-update mechanism | attested | Executable (dependabot.yml/renovate.json presence), but tension with org's CI-minutes rule | residual |
+| D3 | Dependency scanning runs in CI | ~~attested~~ **executed** | `checkDependencyScan`: recognized scanner in `.github/workflows` or a dependabot config | **Gate L (this PR)** |
+| D4 | Automated dep-update mechanism | attested (by decision) | Executable, but making it a hard gate contradicts the org's "no dependabot unless requested" rule — see decision below | **left attested (decision)** |
+| — | Published via OIDC + `--provenance` | ~~n/a (not a SHIP_GATE line)~~ **executed** | `checkProvenanceConfig` (intent) + `checkProvenancePublished` (outcome, `--registry`) | **Gate L (this PR)** |
 | D5 | `[npm]` `npm pack` includes README/LICENSE | **executed** | `runPublishGate` (`shipcheck pack`) | Gate H (v1.0.7) |
 | D6 | `[npm]` `engines.node` / `[pypi]` `python_requires` | ~~attested~~ **executed** | `checkEngines`: per publishable package | **Gate J (this PR)** |
 | D7 | `[npm]` Lockfile committed / `[pypi]` wheel+sdist | ~~attested~~ **executed (npm half)** | `checkLockfile`: lockfile at root; pypi wheel/sdist build not yet executed | **Gate J (this PR)** |
@@ -90,24 +91,28 @@ Blast radius = *ships a broken/dangerous artifact silently.*
 3. **D6 engines set** — installs on incompatible runtime, cryptic failure → **shipped: Gate J**
 4. **D7 lockfile committed** — non-reproducible installs, supply-chain drift → **shipped: Gate J**
 5. **A1/A2 SECURITY/threat-model present-and-nonempty** — ships a repo claiming a security posture it doesn't document → **shipped: Gate K**
-6. **provenance/OIDC actually configured** — supply-chain trust silently absent → **residual (director decision)**
-7. **D3 dependency-scan actually runs** — silent vuln accumulation → **residual (director decision)**
+6. **provenance/OIDC actually configured** — supply-chain trust silently absent → **shipped: Gate L** (both layers — see below)
+7. **D3 dependency-scan actually runs** — silent vuln accumulation → **shipped: Gate L**
 8. D4 dep-update mechanism · C2 CHANGELOG · D1 verify-script · E1/E2/E4 identity presence — lower blast radius, presence-checkable → residual (low)
 
 ## Conversions shipped this PR
 
-Gate I (`secrets`), Gate J (`manifest`), Gate K (`security-docs`) — each: zero-dep, pure injectable core, renderer, subcommand, exit 1 on real defect, wired into `verify`, exported for tests, and — non-negotiably — **a RED meta-test that mutates the protected thing and asserts the gate fires** (plant an AWS key → secrets RED; set version behind tag / strip engines / remove lockfile → manifest RED; empty SECURITY.md / strip the trust-model section → security-docs RED). Proven live on deliberately-broken fixtures, not just green on a good repo.
+Gates I (`secrets`), J (`manifest`), K (`security-docs`), L (`ci`) — each: zero-dep, pure injectable core, renderer, subcommand, exit 1 on real defect, wired into `verify`, exported for tests, and — non-negotiably — **a RED meta-test that mutates the protected thing and asserts the gate fires** (plant an AWS key → secrets RED; set version behind tag / strip engines / remove lockfile → manifest RED; empty SECURITY.md / strip the trust-model section → security-docs RED; un-hardened publish workflow / no scanner → ci RED). Proven live on deliberately-broken fixtures, not just green on a good repo.
 
-## Residual attested gates — named for the director
+**On provenance — there is no intent-vs-outcome choice.** An earlier draft framed provenance as "static workflow parse (proves intent) *or* npm-registry query (proves outcome)" and punted the pick. That was a false dichotomy. Gate L does **both**: `checkProvenanceConfig` reads the publish workflows (intent — always on, zero-network, catches misconfiguration before you publish) and `checkProvenancePublished` (`--registry`) confirms the tarball carries a provenance attestation on npm (outcome — opt-in so `verify`/CI stays network-free). Two layers, complementary.
 
-| Gate | Why not yet | Recommended shape |
-|------|-------------|-------------------|
-| **provenance/OIDC configured** | Two honest readings: (a) *static* — parse `release.yml` for `id-token: write` + `npm publish --provenance` (shipcheck's own release.yml is the reference); (b) *registry* — query npm for a published provenance attestation. (a) is zero-dep but proves *intent*, not *outcome*; (b) proves outcome but needs a network call. **Director: convert as static-parse, registry-query, or both?** | new `shipcheck provenance` (static) + optional `--registry` |
-| **D3 dependency-scan runs in CI** | Executable by parsing `.github/workflows/*.yml` for a scan step (`npm audit` / `osv-scanner` / `snyk` / dependabot). Brittle across workflow styles; risk of false-negative. | new check in a `shipcheck ci` gate; needs a small allow-list of recognized scan steps |
-| **A4 no telemetry by default** | A reliable generic detector (grep for analytics SDKs / outbound calls) is false-positive-prone; a bad detector trains maintainers to ignore it. | defer; per-repo assertion until a high-precision ruleset exists |
-| **D4 automated dep-update mechanism** | `dependabot.yml`/`renovate.json` presence is trivially executable, but the org's `github-actions.md` rule says *don't add dependabot unless requested* — so "must exist" contradicts the CI-minutes policy. **Director: is D4 still a hard gate, or policy-relaxed?** | resolve the policy conflict before converting |
-| C2 / D1 / C7 / E1 / E2 / E4 | Presence-checkable, low blast radius | batch into a future `shipcheck presence` gate if desired |
+**Also fixed here:** `--json` emitted a human header line before the JSON on every gate — the entire mission is that "consistent with the existing (broken) behavior" is how defects survive, so this was fixed, not preserved. `--json` is now pure JSON everywhere.
+
+## Residual attested gates — the decisions, made
+
+The remaining attested gates are decisions, and they've been made here rather than deferred:
+
+| Gate | Decision | Reasoning |
+|------|----------|-----------|
+| **D4 automated dep-update mechanism** | **Left attested — do NOT convert to a hard gate.** | The org's `github-actions.md` rule says *don't add dependabot unless explicitly requested* (CI-minutes discipline). A hard executed gate that fails a repo for lacking an update bot would fail every repo that follows that policy. **This is a genuine contradiction inside the standards** — the SHIP_GATE requires a mechanism the CI rules discourage. Recommendation (director's to accept): downgrade D4 from a hard-gate line to a soft/optional one, or scope it to "requested" repos. Until then it stays a per-repo attestation — converting it would be worse than leaving it. |
+| **A4 no telemetry by default** | Left attested. | A generic detector (grep for analytics SDKs / outbound calls) is false-positive-prone, and a noisy gate trains maintainers to ignore it — the opposite of the goal. Convert only when a high-precision ruleset exists; a bad executed gate is worse than an honest attestation. |
+| C2 / D1 / C7 / E1 / E2 / E4 | Left attested (low priority). | Presence-checkable, low blast radius. A future `shipcheck presence` gate could batch these; not worth a gate each today. |
 
 ## The bar
 
-After this PR, no repo can ship through a green shipcheck with: a credential in a published tarball, a package missing `engines`, an uncommitted lockfile, a manifest version behind its newest release tag, an empty/absent SECURITY.md, or a README with no trust model — **for any repo that runs the executed gates.** The gates not yet converted are named above, not silently trusted.
+After this PR, no repo can ship through a green shipcheck with: a credential in a published tarball, a package missing `engines`, an uncommitted lockfile, a manifest version behind its newest release tag, an empty/absent SECURITY.md, a README with no trust model, an `npm publish` path without OIDC+provenance, or CI that runs no dependency scanner — **for any repo that runs the executed gates.** The gates left attested are decisions with reasons, not silent trust.

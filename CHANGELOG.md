@@ -33,17 +33,33 @@ repo is not verified). All three are wired into `verify`.
   model with a substantive body. Honest ceiling, disclosed not faked: it checks
   **presence + contact**, not whether the threat model is correct or complete
   (that needs a separate-family verifier — named as residual).
+- **Gate L — `shipcheck ci`** (converts provenance/OIDC + D3). Reads
+  `.github/workflows` and executes two facts: every `npm publish` workflow uses
+  OIDC trusted publishing (`id-token: write`) **and** `--provenance` (the config /
+  intent layer), and a recognized vulnerability scanner runs in CI or dependabot
+  is configured (D3). `--registry <pkg>[@<ver>]` adds the **outcome** layer,
+  confirming the published tarball actually carries a provenance attestation on
+  npm — intent **and** outcome, two complementary layers rather than a choice
+  between them.
+
+### Fixed
+
+- **`--json` now emits pure JSON** on every gate (`pack`, `front-door`, `secrets`,
+  `manifest`, `security-docs`, `ci`) — the human-readable header line is suppressed
+  in `--json` mode, so the entire stdout parses. Previously a header preceded the
+  JSON, forcing consumers to hunt for the `{` line.
 
 ### Notes
 
-- `secrets`, `manifest`, and `security-docs` each expose a pure, injectable core
-  (`runSecretsGate` / `runManifestGate` / `runSecurityDocsGate`, plus the
-  sub-checks) so unit + RED meta-tests never shell out; real-artifact integration
-  tests exercise the CLI end to end. 29+ new tests.
-- Residual attested gates named for follow-up (not yet executed): provenance/OIDC
-  actually configured, and dependency-scan actually runs in CI — both require
-  parsing CI workflow files and are flagged for a convert-vs-registry-query
-  decision.
+- Every gate exposes a pure, injectable core (`runSecretsGate` / `runManifestGate`
+  / `runSecurityDocsGate` / `runCiGate`, plus the sub-checks) so unit + RED
+  meta-tests never shell out; real-artifact integration tests exercise the CLI end
+  to end. ~55 new tests.
+- **D4 (automated dependency-update mechanism) deliberately left attested.** The
+  org's own `github-actions` rule says *don't add dependabot unless explicitly
+  requested* — a hard executed gate that failed a repo for lacking an update bot
+  would punish repos for following that policy. This checklist-vs-policy conflict
+  is a decision, not a coding gap; recorded in `docs/executed-vs-attested-audit.md`.
 
 ## [1.0.7] - 2026-07-07
 
