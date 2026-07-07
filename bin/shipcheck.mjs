@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { readFileSync, readdirSync, writeFileSync, existsSync, copyFileSync } from "node:fs";
-import { join, resolve, dirname } from "node:path";
+import { readFileSync, readdirSync, writeFileSync, existsSync, copyFileSync, statSync } from "node:fs";
+import { join, resolve, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 
@@ -701,6 +701,502 @@ function packCommand() {
   // pass + skip exit 0.
 }
 
+// --- Gate I: secrets — no credential ships inside a published tarball ---
+//
+// The failure this gate exists to prevent: a real credential (API key, token,
+// private key) committed to a file that npm then publishes inside the tarball.
+// SHIP_GATE A3 ("No secrets, tokens, or credentials in source") is a human-checked
+// box — it can be ticked while false, and nobody re-greps the *published* file set
+// on every release. This gate EXECUTES the check against exactly the files that
+// would ship (the same npm-pack surface Gate H inspects), so the box cannot be
+// green while a key rides along in the tarball.
+//
+// Design constraints that keep it trustworthy rather than noisy:
+//  - HIGH-SIGNAL patterns only (provider-prefixed keys, private-key headers). It does
+//    NOT flag generic high-entropy strings — false positives train maintainers to
+//    ignore the gate, which is worse than not having it.
+//  - The scanner NEVER prints the matched secret verbatim. A scanner that echoes the
+//    key into a public CI log is itself the leak; every match is redacted.
+//  - Inline escape hatch: a line containing `shipcheck-allow-secret` is skipped, so a
+//    documented example token in prose cannot wedge the gate.
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic: same files + same ruleset in, same findings out.
+// ANDON_AUTHORITY 2 — exit 1 on any match; a leaked credential never ships green.
+// NAMED_COMPENSATORS n/a — read-only (reads files, spawns `npm pack --dry-run`).
+// DECOMPOSE_BY_SECRETS 3 — its own gate + ruleset; changes when secret formats change.
+// UNCERTAINTY_GATED_HUMANS 2 — no publishable packages → explicit skip, never a false pass; inline-allow lets a human resolve a known example.
+// EXTERNAL_VERIFIER 3 — the scanner reads the artifact npm actually packs; the author's "no secrets" assertion is never consulted.
+
+// Rules are ordered most-specific first. Each `re` has NO global flag so `.exec` is
+// stateless. Every source pattern here is written so its own literal does not match
+// itself (each continues with a `[` character-class), keeping bin/shipcheck.mjs clean
+// when the gate scans its own published tarball.
+const SECRET_RULES = [
+  { id: "private-key", label: "Private key block", re: /-----BEGIN (?:[A-Z0-9]+ )*PRIVATE KEY-----/ },
+  { id: "aws-access-key", label: "AWS access key id", re: /\bAKIA[0-9A-Z]{16}\b/ },
+  { id: "github-pat", label: "GitHub fine-grained PAT", re: /\bgithub_pat_[0-9A-Za-z_]{22,}\b/ },
+  { id: "github-token", label: "GitHub token", re: /\bgh[posru]_[0-9A-Za-z]{36,}\b/ },
+  { id: "npm-token", label: "npm access token", re: /\bnpm_[0-9A-Za-z]{36}\b/ },
+  { id: "slack-token", label: "Slack token", re: /\bxox[baprs]-[0-9A-Za-z-]{10,}\b/ },
+  { id: "google-api-key", label: "Google API key", re: /\bAIza[0-9A-Za-z_-]{35}\b/ },
+  { id: "stripe-secret-key", label: "Stripe secret key", re: /\b[rs]k_live_[0-9A-Za-z]{24,}\b/ },
+  { id: "anthropic-key", label: "Anthropic API key", re: /\bsk-ant-[0-9A-Za-z_-]{20,}\b/ },
+  { id: "openai-project-key", label: "OpenAI key", re: /\bsk-proj-[0-9A-Za-z_-]{20,}\b/ },
+  { id: "openai-classic-key", label: "OpenAI key", re: /\bsk-[0-9A-Za-z]{48}\b/ },
+];
+
+// Never true-binary; scanning bytes for text patterns is pointless and slow.
+const BINARY_EXT = new Set([
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".bmp", ".tiff", ".pdf",
+  ".zip", ".gz", ".tgz", ".tar", ".br", ".7z", ".rar",
+  ".woff", ".woff2", ".ttf", ".eot", ".otf",
+  ".mp4", ".mov", ".webm", ".mp3", ".wav", ".ogg", ".flac",
+  ".node", ".wasm", ".jar", ".class", ".so", ".dll", ".dylib", ".bin", ".exe", ".pyc",
+]);
+const MAX_SCAN_BYTES = 2_000_000; // a hand-committed key lives in a small text file, not a data blob.
+
+// Show enough to locate the credential without reprinting it. Never returns the raw value.
+function redactSecret(match) {
+  const s = String(match);
+  if (s.length <= 8) return "*".repeat(s.length);
+  return `${s.slice(0, 4)}${"*".repeat(Math.min(s.length - 6, 12))}${s.slice(-2)}`;
+}
+
+// Pure scanner: text in, redacted findings out. Exported for unit + RED meta-tests.
+function scanTextForSecrets(text, { rules = SECRET_RULES } = {}) {
+  const findings = [];
+  const lines = String(text).split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.includes("shipcheck-allow-secret")) continue; // documented example escape hatch
+    for (const rule of rules) {
+      const m = rule.re.exec(line);
+      if (m) findings.push({ ruleId: rule.id, label: rule.label, line: i + 1, redacted: redactSecret(m[0]) });
+    }
+  }
+  return findings;
+}
+
+// Default reader: resolve a pack-relative path to disk, skip binary/oversized, read utf8.
+// Returns null for anything that should not be scanned.
+function defaultSecretFileReader(pkgDir, relPath) {
+  const clean = String(relPath).replace(/^package\//, ""); // real npm omits this; mocks may add it
+  const full = join(pkgDir, clean);
+  if (BINARY_EXT.has(extname(clean).toLowerCase())) return null;
+  try {
+    const st = statSync(full);
+    if (!st.isFile() || st.size > MAX_SCAN_BYTES) return null;
+    return readFileSync(full, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+// Gate I core. Pure given `listFiles` + `readFile`; returns { status, checked, filesScanned, findings, errors }.
+function runSecretsGate({ root = CWD, discover = discoverPublishablePackages, listFiles = defaultPackRunner, readFile = defaultSecretFileReader } = {}) {
+  const pkgs = discover(root);
+  if (pkgs.length === 0) {
+    return { status: "skip", reason: "no publishable packages found", checked: 0, filesScanned: 0, findings: [], errors: [] };
+  }
+
+  const findings = [];
+  const errors = [];
+  let filesScanned = 0;
+
+  for (const p of pkgs) {
+    let files;
+    try {
+      files = listFiles(p.dir);
+    } catch (err) {
+      // Can't compute the publish surface → we cannot certify "no secrets ship". Fail loudly.
+      errors.push({ name: p.name, dir: p.dir, detail: `could not list published files: ${err?.message || String(err)}` });
+      continue;
+    }
+    for (const rel of files) {
+      const content = readFile(p.dir, rel);
+      if (content == null) continue;
+      filesScanned++;
+      for (const f of scanTextForSecrets(content)) {
+        findings.push({ name: p.name, dir: p.dir, file: String(rel).replace(/^package\//, ""), ...f });
+      }
+    }
+  }
+
+  const status = findings.length > 0 || errors.length > 0 ? "fail" : "pass";
+  return { status, checked: pkgs.length, filesScanned, findings, errors };
+}
+
+function renderSecretsResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate I: secrets skipped${RESET}`);
+    log(`  ${DIM}○${RESET} ${result.reason}`);
+    log("");
+    return;
+  }
+  if (result.status === "pass") {
+    log(`${GREEN}${BOLD}Gate I: secrets passed${RESET}`);
+    log(`  ${GREEN}✓${RESET} ${result.checked} publishable package(s), ${result.filesScanned} file(s) scanned — no credentials in the published surface`);
+    log("");
+    return;
+  }
+  log(`${RED}${BOLD}Gate I: secrets failed${RESET}`);
+  if (result.findings.length) {
+    log(`  ${RED}✗${RESET} ${result.findings.length} secret(s) found in files that would be published:`);
+    for (const f of result.findings) {
+      log(`  ${RED}✗${RESET} ${BOLD}${f.name}${RESET} ${DIM}${f.file}:${f.line}${RESET} — ${f.label} ${DIM}[${f.ruleId}]${RESET} ${YELLOW}${f.redacted}${RESET}`);
+    }
+    log(`  ${DIM}Redacted. Rotate any real key immediately — it may already be compromised. False positive? add \`shipcheck-allow-secret\` to the line.${RESET}`);
+  }
+  for (const e of result.errors) {
+    log(`  ${RED}✗${RESET} ${BOLD}${e.name}${RESET} — ${e.detail}`);
+  }
+  log("");
+}
+
+function secretsCommand() {
+  log(`\n${BOLD}shipcheck secrets${RESET}\n`);
+
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  const result = runSecretsGate({ root });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderSecretsResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      console.error(JSON.stringify({ code: "SECRETS_IN_TARBALL", message: `${result.findings.length} secret(s) in the published surface` }));
+    }
+    process.exit(1);
+  }
+  // pass + skip exit 0.
+}
+
+// --- Gate J: manifest — release-hygiene facts the SHIP_GATE only attests ---
+//
+// Converts three D-class SHIP_GATE lines from human-checked boxes into executed checks:
+//   D6  engines.node (npm) / requires-python (pypi) set — an unconstrained package
+//       installs on an incompatible runtime and fails cryptically at import time.
+//   D7  a lockfile is committed — without it every install floats, defeating
+//       reproducibility and widening the supply-chain surface.
+//   D2  manifest version is not BEHIND the newest released git tag — a stale version
+//       re-publishes an old or duplicate release under a fresh one's notes.
+// Each was tick-if-true; here code reads the manifest, the working tree, and the tag
+// list and fails if the fact is false. D2 defaults to "not behind" so it never
+// false-fails a legitimately-ahead dev tree and SKIPS cleanly when no tags/git are
+// present (extracted tarball, shallow CI checkout); `--expect <version>` switches it
+// to strict exact-match for release-time enforcement. This is the portable, inheritable
+// form of the ad-hoc "Verify release tag matches package.json" step that today lives
+// only in shipcheck's own release.yml.
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic: same manifest + tree + tag list in, same result out.
+// ANDON_AUTHORITY 2 — exit 1 on any failing sub-check; a mislabeled/unconstrained release never ships green.
+// NAMED_COMPENSATORS n/a — read-only (reads files, runs `git tag --list`).
+// DECOMPOSE_BY_SECRETS 3 — its own gate; the three sub-checks change together when packaging/release rules change.
+// UNCERTAINTY_GATED_HUMANS 2 — checks that don't apply (no tags, non-semver version, no manifest) SKIP explicitly rather than assert a pass.
+// EXTERNAL_VERIFIER 3 — verified against git's tag list and the on-disk tree, not against the maintainer's checkbox.
+
+const NPM_LOCKFILES = ["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock"];
+const PYPI_LOCKFILES = ["poetry.lock", "Pipfile.lock", "uv.lock", "pdm.lock"];
+
+function parseSemver(v) {
+  const m = /^v?(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/.exec(String(v ?? "").trim());
+  return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
+}
+function cmpSemver(a, b) {
+  for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] - b[i];
+  return 0;
+}
+
+// Minimal, zero-dep pyproject reader: enough to know if it's a Python project and
+// whether it constrains the interpreter. Line-regex, matching the org's no-YAML/TOML-dep rule.
+function defaultReadPyproject(root = CWD) {
+  const p = join(root, "pyproject.toml");
+  if (!existsSync(p)) return { hasProject: false };
+  let text = "";
+  try { text = readFileSync(p, "utf8"); } catch { return { hasProject: false }; }
+  const hasProject = /^\s*\[project\]/m.test(text) || /^\s*\[tool\.poetry\]/m.test(text);
+  const rp = /^\s*requires-python\s*=\s*['"]([^'"]+)['"]/m.exec(text) || /^\s*python\s*=\s*['"]([^'"]+)['"]/m.exec(text);
+  const ver = /^\s*version\s*=\s*['"]([^'"]+)['"]/m.exec(text);
+  return { hasProject, requiresPython: rp ? rp[1] : null, version: ver ? ver[1] : null };
+}
+
+function defaultListTags(root = CWD) {
+  try {
+    const out = execFileSync("git", ["tag", "--list"], {
+      cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 10_000,
+    });
+    return out.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  } catch {
+    return []; // no git / no tags / not a repo → caller SKIPS the version check
+  }
+}
+
+// Sub-check: every publishable package declares an engine/interpreter constraint.
+function checkEngines(packages, { pyproject } = {}) {
+  const applicable = packages.length > 0 || (pyproject && pyproject.hasProject);
+  if (!applicable) return { id: "engines", status: "skip", detail: "no npm/pypi manifest to check" };
+  const missing = [];
+  for (const p of packages) {
+    const node = p.pj?.engines?.node;
+    if (!node || String(node).trim() === "") missing.push(p.name);
+  }
+  if (pyproject && pyproject.hasProject && !pyproject.requiresPython) missing.push("(pyproject requires-python)");
+  return missing.length
+    ? { id: "engines", status: "fail", detail: `missing an engine constraint: ${missing.join(", ")}`, findings: missing }
+    : { id: "engines", status: "pass", detail: `${packages.length} npm package(s)${pyproject?.hasProject ? " + pyproject" : ""} declare an engine constraint` };
+}
+
+// Sub-check: a lockfile is committed at the repo root.
+function checkLockfile(root, { exists = (p) => existsSync(p), isNpm, isPypi } = {}) {
+  const candidates = [];
+  if (isNpm) candidates.push(...NPM_LOCKFILES);
+  if (isPypi) candidates.push(...PYPI_LOCKFILES);
+  if (candidates.length === 0) return { id: "lockfile", status: "skip", detail: "no npm/pypi project detected" };
+  const found = candidates.filter((f) => exists(join(root, f)));
+  return found.length
+    ? { id: "lockfile", status: "pass", detail: `lockfile committed: ${found.join(", ")}` }
+    : { id: "lockfile", status: "fail", detail: `no lockfile committed (looked for: ${candidates.join(", ")})` };
+}
+
+// Sub-check: manifest version is consistent with the release history.
+function checkVersionTag(version, tags, { expect = null } = {}) {
+  const cur = parseSemver(version);
+  if (!cur) return { id: "version-tag", status: "skip", detail: `manifest version "${version}" is not semver` };
+
+  if (expect != null) {
+    const exp = parseSemver(expect);
+    return exp && cmpSemver(cur, exp) === 0
+      ? { id: "version-tag", status: "pass", detail: `manifest version ${version} matches --expect ${expect}` }
+      : { id: "version-tag", status: "fail", detail: `manifest version ${version} does not match --expect ${expect}` };
+  }
+
+  const semverTags = (tags || []).map((t) => ({ raw: t, v: parseSemver(t) })).filter((t) => t.v);
+  if (semverTags.length === 0) {
+    return { id: "version-tag", status: "skip", detail: "no semver git tags to compare (unreleased, or tags not fetched)" };
+  }
+  let max = semverTags[0];
+  for (const t of semverTags) if (cmpSemver(t.v, max.v) > 0) max = t;
+  const c = cmpSemver(cur, max.v);
+  if (c < 0) {
+    return { id: "version-tag", status: "fail", detail: `manifest version ${version} is BEHIND newest released tag ${max.raw} — publishing would duplicate or downgrade a release` };
+  }
+  return {
+    id: "version-tag",
+    status: "pass",
+    detail: c === 0 ? `manifest version ${version} matches newest tag ${max.raw}` : `manifest version ${version} is ahead of newest tag ${max.raw} (unreleased)`,
+  };
+}
+
+// Gate J core. Pure given its injectables; returns { status, checks, checked }.
+function runManifestGate({
+  root = CWD,
+  discover = discoverPublishablePackages,
+  listTags = defaultListTags,
+  exists = (p) => existsSync(p),
+  readPyproject = defaultReadPyproject,
+  rootVersion,
+  expect = null,
+} = {}) {
+  const packages = discover(root);
+  const py = readPyproject(root);
+  const isNpm = packages.length > 0 || exists(join(root, "package.json"));
+  const isPypi = !!py.hasProject;
+
+  let version = rootVersion;
+  if (version == null) {
+    const rootPj = readJsonSafe(join(root, "package.json"));
+    version = rootPj?.version ?? py.version ?? null;
+  }
+
+  const checks = [
+    checkEngines(packages, { pyproject: py }),
+    checkLockfile(root, { exists, isNpm, isPypi }),
+    version != null ? checkVersionTag(version, listTags(root), { expect }) : { id: "version-tag", status: "skip", detail: "no manifest version found" },
+  ];
+
+  const failed = checks.filter((c) => c.status === "fail");
+  const applicable = checks.some((c) => c.status !== "skip");
+  const status = failed.length ? "fail" : applicable ? "pass" : "skip";
+  return { status, checks, checked: packages.length };
+}
+
+const CHECK_GLYPH = { pass: `${GREEN}✓${RESET}`, fail: `${RED}✗${RESET}`, skip: `${DIM}○${RESET}` };
+
+function renderManifestResult(result) {
+  if (result.status === "skip") {
+    log(`${DIM}${BOLD}Gate J: manifest skipped${RESET}`);
+    log(`  ${DIM}○${RESET} no npm/pypi manifest facts to verify`);
+    log("");
+    return;
+  }
+  const header = result.status === "pass"
+    ? `${GREEN}${BOLD}Gate J: manifest passed${RESET}`
+    : `${RED}${BOLD}Gate J: manifest failed${RESET}`;
+  log(header);
+  for (const c of result.checks) {
+    log(`  ${CHECK_GLYPH[c.status]} ${BOLD}${c.id}${RESET}: ${c.detail}`);
+  }
+  log("");
+}
+
+function manifestCommand() {
+  log(`\n${BOLD}shipcheck manifest${RESET}\n`);
+
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  let expect = null;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--expect" && args[i + 1]) { expect = args[++i]; }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  const result = runManifestGate({ root, expect });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderManifestResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      const failed = result.checks.filter((c) => c.status === "fail").map((c) => c.id);
+      console.error(JSON.stringify({ code: "MANIFEST_HYGIENE_FAIL", message: `failing checks: ${failed.join(", ")}` }));
+    }
+    process.exit(1);
+  }
+  // pass + skip exit 0.
+}
+
+// --- Gate K: security-docs — the security surface is present, not just attested ---
+//
+// Converts two HARD-GATE (section A) SHIP_GATE lines from checkboxes into executed checks:
+//   A1  SECURITY.md exists — with an actual reporting path, not an empty stub.
+//   A2  the README states a trust/threat model — data touched, NOT touched, permissions.
+// Both are today ticked by a human and never re-read. A repo can green "SECURITY.md
+// exists" with the file deleted, or "threat model paragraph" with the section stripped.
+//
+// Honest ceiling (disclosed, not faked): this gate verifies PRESENCE + NON-EMPTINESS +
+// a reporting CONTACT. It does NOT — and a deterministic gate cannot — judge whether the
+// threat model is CORRECT or COMPLETE. That semantic check is a separate-model verifier
+// job (see workflow_standards EXTERNAL_VERIFIER) and is named as residual, not claimed here.
+//
+// Standards compliance (memory/workflow_standards.md):
+// PIN_PER_STEP 2 — deterministic: same docs in, same result out.
+// ANDON_AUTHORITY 2 — exit 1 when the security surface is absent/empty; a repo can't green a missing SECURITY.md.
+// NAMED_COMPENSATORS n/a — read-only.
+// DECOMPOSE_BY_SECRETS 3 — its own gate; changes when the security-doc contract changes.
+// UNCERTAINTY_GATED_HUMANS 2 — verifies presence, and explicitly disclaims judging quality rather than faking a pass on it.
+// EXTERNAL_VERIFIER 2 — reads the doc artifacts directly; the maintainer's checkbox is not consulted. (2 not 3: the deeper "is the threat model any good" check needs a different-family model — named residual.)
+
+const SECURITY_MD_LOCATIONS = ["SECURITY.md", ".github/SECURITY.md", "docs/SECURITY.md"];
+const README_LOCATIONS = ["README.md", "readme.md"];
+// A reporting path: an email, a URL, or an explicit "report" instruction.
+const SECURITY_CONTACT_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}|https?:\/\/\S+|\breport(ing)?\b/i;
+// A trust/threat-model section heading. "trust model" and "security" included because
+// good repos title it either way (shipcheck's own README uses "## Trust model").
+const THREATMODEL_HEADING_RE = /^#{1,6}\s+.*(threat model|trust model|security|data (?:we|it) (?:touch|handle|access)|privacy)/im;
+
+function defaultDocReader(p) {
+  try { return readFileSync(p, "utf8"); } catch { return null; }
+}
+function firstExisting(root, names, exists) {
+  for (const n of names) if (exists(join(root, n))) return n;
+  return null;
+}
+// Body text under a heading, up to the next heading or EOF.
+function sectionBodyAfter(text, headingIndex, headingLen) {
+  const rest = text.slice(headingIndex + headingLen);
+  const next = /\n#{1,6}\s/.exec(rest);
+  return (next ? rest.slice(0, next.index) : rest).trim();
+}
+
+function checkSecurityMd(root, { exists = (p) => existsSync(p), readFile = defaultDocReader } = {}) {
+  const loc = firstExisting(root, SECURITY_MD_LOCATIONS, exists);
+  if (!loc) return { id: "security-md", status: "fail", detail: "no SECURITY.md (looked in ./, .github/, docs/)" };
+  const text = (readFile(join(root, loc)) || "").trim();
+  if (text.length < 40) return { id: "security-md", status: "fail", detail: `${loc} is present but effectively empty (${text.length} chars)` };
+  if (!SECURITY_CONTACT_RE.test(text)) return { id: "security-md", status: "fail", detail: `${loc} has no reporting contact (email, URL, or "report" instruction)` };
+  return { id: "security-md", status: "pass", detail: `${loc} present with a reporting contact` };
+}
+
+function checkThreatModel(root, { exists = (p) => existsSync(p), readFile = defaultDocReader } = {}) {
+  const loc = firstExisting(root, README_LOCATIONS, exists);
+  if (!loc) return { id: "threat-model", status: "fail", detail: "no README to check for a trust/threat model" };
+  const text = readFile(join(root, loc)) || "";
+  const m = THREATMODEL_HEADING_RE.exec(text);
+  if (!m) return { id: "threat-model", status: "fail", detail: `${loc} has no trust/threat-model section (A2: data touched, NOT touched, permissions)` };
+  const body = sectionBodyAfter(text, m.index, m[0].length);
+  if (body.length < 20) return { id: "threat-model", status: "fail", detail: `${loc} trust/threat-model heading has no substantive body` };
+  return { id: "threat-model", status: "pass", detail: `${loc} states a trust/threat model` };
+}
+
+// Gate K core. Pure given its injectables; returns { status, checks }.
+function runSecurityDocsGate({ root = CWD, exists = (p) => existsSync(p), readFile = defaultDocReader } = {}) {
+  const checks = [
+    checkSecurityMd(root, { exists, readFile }),
+    checkThreatModel(root, { exists, readFile }),
+  ];
+  const status = checks.some((c) => c.status === "fail") ? "fail" : "pass";
+  return { status, checks };
+}
+
+function renderSecurityDocsResult(result) {
+  const header = result.status === "pass"
+    ? `${GREEN}${BOLD}Gate K: security-docs passed${RESET}`
+    : `${RED}${BOLD}Gate K: security-docs failed${RESET}`;
+  log(header);
+  for (const c of result.checks) {
+    log(`  ${CHECK_GLYPH[c.status]} ${BOLD}${c.id}${RESET}: ${c.detail}`);
+  }
+  if (result.status === "fail") {
+    log(`  ${DIM}Presence + contact only — a deterministic gate cannot judge threat-model quality (that needs a separate-family verifier).${RESET}`);
+  }
+  log("");
+}
+
+function securityDocsCommand() {
+  log(`\n${BOLD}shipcheck security-docs${RESET}\n`);
+
+  const args = process.argv.slice(3);
+  let root = CWD;
+  let json = false;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--root" && args[i + 1]) { root = resolve(CWD, args[++i]); }
+    else if (args[i] === "--json") { json = true; }
+  }
+
+  const result = runSecurityDocsGate({ root });
+
+  if (json) {
+    log(JSON.stringify(result));
+  } else {
+    renderSecurityDocsResult(result);
+  }
+
+  if (result.status === "fail") {
+    if (process.env.SHIPCHECK_JSON && !json) {
+      const failed = result.checks.filter((c) => c.status === "fail").map((c) => c.id);
+      console.error(JSON.stringify({ code: "SECURITY_DOCS_MISSING", message: `failing checks: ${failed.join(", ")}` }));
+    }
+    process.exit(1);
+  }
+}
+
 function helpCommand() {
   log(`
 ${BOLD}shipcheck${RESET} — product standards for MCP Tool Shop
@@ -711,6 +1207,9 @@ ${BOLD}Usage:${RESET}
   npx @mcptoolshop/shipcheck dogfood  Check dogfood freshness (Gate F)
   npx @mcptoolshop/shipcheck front-door  Verify the AI-native front door (Gate G)
   npx @mcptoolshop/shipcheck pack     Verify every publishable package's tarball (Gate H)
+  npx @mcptoolshop/shipcheck secrets  Scan every publishable tarball for credentials (Gate I)
+  npx @mcptoolshop/shipcheck manifest Verify engines/lockfile/version-vs-tag (Gate J)
+  npx @mcptoolshop/shipcheck security-docs  Verify SECURITY.md + README trust model (Gate K)
   npx @mcptoolshop/shipcheck help     Show this message
   npx @mcptoolshop/shipcheck --version Show version
 
@@ -746,6 +1245,35 @@ ${BOLD}What it does:${RESET}
            --json                Machine-readable result
            Exits 1 if any publishable package ships an incomplete tarball
 
+  secrets  Scans EVERY publishable package's tarball surface (the same npm-pack
+           file set as 'pack') for high-signal credentials — provider-prefixed
+           API keys, tokens, and private-key blocks — and fails if any ship.
+           Executes SHIP_GATE A3 ("no secrets in source"), which is otherwise a
+           human-checked box. Matches are redacted; add 'shipcheck-allow-secret'
+           to a line to whitelist a documented example.
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 if any credential is found in the published surface
+
+  manifest Executes three release-hygiene SHIP_GATE lines that are otherwise
+           attested boxes:
+             D6  every publishable package sets engines.node / requires-python
+             D7  a lockfile is committed at the repo root
+             D2  the manifest version is not behind the newest released git tag
+           --root <dir>          Repo to audit (default: cwd)
+           --expect <version>    Require D2 to exactly match this version (release mode)
+           --json                Machine-readable result
+           Exits 1 if any hygiene fact is false (skips checks that don't apply)
+
+  security-docs  Executes two HARD-GATE (section A) SHIP_GATE lines:
+             A1  SECURITY.md exists (./, .github/, or docs/) with a reporting contact
+             A2  the README states a trust/threat model with a substantive body
+           Verifies PRESENCE + a contact — not threat-model quality (a deterministic
+           gate cannot judge that; it is named as a separate-verifier residual).
+           --root <dir>          Repo to audit (default: cwd)
+           --json                Machine-readable result
+           Exits 1 if the security surface is absent or empty
+
 ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 `);
 }
@@ -755,7 +1283,13 @@ ${DIM}https://github.com/mcp-tool-shop-org/shipcheck${RESET}
 const command = process.argv[2] || "help";
 
 // Exports for testing
-export { evaluateDogfoodGate, fetchEnforcementMode, summarizeFrontDoor, runFrontDoorGate, runPublishGate, discoverPublishablePackages };
+export {
+  evaluateDogfoodGate, fetchEnforcementMode, summarizeFrontDoor, runFrontDoorGate,
+  runPublishGate, discoverPublishablePackages,
+  scanTextForSecrets, runSecretsGate,
+  checkEngines, checkLockfile, checkVersionTag, runManifestGate, parseSemver,
+  checkSecurityMd, checkThreatModel, runSecurityDocsGate,
+};
 
 switch (command) {
   case "init":
@@ -772,6 +1306,15 @@ switch (command) {
     break;
   case "pack":
     packCommand();
+    break;
+  case "secrets":
+    secretsCommand();
+    break;
+  case "manifest":
+    manifestCommand();
+    break;
+  case "security-docs":
+    securityDocsCommand();
     break;
   case "--version":
   case "-V":

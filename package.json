@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/shipcheck",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Product standards for MCP Tool Shop — Ship Gate checklist, error contract, and adoption guides.",
   "type": "module",
   "bin": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs audit && node bin/shipcheck.mjs pack && echo '✓ verify passed'"
+    "verify": "node bin/shipcheck.mjs help && node bin/shipcheck.mjs audit && node bin/shipcheck.mjs pack && node bin/shipcheck.mjs secrets && node bin/shipcheck.mjs manifest && node bin/shipcheck.mjs security-docs && echo '✓ verify passed'"
   },
   "files": [
     "bin",

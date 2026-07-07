@@ -80,6 +80,15 @@ Set `SHIPCHECK_JSON=1` to get structured JSON error output instead of coloured t
 - Surfaces counts by severity (contradicted · unbacked · stale · bloat · hygiene · style) plus the gate verdict; **fails (exit 1) on contradicted / unbacked / stale claims**
 - site-theme is an **optional peer dependency** (a hard dep would pull astro into this zero-dep CLI). When it isn't installed, the gate **skips gracefully** (exit 0) — it never crashes the audit
 
+### Executed gates — `audit` counts boxes; these read the artifact
+
+`shipcheck audit` only tallies the checkboxes in `SHIP_GATE.md` — a box can be green while the fact is false. The gates below **execute** the check against the real artifact and exit 1 on the real defect. Each converts a specific Ship Gate line from a human attestation into a machine verification, and each ships with a RED meta-test that mutates the protected thing and proves the gate fires.
+
+- **Gate H — publish surface** (`shipcheck pack`, D5): runs `npm pack --dry-run` on every publishable workspace package; fails if any tarball lacks README/LICENSE, a `files[]` entry doesn't resolve, or `license` is unset.
+- **Gate I — secrets** (`shipcheck secrets`, A3): scans every publishable package's tarball surface for high-signal credentials (provider-prefixed keys, tokens, private-key blocks); matches are **redacted**; `shipcheck-allow-secret` whitelists a documented example.
+- **Gate J — manifest** (`shipcheck manifest`, D2/D6/D7): every publishable package sets `engines`/`requires-python` (D6); a lockfile is committed (D7); the manifest version is not behind the newest released git tag (D2, `--expect <ver>` for a strict release match).
+- **Gate K — security-docs** (`shipcheck security-docs`, A1/A2): SECURITY.md exists with a reporting contact (not an empty stub), and the README states a trust/threat model with a substantive body. Verifies *presence + contact*, not threat-model quality.
+
 The gate says **what** must be true, not **how** to implement it. Applicability tags (`[all]`, `[npm]`, `[mcp]`, `[cli]`, `[desktop]`, `[vsix]`, `[container]`) prevent checkbox shame on repos where items don't apply.
 
 ## Error contract at a glance

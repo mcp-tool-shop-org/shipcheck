@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.8] - 2026-07-07
+
+### Added
+
+Three more Ship Gate lines converted from human-checked boxes into **executed
+checks** — code that reads the real artifact and exits 1 on the real defect,
+following the Gate H template. Each ships with a RED meta-test that mutates the
+protected thing and asserts the gate fires (a gate that only passes on a good
+repo is not verified). All three are wired into `verify`.
+
+- **Gate I — `shipcheck secrets`** (converts A3 "No secrets in source"). Scans
+  every publishable package's **tarball surface** (the same `npm pack` file set as
+  Gate H) for high-signal credentials — provider-prefixed API keys, tokens, and
+  private-key blocks. Matches are **redacted** (a scanner that echoes a key into a
+  public CI log is itself the leak); a `shipcheck-allow-secret` inline comment
+  whitelists a documented example. Exits 1 if any credential would ship.
+- **Gate J — `shipcheck manifest`** (converts D6, D7, D2). Executes three
+  release-hygiene facts: every publishable package sets `engines.node` /
+  `requires-python` (D6); a lockfile is committed (D7); the manifest version is not
+  **behind** the newest released git tag (D2, with `--expect <version>` for strict
+  release-time exact-match). D2 is the portable, inheritable form of the ad-hoc
+  "verify tag matches package.json" step that today lives only in shipcheck's own
+  `release.yml`; it skips cleanly when no git tags are present.
+- **Gate K — `shipcheck security-docs`** (converts A1, A2). Verifies SECURITY.md
+  exists (`./`, `.github/`, or `docs/`) with a real reporting contact — not an
+  empty stub that ticks the box green — and that the README states a trust/threat
+  model with a substantive body. Honest ceiling, disclosed not faked: it checks
+  **presence + contact**, not whether the threat model is correct or complete
+  (that needs a separate-family verifier — named as residual).
+
+### Notes
+
+- `secrets`, `manifest`, and `security-docs` each expose a pure, injectable core
+  (`runSecretsGate` / `runManifestGate` / `runSecurityDocsGate`, plus the
+  sub-checks) so unit + RED meta-tests never shell out; real-artifact integration
+  tests exercise the CLI end to end. 29+ new tests.
+- Residual attested gates named for follow-up (not yet executed): provenance/OIDC
+  actually configured, and dependency-scan actually runs in CI — both require
+  parsing CI workflow files and are flagged for a convert-vs-registry-query
+  decision.
+
 ## [1.0.7] - 2026-07-07
 
 ### Added
