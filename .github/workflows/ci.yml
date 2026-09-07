@@ -2,9 +2,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**"]
   pull_request:
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**"]
   workflow_dispatch:
 
 concurrency:
