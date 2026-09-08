@@ -45,19 +45,6 @@ jobs:
           node-version: 22
           registry-url: https://registry.npmjs.org
 
-      - name: Install npm >= 11.5 in sandbox for OIDC trusted-publishing auth
-        run: |
-          # Node 22 bundles npm 10.x (no OIDC); an in-place `npm i -g npm@latest`
-          # races its own arborist rebuild. Install into an isolated sandbox.
-          SANDBOX="$HOME/.npm-cli-sandbox"
-          mkdir -p "$SANDBOX"
-          pushd "$SANDBOX" >/dev/null
-          echo '{"name":"npm-cli-sandbox","version":"0.0.0","private":true}' > package.json
-          npm install --no-save --no-audit --no-fund --silent npm@latest
-          popd >/dev/null
-          echo "$SANDBOX/node_modules/.bin" >> "$GITHUB_PATH"
-          "$SANDBOX/node_modules/.bin/npm" --version
-
       - name: Verify release tag matches package.json version
         if: github.event_name == 'release'
         run: |
@@ -80,6 +67,25 @@ jobs:
 
       - name: npm pack dry-run (verify tarball shape)
         run: npm pack --dry-run
+
+      # Installed here, immediately before the publish, and NOT earlier: this
+      # shadows the system npm for every later step via $GITHUB_PATH. Run before
+      # Test and the suite executes against npm 11 while CI runs it against the
+      # npm 10.9 bundled with Node 22 -- which is what broke v1.0.8's release:
+      # the two Gate H/I integration tests shell out to a real `npm pack` and
+      # failed here while passing in ci.yml on the same commit.
+      - name: Install npm >= 11.5 in sandbox for OIDC trusted-publishing auth
+        run: |
+          # Node 22 bundles npm 10.x (no OIDC); an in-place `npm i -g npm@latest`
+          # races its own arborist rebuild. Install into an isolated sandbox.
+          SANDBOX="$HOME/.npm-cli-sandbox"
+          mkdir -p "$SANDBOX"
+          pushd "$SANDBOX" >/dev/null
+          echo '{"name":"npm-cli-sandbox","version":"0.0.0","private":true}' > package.json
+          npm install --no-save --no-audit --no-fund --silent npm@latest
+          popd >/dev/null
+          echo "$SANDBOX/node_modules/.bin" >> "$GITHUB_PATH"
+          "$SANDBOX/node_modules/.bin/npm" --version
 
       - name: Publish to npm with provenance (OIDC trusted publisher)
         # Auth via npm Trusted Publishing (OIDC) — intentionally NO NODE_AUTH_TOKEN.
