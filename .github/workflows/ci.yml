@@ -196,10 +196,17 @@ jobs:
             exit 0
           fi
 
-          # Build payload with submission as a proper JSON object (not string)
-          jq -n --argjson sub "$SUBMISSION" \
+          # Build payload with submission as a proper JSON object (not string).
+          # Best-effort: the payload is already validated by the blocking `jq empty`
+          # in "Build submission" above, so only the outbound call is tolerant here.
+          # An expired or unscoped DOGFOOD_TOKEN must not redden a mainline whose
+          # product gates all passed -- it surfaces as a run-summary warning instead.
+          if jq -n --argjson sub "$SUBMISSION" \
             '{"event_type":"dogfood_submission","client_payload":{"submission":$sub}}' \
             | gh api repos/dogfood-lab/testing-os/dispatches \
               --input - --silent
-
-          echo "Dispatched $RUN_ID to testing-os"
+          then
+            echo "Dispatched $RUN_ID to testing-os"
+          else
+            echo "::warning::Dispatch of $RUN_ID to dogfood-lab/testing-os failed (check DOGFOOD_TOKEN validity and scope) -- not failing the build"
+          fi
