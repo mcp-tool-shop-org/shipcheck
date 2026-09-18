@@ -2,9 +2,9 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**", "site/package.json", "site/package-lock.json", "site/astro.config.mjs"]
   pull_request:
-    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**"]
+    paths: ["bin/**", "templates/**", "contracts/**", "test/**", "dogfood/**", "package.json", "package-lock.json", ".github/workflows/**", "site/package.json", "site/package-lock.json", "site/astro.config.mjs"]
   workflow_dispatch:
 
 concurrency:
