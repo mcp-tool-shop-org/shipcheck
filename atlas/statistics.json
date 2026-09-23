@@ -1,0 +1,683 @@
+{
+  "boundaries": [
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": ".claude",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": ".github",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "test"
+        ]
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "bin",
+      "qualifyingSourceCommits": 7,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "contracts",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "docs",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "dogfood",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "root",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "site",
+      "qualifyingSourceCommits": 1,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "templates",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "test",
+      "qualifyingSourceCommits": 10,
+      "rebaseline": null
+    }
+  ],
+  "churn": {
+    "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
+    "files": [
+      {
+        "commits": 1,
+        "lines": 176,
+        "path": ".claude/.claude/workflows/full-treatment.md"
+      },
+      {
+        "commits": 1,
+        "lines": 74,
+        "path": ".claude/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/agents/core/critic-reviewer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/core/orchestrator.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/core/product-strategist.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/design/brand-guardian.md"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": ".claude/agents/design/ui-designer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/agents/engineering/backend-engineer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/engineering/dependency-auditor.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/engineering/frontend-developer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": ".claude/agents/engineering/performance-engineer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/engineering/refactor-engineer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": ".claude/agents/engineering/security-reviewer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 38,
+        "path": ".claude/agents/engineering/test-engineer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/growth/community-manager.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/growth/content-strategist.md"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": ".claude/agents/growth/launch-strategist.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/growth/support-triage-lead.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/agents/marketing/launch-copywriter.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/agents/product/feedback-synthesizer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/product/information-architect.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/product/roadmap-prioritizer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 42,
+        "path": ".claude/agents/product/spec-writer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/research/competitive-analyst.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/research/trend-researcher.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/research/user-interview-synthesizer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/research/ux-researcher.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/treatment/coverage-auditor.md"
+      },
+      {
+        "commits": 1,
+        "lines": 41,
+        "path": ".claude/agents/treatment/deployment-verifier.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/treatment/docs-architect.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/treatment/metadata-curator.md"
+      },
+      {
+        "commits": 1,
+        "lines": 43,
+        "path": ".claude/agents/treatment/release-engineer.md"
+      },
+      {
+        "commits": 1,
+        "lines": 40,
+        "path": ".claude/agents/treatment/repo-researcher.md"
+      },
+      {
+        "commits": 1,
+        "lines": 38,
+        "path": ".claude/agents/treatment/repo-translator.md"
+      },
+      {
+        "commits": 1,
+        "lines": 57,
+        "path": ".claude/context/brand-rules.md"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": ".claude/context/current-priorities.md"
+      },
+      {
+        "commits": 1,
+        "lines": 36,
+        "path": ".claude/context/product-brief.md"
+      },
+      {
+        "commits": 1,
+        "lines": 93,
+        "path": ".claude/context/repo-map.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/examples/feature-packet.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/examples/identity-packet.md"
+      },
+      {
+        "commits": 1,
+        "lines": 39,
+        "path": ".claude/examples/integration-packet.md"
+      },
+      {
+        "commits": 1,
+        "lines": 67,
+        "path": ".claude/handbook.md"
+      },
+      {
+        "commits": 1,
+        "lines": 15,
+        "path": ".claude/policy/done-definition.md"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": ".claude/policy/escalation-rules.md"
+      },
+      {
+        "commits": 1,
+        "lines": 199,
+        "path": ".claude/policy/routing-rules.md"
+      },
+      {
+        "commits": 1,
+        "lines": 134,
+        "path": ".claude/policy/tool-permissions.md"
+      },
+      {
+        "commits": 1,
+        "lines": 52,
+        "path": ".claude/schemas/handoff.md"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": ".claude/schemas/review-verdict.md"
+      },
+      {
+        "commits": 1,
+        "lines": 44,
+        "path": ".claude/schemas/task-packet.md"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": ".claude/workflows/fix-bug.md"
+      },
+      {
+        "commits": 1,
+        "lines": 15,
+        "path": ".claude/workflows/launch-update.md"
+      },
+      {
+        "commits": 1,
+        "lines": 60,
+        "path": ".claude/workflows/protect-audit-gates.md"
+      },
+      {
+        "commits": 1,
+        "lines": 22,
+        "path": ".claude/workflows/ship-feature.md"
+      },
+      {
+        "commits": 6,
+        "lines": 39,
+        "path": ".github/workflows/ci.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 8,
+        "path": ".github/workflows/pages.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 54,
+        "path": ".github/workflows/publish.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 204,
+        "path": ".github/workflows/release.yml"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": ".github/workflows/repomesh-broadcast.yml"
+      },
+      {
+        "commits": 10,
+        "lines": 270,
+        "path": "CHANGELOG.md"
+      },
+      {
+        "commits": 2,
+        "lines": 200,
+        "path": "README.es.md"
+      },
+      {
+        "commits": 2,
+        "lines": 196,
+        "path": "README.fr.md"
+      },
+      {
+        "commits": 2,
+        "lines": 240,
+        "path": "README.hi.md"
+      },
+      {
+        "commits": 2,
+        "lines": 192,
+        "path": "README.it.md"
+      },
+      {
+        "commits": 2,
+        "lines": 224,
+        "path": "README.ja.md"
+      },
+      {
+        "commits": 7,
+        "lines": 91,
+        "path": "README.md"
+      },
+      {
+        "commits": 2,
+        "lines": 188,
+        "path": "README.pt-BR.md"
+      },
+      {
+        "commits": 2,
+        "lines": 224,
+        "path": "README.zh.md"
+      },
+      {
+        "commits": 10,
+        "lines": 2642,
+        "path": "bin/shipcheck.mjs"
+      },
+      {
+        "commits": 4,
+        "lines": 306,
+        "path": "docs/executed-vs-attested-audit.md"
+      },
+      {
+        "commits": 2,
+        "lines": 24,
+        "path": "package-lock.json"
+      },
+      {
+        "commits": 10,
+        "lines": 44,
+        "path": "package.json"
+      },
+      {
+        "commits": 2,
+        "lines": 4,
+        "path": "site/astro.config.mjs"
+      },
+      {
+        "commits": 4,
+        "lines": 10224,
+        "path": "site/package-lock.json"
+      },
+      {
+        "commits": 3,
+        "lines": 31,
+        "path": "site/package.json"
+      },
+      {
+        "commits": 1,
+        "lines": 110,
+        "path": "site/src/content/docs/handbook/beginners.md"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "site/src/content/docs/handbook/error-contract.md"
+      },
+      {
+        "commits": 2,
+        "lines": 14,
+        "path": "site/src/content/docs/handbook/getting-started.md"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "site/src/content/docs/handbook/index.md"
+      },
+      {
+        "commits": 2,
+        "lines": 58,
+        "path": "site/src/content/docs/handbook/reference.md"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "site/src/content/docs/handbook/ship-gate.md"
+      },
+      {
+        "commits": 6,
+        "lines": 52,
+        "path": "templates/SHIP_GATE.md"
+      },
+      {
+        "commits": 2,
+        "lines": 394,
+        "path": "test/front-door.test.mjs"
+      },
+      {
+        "commits": 11,
+        "lines": 1394,
+        "path": "test/shipcheck.test.mjs"
+      },
+      {
+        "commits": 1,
+        "lines": 31,
+        "path": "test/version.test.mjs"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "}/workflows/full-treatment.md"
+      }
+    ]
+  },
+  "confidence": {
+    "level": "low",
+    "reason": "fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions"
+  },
+  "generatedAt": "2026-09-23T15:03:18.865Z",
+  "generatedFrom": {
+    "commit": "875a8ae4a0587a17208636a352759afd751981d8"
+  },
+  "pairs": [
+    {
+      "a": "CHANGELOG.md",
+      "b": "README.md",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "CHANGELOG.md",
+      "b": "bin/shipcheck.mjs",
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
+    },
+    {
+      "a": "CHANGELOG.md",
+      "b": "package.json",
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
+    },
+    {
+      "a": "README.md",
+      "b": "bin/shipcheck.mjs",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "README.md",
+      "b": "package.json",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "bin/shipcheck.mjs",
+      "b": "package.json",
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
+    }
+  ],
+  "parameters": {
+    "appliedChangesetLimit": 25.25,
+    "changeset": 50,
+    "changesetFraction": 0.25,
+    "cohesionDrop": 0.2,
+    "couplingPopulation": "source",
+    "fallenShared": 3,
+    "floor": "fallen",
+    "floorTrigger": "both",
+    "headDate": "2026-09-17T19:08:35-07:00",
+    "inScopeFiles": 101,
+    "pinnedStart": null,
+    "qualifyingCommits": 22,
+    "qualifyingMinimum": 30,
+    "revisions": 5,
+    "shared": 10,
+    "sharedFloorUsed": 3,
+    "since": "2026-03-22T02:08:35.000Z",
+    "sourceExtensions": [
+      ".js",
+      ".mjs",
+      ".cjs",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".mts",
+      ".cts",
+      ".py"
+    ],
+    "sourceFileReach": 20,
+    "sourceFilesReachingStrongFloor": 0,
+    "strength": 0.5,
+    "windowDays": 180
+  },
+  "strengthDefinition": "strength is the shared qualifying commits divided by either. either is the number of qualifying commits that touch either file."
+}
