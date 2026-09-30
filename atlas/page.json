@@ -10,36 +10,123 @@
   ],
   "breaks": [
     {
-      "doors": 2,
+      "doors": 3,
       "importedBy": [],
       "importedByTests": [
         "test"
       ],
       "kind": "part",
-      "name": "bin"
+      "name": "bin",
+      "partLabel": "bin"
     },
     {
       "doors": 2,
       "importedBy": [],
       "importedByTests": [],
       "kind": "part",
-      "name": "test"
+      "name": "test",
+      "partLabel": "test"
     }
   ],
   "changes": {
-    "first": true
+    "fileCounts": {
+      "added": 1,
+      "changed": 101,
+      "moved": 0,
+      "parts": 10,
+      "removed": 0
+    },
+    "items": [
+      {
+        "kind": "door",
+        "sentence": "CI's pull request trigger now also names `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's push trigger now also names `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "Deploy site to GitHub Pages now also runs site/astro.config.mjs and site/src/.",
+        "subjects": [
+          ".github/workflows/pages.yml",
+          "site/astro.config.mjs",
+          "site/src/"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "And 2 more changes to doors.",
+        "subjects": []
+      },
+      {
+        "kind": "landing",
+        "sentence": "CHANGELOG.md is now also read by test/version.test.mjs.",
+        "subjects": [
+          "CHANGELOG.md",
+          "test/version.test.mjs"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "LICENSE is now also read by test/shipcheck.test.mjs.",
+        "subjects": [
+          "LICENSE",
+          "test/shipcheck.test.mjs"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "README.md is now also read by test/front-door.test.mjs and test/shipcheck.test.mjs.",
+        "subjects": [
+          "README.md",
+          "test/front-door.test.mjs",
+          "test/shipcheck.test.mjs"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "And 7 more new writers and readers of places.",
+        "subjects": []
+      },
+      {
+        "kind": "counts",
+        "sentence": "1 file added and 101 changed content, across 10 parts.",
+        "subjects": []
+      }
+    ],
+    "since": {
+      "commit": "875a8ae4a0587a17208636a352759afd751981d8",
+      "generatedAt": "2026-09-23T15:03:18.865Z"
+    },
+    "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
-    "Window: 180 days; a pair counts from 3 shared commits."
+    "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "875a8ae4a0587a17208636a352759afd751981d8",
+  "commit": "960400504764966256327f4a0fb89126e1647945",
+  "defaultBranch": "main",
+  "derived": "10 parts, mostly Markdown (79 files); code in JavaScript (5), CSS (2), TypeScript (2) and Astro (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run shipcheck.",
   "doors": [
     {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/ci.yml",
+      "id": ".github/workflows/ci.yml",
       "landings": [],
       "name": "CI",
+      "programs": [
+        "git"
+      ],
       "pushes": false,
       "reach": [
         {
@@ -58,20 +145,29 @@
         "test/"
       ],
       "runsCount": 2,
+      "runsMore": 0,
       "sends": [
-        "sends a dispatch to dogfood-lab/testing-os"
+        "uploads coverage to Codecov",
+        "sends a dispatch to dogfood-lab/testing-os on main"
       ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 12 paths",
-        "on a push to main touching 12 paths",
+        "on a pull request touching 13 paths",
+        "on a push to main touching 13 paths",
         "or by hand"
       ]
     },
     {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/release.yml",
+      "id": ".github/workflows/release.yml",
       "landings": [],
       "name": "Release",
+      "programs": [
+        "git"
+      ],
       "pushes": false,
       "reach": [
         {
@@ -90,6 +186,7 @@
         "test/"
       ],
       "runsCount": 2,
+      "runsMore": 0,
       "sends": [
         "publishes to npm"
       ],
@@ -100,13 +197,27 @@
       ]
     },
     {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/pages.yml",
+      "id": ".github/workflows/pages.yml",
       "landings": [],
       "name": "Deploy site to GitHub Pages",
       "pushes": false,
-      "reach": [],
-      "runs": [],
-      "runsCount": 0,
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 5
+        }
+      ],
+      "runs": [
+        "site/astro.config.mjs",
+        "site/src/"
+      ],
+      "runsCount": 2,
+      "runsMore": 0,
       "sends": [
         "deploys the site"
       ],
@@ -117,51 +228,118 @@
       ]
     },
     {
+      "checks": [
+        "package.json"
+      ],
+      "checksCount": 1,
+      "checksMore": 0,
       "file": ".github/workflows/repomesh-broadcast.yml",
+      "id": ".github/workflows/repomesh-broadcast.yml",
       "landings": [],
       "name": "repomesh-broadcast",
-      "pushes": true,
-      "reach": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "root",
+          "depth": 0,
+          "files": 1
+        }
+      ],
       "runs": [],
       "runsCount": 0,
+      "runsMore": 0,
       "sends": [
+        "commits into a clone of mcp-tool-shop-org/repomesh and pushes there",
+        "uploads provenance.json and sbom.json to the release",
         "opens a pull request"
       ],
-      "stages": [
-        "ledger/events/events.jsonl"
-      ],
+      "stages": [],
       "triggers": [
         "when a release is published"
       ]
+    },
+    {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
+      "file": "package.json",
+      "id": "package.json#shipcheck",
+      "kind": "command",
+      "landings": [],
+      "name": "shipcheck",
+      "programs": [
+        "git"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "bin",
+          "depth": 0,
+          "files": 1
+        }
+      ],
+      "runs": [
+        "bin/shipcheck.mjs"
+      ],
+      "runsCount": 1,
+      "runsMore": 0,
+      "sends": [],
+      "stages": [],
+      "triggers": []
     }
   ],
   "duplicates": [],
   "duplicatesLead": null,
   "duplicatesNote": [],
+  "edges": [
+    {
+      "from": "test",
+      "fromTests": true,
+      "to": "bin"
+    }
+  ],
+  "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-09-23T15:03:18.865Z",
+  "generatedAt": "2026-09-30T20:12:52.872Z",
   "limits": [
-    "1 import site could not be resolved.",
-    "1 write and 28 reads use paths built at run time and are not named here.",
-    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions."
+    "2 reads use paths built at run time and are not named here.",
+    "4 writes and 31 reads go to the directory the command is run in, not to this repository.",
+    "18 reads go to a path their caller passes, not to this repository.",
+    "1 read goes to the directory the command is run in or a path its caller passes, not to this repository.",
+    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
   "mainDoor": ".github/workflows/ci.yml",
+  "partLabels": {
+    ".claude": ".claude",
+    ".github": ".github",
+    "bin": "bin",
+    "contracts": "contracts",
+    "docs": "docs",
+    "dogfood": "dogfood",
+    "root": "the repository root",
+    "site": "site",
+    "templates": "templates",
+    "test": "test"
+  },
   "parts": 10,
   "readers": [],
   "repo": "mcp-tool-shop-org/shipcheck",
   "sequences": [],
+  "startDoor": "package.json#shipcheck",
   "startHere": [
-    ".github/workflows/ci.yml",
-    "test/"
+    "bin/shipcheck.mjs"
   ],
+  "startReason": "This path follows shipcheck (a command people run) from its entry, since CI runs only tests and scripts that import no code here.",
   "summary": null,
   "summaryFrom": null,
   "testFiles": 3,
   "testedBy": {
-    "bin": 2,
+    "bin": 3,
     "site": 0
   },
+  "unnamedWrites": 0,
   "unread": [],
+  "unreadFiles": 0,
   "unreadNote": [],
   "untested": [
     {
