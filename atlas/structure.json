@@ -2,220 +2,222 @@
   "boundaries": [
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "d373b6d41d6cde16ca4f0306636ee194e13ac5726b4face758b6bf08472fe842",
+          "hash": "158a6deefff6a3a4089cca4f97ea47273b15f8482efe18850a1e4c2b84fb56dc",
           "path": ".claude/README.md"
         },
         {
-          "hash": "2d964babba705c0b9f6a7296577979efc40775ad06c4112434d5ffa27c4312db",
+          "hash": "05e1f0a90a17d12f4729e50b2ace433c64945ec18ef20507464974411cbd5974",
           "path": ".claude/agents/core/critic-reviewer.md"
         },
         {
-          "hash": "687b2dc77ea8bda372bd00993eab1520abaf0ef656c6580d3a0138a4924eb4c9",
+          "hash": "b5d7b60df2ca77ef7a7908c542899468ac1614f4db3938f19a6ea52c3f24b9ff",
           "path": ".claude/agents/core/orchestrator.md"
         },
         {
-          "hash": "b4b72041103488d8562f24d4e0f41231c1634450df78c138b540336b2447207a",
+          "hash": "6b58823b4ae517cf6e4018ab30cc82c20628c840ebe26df98a059f6ad5c18466",
           "path": ".claude/agents/core/product-strategist.md"
         },
         {
-          "hash": "fb7369b4435914f8878f120c7a08121d443a500f12259a948e0d98f0091ff421",
+          "hash": "ef938c623398d1fbd0bfb9d7e8c80f99915a6122d7e041881a07f36229d41336",
           "path": ".claude/agents/design/brand-guardian.md"
         },
         {
-          "hash": "48b8ba1cf8093e4559d15046e90abbf3b98c0383590dd4e506e6d21276bfdc09",
+          "hash": "8a8682c7ba069c9eecc988dfb533f68d37a47e0df4ad35ceb276de6855b25af5",
           "path": ".claude/agents/design/ui-designer.md"
         },
         {
-          "hash": "62c975ded0f9763ad0b1b6608f11adc9a5107137006dd76a7dae81a2cf21e689",
+          "hash": "adfa35c595d1e24451932c8aa461f24e99ae0f99864b8925f9c599c7d0236a2c",
           "path": ".claude/agents/engineering/backend-engineer.md"
         },
         {
-          "hash": "1e464576cbfc8ba95c7865cc07a9eeba61e88ef5f4950baf665eea515b363be7",
+          "hash": "6a7dee87f0f23c2bdc365190044659828f72a11c759389e23d0f130918ca5d82",
           "path": ".claude/agents/engineering/dependency-auditor.md"
         },
         {
-          "hash": "ef3833837a334baf524bb4df15dbd586d3664376521e98b87d87c412cb0187d9",
+          "hash": "e5a448d0f63a7f4b4687e76522effb140a509d008e23b8343fc6fde802460076",
           "path": ".claude/agents/engineering/frontend-developer.md"
         },
         {
-          "hash": "d8ea5372bd030768d59d4417d5889937003b59a872ef3c89b44bc31f9f333a03",
+          "hash": "756a5ce28d3876bc7f3f2d5a4cb018efc00b9e00cf31f1387cfabd159488565c",
           "path": ".claude/agents/engineering/performance-engineer.md"
         },
         {
-          "hash": "a1a23a9789640d78b136a0c249ee3aacbafb6ef0c774ea50c14bd89a25b6943e",
+          "hash": "4934e5b788900047d041afe4a7df2efb297303991c4ad20191a2985d6bd7cf49",
           "path": ".claude/agents/engineering/refactor-engineer.md"
         },
         {
-          "hash": "d1cfc922932b9686ea3ba9263c9cf3a0e26f783f60eef12c86119d0f05b91999",
+          "hash": "b39c7f41260e17585d70b2030588af7592d71f6e856b52d8db26e766121c5fef",
           "path": ".claude/agents/engineering/security-reviewer.md"
         },
         {
-          "hash": "911d2c78ed9be3c5a831927c8c2a5acbddd6945f206aeecdb435b10ff5f8bda6",
+          "hash": "5654a22c5e4830bf0509f1c9fbe2ef5988369dc79263894df506e464209cd82b",
           "path": ".claude/agents/engineering/test-engineer.md"
         },
         {
-          "hash": "dc08071b0a3322f50ee5fa3049c465cd760289f67bcf497e11020e15a8415465",
+          "hash": "4ceadb3eeef43c85465b4fa8cebdbcbf9020d340dd14e27a78800f0a4c43c514",
           "path": ".claude/agents/growth/community-manager.md"
         },
         {
-          "hash": "ad1d9ba7f5d1e634e9225681077cd384585ef1856a1e9b9f59b0608132ef8d1f",
+          "hash": "9b8e8a756b088be95c3120b9c4b6af132ee2987e77e21cd42da7396a0f5e7509",
           "path": ".claude/agents/growth/content-strategist.md"
         },
         {
-          "hash": "05db0c02db9b053890f163dfa2a950f12b5be185ba61c24cd5a0168a5e41177b",
+          "hash": "c0888c37c4656c7f0ea888f45380462a9454c783718e36d37c6a7526fa1a031f",
           "path": ".claude/agents/growth/launch-strategist.md"
         },
         {
-          "hash": "337f439266a055588e2a0af068b0461b0ec8259932341a19d1cf15044c028a67",
+          "hash": "79dd9e3a6924141a8a36d61271194934dbfe96d091d9d640ff7d3d8737f7e805",
           "path": ".claude/agents/growth/support-triage-lead.md"
         },
         {
-          "hash": "22201daefd5b99ab0992dc432ba7e015771353ccde467e11e35ccf9fcb23ced1",
+          "hash": "f222d010a977088716b08f26953a0f3146781a8d1e89e4c05ddf83867730554c",
           "path": ".claude/agents/marketing/launch-copywriter.md"
         },
         {
-          "hash": "f66c80446da64b3ccf16d50f354bbc73ebff1022b273974f0a95472be643d6c7",
+          "hash": "daf51f6c64ee2d71eb0b1d139533a5a9ef5fc161c372dc0ab01cb67da527a872",
           "path": ".claude/agents/product/feedback-synthesizer.md"
         },
         {
-          "hash": "19b1d905b39ff4e2992fb755cda6f597fd615057052b0b38ad7c38d4858312c5",
+          "hash": "e14f75ef3ea0e04af8a2efd1fc1071740f42528b52345a61eb07c0f375738a3f",
           "path": ".claude/agents/product/information-architect.md"
         },
         {
-          "hash": "d3e7bc0b3b8c45b8c704cd9d4829fe50e1043c18b672854313ff807c2cbb4e42",
+          "hash": "5400c554716df37778f4c34a9a7fe9f369960382bd35daa9390ba0bc49cb9f6d",
           "path": ".claude/agents/product/roadmap-prioritizer.md"
         },
         {
-          "hash": "b2c1626e9c18a1adf09d629234cf56bc18bbd5e13498246da35f86cc22463548",
+          "hash": "f2c59b2402e5599d32a5a887e535c7c47dc243b585d31096ddcaaffcbb376859",
           "path": ".claude/agents/product/spec-writer.md"
         },
         {
-          "hash": "ea0a9b1e28dff6fca5c558e3323954a2dd6505d1213145e98fe6322bf47ea580",
+          "hash": "9b55d050caf98d078888c0c0630fcf14b10c2fbf8ed22328256948807e626763",
           "path": ".claude/agents/research/competitive-analyst.md"
         },
         {
-          "hash": "329fcca3c43be4f1d4458184a927029b8e136dc62b810653c0e132a2c1abdd23",
+          "hash": "1c1ae32dbfdcf09c94c36fce488875d7df268ea6dbe132fda2d2b9b81ae4c25c",
           "path": ".claude/agents/research/trend-researcher.md"
         },
         {
-          "hash": "429c7b361c36d610b30b1acc5793fa24cc1997bd9841297e6a753760f981351a",
+          "hash": "a125d21ad9fb1551850ba00119e6497d514e15ecfb98235dc07ed98cd8c036e8",
           "path": ".claude/agents/research/user-interview-synthesizer.md"
         },
         {
-          "hash": "b7b2a5657a521807bb3c0b953066aea0ac6fd864305cb5bcff6f7dddc992d6d8",
+          "hash": "865d237b66de59ec57c19605701cd9c7d4f3ac4df3e6ec731424ed62ef0d0ad4",
           "path": ".claude/agents/research/ux-researcher.md"
         },
         {
-          "hash": "7a22beaad309c64e6ea14d3107025fa06a5b10bcd2e772c76fdeb6d3b252cdfe",
+          "hash": "c7fa7f242310095eaa31288587f6077b40641254c8d463bc3a3f0a99d4cbeaa9",
           "path": ".claude/agents/treatment/coverage-auditor.md"
         },
         {
-          "hash": "0d73f921bcc9a2fb49933af9551d9dbee85675d71a900627ed6eb2d636bccf2c",
+          "hash": "ef14326ed0d7dd1cec25e19ec1f2f2e245e1db59907768ffaaedba78ff5a31a1",
           "path": ".claude/agents/treatment/deployment-verifier.md"
         },
         {
-          "hash": "1a9a9ff9ea1095aab4688b19cb9e0ec48db2ca59d9f5f5e51e1f858d8d1dff7b",
+          "hash": "366904341a80d44d761dcfc30e79157f6754f1f2fd70ca4c16518369773888b1",
           "path": ".claude/agents/treatment/docs-architect.md"
         },
         {
-          "hash": "bb7a05aec44d58dcac5b36e28b8eb6b4640775eec6e9ebf069c6415e70a44b5a",
+          "hash": "5b9c83dbcb24b984a372b3edd3aac6d65b6d14a7910bd149721bf6aaefaa56a0",
           "path": ".claude/agents/treatment/metadata-curator.md"
         },
         {
-          "hash": "4cc9d0a2b158a057c6c3fc39763f57c2192f9da62e2a811d68fd839f57eaf598",
+          "hash": "e1756416f5d0932f265c139e9cfb3621a18bb714d697dfee9347bb53e0bdab53",
           "path": ".claude/agents/treatment/release-engineer.md"
         },
         {
-          "hash": "d481658d5d6ff403aa4ddc87ab901adfbc3462d0a66935fa1009d15ae983583f",
+          "hash": "26ed181415209aa3e404334290683bb75d682d853512b5b07f0199463fc3b05a",
           "path": ".claude/agents/treatment/repo-researcher.md"
         },
         {
-          "hash": "8cfe4f057b3c99e101689729054a6a2a8970cd0a64cace28eb5e1defbf602dde",
+          "hash": "00428fc7e4c776815099c1160932383c39acc33b8a55f3cf09aaf0d636de7929",
           "path": ".claude/agents/treatment/repo-translator.md"
         },
         {
-          "hash": "d24305804ee37fb4c649e165311ca3f5a49aa34839ac6a3dbc7fd1b01e89d83c",
+          "hash": "be7a7f30f995a667a964604c9c6e74b56c31b28949ced81e6ce051974233afbf",
           "path": ".claude/context/brand-rules.md"
         },
         {
-          "hash": "b3b3881a2d600cb181c97eb0508544f9d950dd17b0b8b3ab77e73cfb5a76406c",
+          "hash": "59cdfa8c1fa6e564111634f0cb302653fab08032b747b2c443f93b1d2de518be",
           "path": ".claude/context/current-priorities.md"
         },
         {
-          "hash": "65816bc46761899473cc8468c2c3f6ee8eec8c92c76fc1d39d0268ca509a4421",
+          "hash": "2648427e030605676e743fd1f1f4636c0f21f07247c9fe98c0d742f596d548f3",
           "path": ".claude/context/product-brief.md"
         },
         {
-          "hash": "f48ce66106ff9ed5af8a8d4d8021cf8b85e370182eaec776262d4bc7155e8482",
+          "hash": "d1b6f5cc1951b2e2aae9b349e6a11ac78899f73c1e91b3278a1363448a3a84fe",
           "path": ".claude/context/repo-map.md"
         },
         {
-          "hash": "4ca89e52e89026648cddd1dcebae0ce9cd12290972323e751ca4785fdb78b7a6",
+          "hash": "4b11b65a09d8ac2915f85c8eab1630931ff01fe68eb751fa01e9971ca14b38ca",
           "path": ".claude/examples/feature-packet.md"
         },
         {
-          "hash": "ed14e6a5dc1d77b0ccf88428f90e5ebcf604f9c14e0fa805a6dacf2adb396c2a",
+          "hash": "0350e2bf29256b79863fab5ca28851edaf125c487d64059a26c8a1a6f2336ca4",
           "path": ".claude/examples/identity-packet.md"
         },
         {
-          "hash": "5b1b7ead1a83ed6fb13e8342f64bae5eda5ebdf007516ff176d9fe582def19f7",
+          "hash": "4b51704a87c3c0db31294ccdc992c256e9102c907a572340aac452e275561c29",
           "path": ".claude/examples/integration-packet.md"
         },
         {
-          "hash": "bc22ae44f568aacc8648cc306afa88bf49ef6883c7fa12cccf811ae66986dbe9",
+          "hash": "e82dc44673009b0ccb58721bd5c3e83d5fba5f4d7a05071dff5a8f30e8019625",
           "path": ".claude/handbook.md"
         },
         {
-          "hash": "fa39ec3464d39e01b4f5f2dd15c69d47c8bf6d93b75daa1694eed3cd12be04dc",
+          "hash": "1fd5df3c7ac78a9e816b4c6c89615882542ee0fd223b729303a3ab75604bcd81",
           "path": ".claude/policy/done-definition.md"
         },
         {
-          "hash": "682c931d8ac0745b5b8d9300370775f5d7a43be83a9397b363d560f7329701de",
+          "hash": "3f55fc37123f26446b7346f84e1c999fc7d9cc37c849ff7475f884867e6f9d58",
           "path": ".claude/policy/escalation-rules.md"
         },
         {
-          "hash": "8fe24f7551d6caa66713c98f32effcdc86a6cb4223707e25a7c5772988f83b55",
+          "hash": "2404f9505ed427f41a04df566f872af5b05232274c8b2d487a430e6e686fae1b",
           "path": ".claude/policy/routing-rules.md"
         },
         {
-          "hash": "5d55e6a21f589f1e05117ce7a0c60891a1d2bd0c3ba9f4c5a80c50e5544e7d3e",
+          "hash": "d3beccab15e5f6edb7e08a4a23223a7ae7b67a5fc42051bf56b683312fcbd34b",
           "path": ".claude/policy/tool-permissions.md"
         },
         {
-          "hash": "16f96f8b2fe34b2167ad1a1bd65a90a8f715d170c724545a54e4e2a808f34fe9",
+          "hash": "035499e31539c656b063078a84025b8c32d01d29177d0447e98a937350388d1f",
           "path": ".claude/schemas/handoff.md"
         },
         {
-          "hash": "34ee30f440135cb3c979f036f050faa6f12afe99528db9daafe01d1ac1f434ee",
+          "hash": "4d2320f4714f012170a85eb1d713cd45ee81d0cd820e44566b2e5bbfab236b3a",
           "path": ".claude/schemas/review-verdict.md"
         },
         {
-          "hash": "94fb28a919784c36612906f846800fd5def23da4807c93c45aca2c957baa9c41",
+          "hash": "4e005a5c28cf2afaf71644a8bb72e479af1078c4694dc8a1b17ff2bf95c7d854",
           "path": ".claude/schemas/task-packet.md"
         },
         {
-          "hash": "f85e5c9f734c54c2673e0053e4b2eef8be79ac10b1ec742462af9f18782d82c7",
+          "hash": "1eaec4e9122993393576658d12cd7c5ce23d14d8723c176344dbd35327a3ac59",
           "path": ".claude/workflows/fix-bug.md"
         },
         {
-          "hash": "df359c5ab2c72dafcf89dc7667749c18b7a273c4bdfcfa842cfd402a4adde6e6",
+          "hash": "18d187df95b192da63b71b6e25d6a04609a772b51c79a19ce22769b018fbc754",
           "path": ".claude/workflows/full-treatment.md"
         },
         {
-          "hash": "d0da445a5980afb0e596bb7fbdf2e38e94af4a2a3b69c541a4a75dccd8b1420d",
+          "hash": "24d942d7920f4afacdbf12a4d9c38bf5d0020ae78dd1abde4b3fc93ce6b26444",
           "path": ".claude/workflows/launch-update.md"
         },
         {
-          "hash": "81f9dc81f8b5860149f1a1a3d01262011676a50ae728a59eaade7e99b6e0a253",
+          "hash": "20c5f0fd81c2c3223377d7a8a6526253df0626ceddd28983e278df242f8f5708",
           "path": ".claude/workflows/protect-audit-gates.md"
         },
         {
-          "hash": "77e6ad26462b2237ea062b63d9f242fae459b6c0ea51ee83888873235a048fa4",
+          "hash": "3077eb58698cbb81d3a998140a5b5b08d1eda2780f784841ce7d605c8d9de319",
           "path": ".claude/workflows/ship-feature.md"
         }
       ],
@@ -231,24 +233,26 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "c2c87fe1a902eb0e06c7f772781c48ebea1bcb4e70ff71a256e428b09df8d592",
+          "hash": "4ac80972824a907fb1e2652b2f3f5610e9dc65d67be3f9c7e4d93f229747571f",
           "path": ".github/workflows/ci.yml"
         },
         {
-          "hash": "7b53d521c25b8242f248cfbd6b9c77cf7382e3830cfce1f9bc7d65a32b622dd7",
+          "hash": "739093d16fb9d181371c2bcb655a06fd76d86b23273a4f15fc37ec20d3bea99b",
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "70ba13ff3c08de73f3922b7863a9b014910587c8c64a568f22fd90d44ca53523",
+          "hash": "a1e26e2eb1fceaac1ea8dd08c101a2c3e93cebdd01d772b3136b5c9646c4798d",
           "path": ".github/workflows/release.yml"
         },
         {
-          "hash": "051e29eedbf822e43f5b1c4b726b70b4fe3f96f1928ed1caf24f163a11f41ce4",
+          "hash": "393a8db5fe330a3d5480362f5331efc4c383b868272cafd63b7e990eadfcf14e",
           "path": ".github/workflows/repomesh-broadcast.yml"
         }
       ],
@@ -263,9 +267,13 @@
       "unresolvedSites": 0
     },
     {
-      "dynamicReads": 28,
-      "dynamicWrites": 1,
-      "entryPoints": [],
+      "dynamicReads": 2,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
+      "dynamicWrites": 0,
+      "entryPoints": [
+        "bin/shipcheck.mjs"
+      ],
       "externals": 0,
       "files": [
         {
@@ -296,7 +304,114 @@
             "scanTextForSecrets",
             "summarizeFrontDoor"
           ],
-          "hash": "f004d08cdfc856fe086846a558ef6e96f5fec3c3a9c0dcc0a9aac146327137be",
+          "failurePaths": [
+            {
+              "in": "detectTypes",
+              "kind": "catch",
+              "line": 75
+            },
+            {
+              "in": "detectTypes",
+              "kind": "catch",
+              "line": 91
+            },
+            {
+              "in": "initCommand",
+              "kind": "catch",
+              "line": 143
+            },
+            {
+              "in": "runFrontDoorGate",
+              "kind": "catch",
+              "line": 431
+            },
+            {
+              "in": "runFrontDoorGate",
+              "kind": "catch",
+              "line": 452
+            },
+            {
+              "in": "readJsonSafe",
+              "kind": "catch",
+              "line": 543
+            },
+            {
+              "in": "expandWorkspaceGlob",
+              "kind": "catch",
+              "line": 556
+            },
+            {
+              "in": "runPublishGate",
+              "kind": "catch",
+              "line": 642
+            },
+            {
+              "in": "defaultSecretFileReader",
+              "kind": "catch",
+              "line": 789
+            },
+            {
+              "in": "runSecretsGate",
+              "kind": "catch",
+              "line": 809
+            },
+            {
+              "in": "defaultReadPyproject",
+              "kind": "catch",
+              "line": 925
+            },
+            {
+              "in": "defaultListTags",
+              "kind": "catch",
+              "line": 938
+            },
+            {
+              "in": "defaultDocReader",
+              "kind": "catch",
+              "line": 1111
+            },
+            {
+              "in": "defaultReadWorkflows",
+              "kind": "catch",
+              "line": 1240
+            },
+            {
+              "in": "defaultReadWorkflows",
+              "kind": "catch",
+              "line": 1243
+            },
+            {
+              "in": "checkProvenancePublished",
+              "kind": "catch",
+              "line": 1277
+            },
+            {
+              "in": "walk",
+              "kind": "catch",
+              "line": 1408
+            },
+            {
+              "in": "defaultAuditRunner",
+              "kind": "catch",
+              "line": 1423
+            },
+            {
+              "in": "defaultAuditRunner",
+              "kind": "catch",
+              "line": 1426
+            },
+            {
+              "in": "defaultAlertsChecker",
+              "kind": "catch",
+              "line": 1439
+            },
+            {
+              "in": "parseGitRemote",
+              "kind": "catch",
+              "line": 1449
+            }
+          ],
+          "hash": "c50675f7fe91d51396c726f3ed77a23913ee19b3bdc3ce233d64f9536b2a2597",
           "path": "bin/shipcheck.mjs",
           "sequences": []
         }
@@ -307,18 +422,153 @@
       "importConfidence": "full",
       "name": "bin",
       "origin": "authored",
+      "outsidePlaces": [
+        {
+          "reads": 18,
+          "where": [
+            "caller"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "caller",
+            "cwd",
+            "cwd:package.json"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 10,
+          "where": [
+            "cwd"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd",
+            "cwd:package.json"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 2,
+          "where": [
+            "cwd",
+            "cwd:pnpm-workspace.yaml"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:CHANGELOG.md"
+          ],
+          "writes": 1
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:CHANGELOG.md",
+            "cwd:SCORECARD.md",
+            "cwd:SECURITY.md",
+            "cwd:SHIP_GATE.md"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:Dockerfile"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:README.md"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 0,
+          "where": [
+            "cwd:SCORECARD.md"
+          ],
+          "writes": 1
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:SECURITY.md"
+          ],
+          "writes": 1
+        },
+        {
+          "reads": 3,
+          "where": [
+            "cwd:SHIP_GATE.md"
+          ],
+          "writes": 1
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:docker-compose.yml"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:package-lock.json"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 6,
+          "where": [
+            "cwd:package.json"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:pyproject.toml"
+          ],
+          "writes": 0
+        },
+        {
+          "reads": 1,
+          "where": [
+            "cwd:setup.py"
+          ],
+          "writes": 0
+        }
+      ],
+      "outsideReads": 50,
+      "outsideWrites": 4,
       "role": "code",
-      "testedBy": 2,
-      "unresolvedSites": 1
+      "testRunners": [
+        "node --test"
+      ],
+      "testedBy": 3,
+      "unresolvedSites": 0
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "070094f3aaed0aecc2296aec68e0d1021a9bd3b153df0875d0894d700a39605d",
+          "hash": "dc792fa44c9b848ef854e25e7ae7d1d57358153c206a57f73a5880e6d8b572b8",
           "path": "contracts/error-contract.md"
         }
       ],
@@ -334,12 +584,14 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "e0267e511b050b10c1452401f505a56df4a2c898428518fcb52a69855c4ea250",
+          "hash": "e6dfa386a439da337f3fe7b732b5690e43c2a71a7f6a9d67cc2fdf313cf3ccee",
           "path": "docs/executed-vs-attested-audit.md"
         }
       ],
@@ -355,12 +607,14 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "119b3f6005ae55089e4d590aadbeee9439a6bd0a2912487633dad12e952a0d7f",
+          "hash": "40d406ca2353115f278ab0802aea32657d551be49071cf56553eb52d695b1ae2",
           "path": "dogfood/scenarios/self-gate-real-repo.yaml"
         }
       ],
@@ -376,76 +630,82 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "862646055d409f1ceeb91e9cdd913a866e8b4c5bdf64eee20d5eef46e196e58c",
+          "hash": "83574436d0a849a6a58c7be7a603464dc17f79a7a727ecf4c6a06bb2a9660286",
           "path": ".gitignore"
         },
         {
-          "hash": "0af5491c65468b87dd3389b91bc912e02446bbedc7af3f45608f783db334206b",
+          "hash": "34b455edec7cea06d54b4aad280ac50e6db57b62f76795b209b9170a4e69fb56",
           "path": "ADOPTION.md"
         },
         {
-          "hash": "5edadb542948be414002ae23955ce6496e67e86f2f30062a8a6e6cd28905491d",
+          "hash": "f0269e43a924df1ee602e30045e73cb114acc549a4468f1dac76f1b1eacc11a0",
           "path": "CHANGELOG.md"
         },
         {
-          "hash": "334aa3828b47ec09ddd9e00f2225ea8f89ae5ad699796f00154c84eaa93634ac",
+          "hash": "c0b27e5c00795ce1c2f6866bcd4c9235468646cc2a2a4bbdd61cc6928bb24949",
           "path": "LICENSE"
         },
         {
-          "hash": "394d04faa25b262af9fa3614396518e79d2d9e344fc1b6f31e8c65ae291a8019",
+          "hash": "df2a4bb270113cdf76dd58bf345de191a2684d90707be2a0343d2f67c63938af",
           "path": "README.es.md"
         },
         {
-          "hash": "7014c1ff905131544d800697f8c69e0d37850ca402bb90202beabaacf275ed60",
+          "hash": "4c110c0cf273236230233962427a592af83e281ef70bb8b6c795e52b414874ac",
           "path": "README.fr.md"
         },
         {
-          "hash": "c9771b9c7ae9410824d09c21302cccbbc9e3d864992fd24c65fc51ab0c760d9b",
+          "hash": "6de29284ab4f4ccfceab9650c4ca7773d72cb15cd0bc45f3ad04419dc2a42b9f",
           "path": "README.hi.md"
         },
         {
-          "hash": "7d4b6f9ecc16655870e076b3add552d30724857b9571a9a29cd67e0cc29af84e",
+          "hash": "84267865a755fbd798f193600f3b2f398c22aee6e1a9e69873447165348794d0",
           "path": "README.it.md"
         },
         {
-          "hash": "df6a3a96fe2e4355843718a4396202f09f3764988e77e48a89afe4bf34058241",
+          "hash": "99324f5d5afc1116130bc45d8388a872accf81172ef6a92ebbf86727e4f942ba",
           "path": "README.ja.md"
         },
         {
-          "hash": "1739b64778669bed679734211634f7904ccd343703e3697791937a8e986a5df8",
+          "hash": "094c635fd2c76916c78df1f3bb3b7255e44b298bfc1eb0da0afc831f34657e24",
           "path": "README.md"
         },
         {
-          "hash": "99a472b427c7260c0ff1dffb33936f2e90779f382f132ba0058922c65a5e7724",
+          "hash": "2b1ce1222727318d74037cfddb76c47856d1b90ff8902d66543e0dd906a6d49a",
           "path": "README.pt-BR.md"
         },
         {
-          "hash": "1490121af9c274b1b5639f8f6b3f3a76e36f39571f3d2554dc7c7e8c0bb29b1c",
+          "hash": "9d7425dc9423b3d5d3861d2ed8e3649c616fdaba97db7efff355528efed064bb",
           "path": "README.zh.md"
         },
         {
-          "hash": "fe73f1f55ea2511659114d1aeece3cc6b0e01c1950fc41db8627813a3cc14ef2",
+          "hash": "080a6f5665df1dd982a2cf57a6d6898a30c07c0fe06efd3b9d28e4740f99e360",
           "path": "SCORECARD.md"
         },
         {
-          "hash": "e7e3d9476165ee47c6aa8500cb5936fe437e055d64241ea5ba4cc640d7a7416e",
+          "hash": "52ce16fd1a38acb96cbb49286f1a0814c110d7220ed68c7969d770c736921b67",
           "path": "SECURITY.md"
         },
         {
-          "hash": "46bf01c0edcb1d3176a78e8f6e742f34c4bc5e5b8a8923426457ca52700f90e7",
+          "hash": "e7b54d901ffc7559aa3c94b96b406cff9711012d1dfa49a6f850594edf1a87d8",
           "path": "SHIP_GATE.md"
         },
         {
-          "hash": "28df9cde86c24321eda21197e92a1ea7a7523e5da6232357d5405e181498cfb2",
+          "hash": "59ca3f6a5be96b80fee73bebf2b778211208d17cd3fb82e2134608dff0729c76",
+          "path": "codecov.yml"
+        },
+        {
+          "hash": "428dbba412cf965b2f8dbec1cb0833dbc807c15c0646748c050f1e385a3491ac",
           "path": "package-lock.json"
         },
         {
-          "hash": "caba258af2dfeccd28ee8893c215cc3212b2c1a5c89a47b450d079a557433aca",
+          "hash": "706570c06af312fb66fbd6f6603c49f0abea1181ce03772f6a02bef0cba0922b",
           "path": "package.json"
         }
       ],
@@ -456,73 +716,86 @@
       "name": "root",
       "origin": "authored",
       "role": "docs",
-      "testedBy": 0,
+      "testedBy": 1,
+      "testedByScript": true,
       "unresolvedSites": 0
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "1989423ce8ef16e5d8e53acbb219ae84da3c780477755ffef8f9bec9553e4d44",
+          "hash": "1b74e64b92be7c08aa974c62a2918a457911e8bb034e924c127c1245501971b8",
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "a12af24b74ea4337d4f2d8b4a99bacda0855058c4a36c181a718f6a86591bd2e",
+          "hash": "87139e10ca7684b2ba99c9425836cbef943e1ad3a0417cb53ff3eb32549f6147",
           "path": "site/package-lock.json"
         },
         {
-          "hash": "2d8e6cb655ab9a71e85e537dab38fea992c628f74c4f804da409b946d2a48541",
+          "hash": "d5d302d99273ab564243bed14d243e2e1385d6e2e4f0b643c9641a4b488ae3a3",
           "path": "site/package.json"
         },
         {
-          "hash": "ec030f2e4bf6dc57eaca075d390c228b3212cf29db267e32ef92e110de1acdcc",
+          "constantOnly": true,
+          "hash": "ee756dfba4122d2acc94a39b2555d9f200fff56a87a8c0b10f9cd01df26a8b62",
           "path": "site/src/content.config.ts"
         },
         {
-          "hash": "33b76174ecebce1420baa0185e37f02be4767ecd6b0ed0171221a709a5d64378",
+          "hash": "2fcb07b7eef0072e95c82f6fab9d0a3b67716a8bb0d746555fefb453a618ecaf",
           "path": "site/src/content/docs/handbook/beginners.md"
         },
         {
-          "hash": "5d8e3a165e96b07dfd69bdcd2e9be3aa1dfe42e473359854a4ed70de08194bda",
+          "hash": "7e22bbaa07aeefa544004444b0ce1af3e4760aa953c138d3f4449400e744f8a8",
           "path": "site/src/content/docs/handbook/error-contract.md"
         },
         {
-          "hash": "3b71774707e53e828dcdd891bc57122deb44bed26c58e3f7d9613470f9f4630b",
+          "hash": "7957d5e42ef56f310ddec6081dc2e3c7b37827fdacf4468c9d9362761c6478bd",
           "path": "site/src/content/docs/handbook/getting-started.md"
         },
         {
-          "hash": "45223afcc5cf3cf5da5be06bbbada819dde82b3a9f7310cd63a53db6c5cdf2f4",
+          "hash": "588d2f31e908d6c22d3d070c95f75c4176e6df10cdf6ebdee364cacb9b190f75",
           "path": "site/src/content/docs/handbook/index.md"
         },
         {
-          "hash": "165df19b5eec8276429bb9571edcb7d67d490fbf46eafa9e2106d731ecf6ab4e",
+          "hash": "2d717e08a6805ffa7ca02b2cd13e8439ad149f179cb85dd071084099be7ee835",
           "path": "site/src/content/docs/handbook/reference.md"
         },
         {
-          "hash": "36be1106b6e5574229219a83618eb4f5958d022662f88641ea2d69c4fd9d160a",
+          "hash": "9cb1d0ce881845c5d5d8edcf5deec81bdcabcddbdc6265ae5bf19d168a1cb0cd",
           "path": "site/src/content/docs/handbook/ship-gate.md"
         },
         {
-          "hash": "a699ad78a6d27d6864ccfe4c3a4a01993aca28ecb4a3d20893f37db9f9b1a522",
+          "hash": "391533713539035d3c92282579d43de0f137067867fdb502d7eaea3c74601d2a",
+          "importOrder": [
+            "site/src/styles/global.css",
+            "site/src/site-config.ts"
+          ],
+          "importsFiles": [
+            "site/src/site-config.ts",
+            "site/src/styles/global.css"
+          ],
           "path": "site/src/pages/index.astro"
         },
         {
-          "hash": "b23b382420125b025d2b36230e7be07bee28934b387f3a7dbefec96997963f21",
+          "constantOnly": true,
+          "hash": "109f37ae26de60b84ee2d631d56d247dc2a7c03960a1b337df1c3e4f514381b7",
           "path": "site/src/site-config.ts"
         },
         {
-          "hash": "5995279a40a9a63426a93feec129006b261cc7200426a398914d0317722ef19b",
+          "hash": "29ee8df91833e694bdba973126b34a6177de4cf01dab6d9ef7d3126e8e2b67fb",
           "path": "site/src/styles/global.css"
         },
         {
-          "hash": "22ab5fb7496132222fbbdf8fb2d43be3652ff585a4ace4b0d29bb76d2877e617",
+          "hash": "0d11beabe574a2269bdaa467f06d03254f61512b287b43d6205d8d46d28f9270",
           "path": "site/src/styles/starlight-custom.css"
         },
         {
-          "hash": "61fc24492db9aef7ec38eb91cfeebaef96155014bb5f22648fd8ed2327c6cae2",
+          "hash": "b5b0a5b04a14cddd7713c5e1c82e86c79c17c2f86b170e26e9b170b3d5e01cd9",
           "path": "site/tsconfig.json"
         }
       ],
@@ -538,28 +811,30 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "65f1304c4c3f977cd1a74089a7c8c9e6c94a1e6dd17e0428eb43171300059d86",
+          "hash": "7ec9ecfeeddd185c7b50f0ef5f690ba4f8617a136bcaae996882f674b84357bf",
           "path": "templates/CHANGELOG.md"
         },
         {
-          "hash": "cb0bb372edb6569e95d9d925060bd9ae5fc115c4c88d77f3d27959f9c7796d6b",
+          "hash": "3affe7d481ac39a761af02523fb15baca5092c2d4e3da537ba257278446f375a",
           "path": "templates/HANDBOOK.md"
         },
         {
-          "hash": "3c97799787538a61aed96675d7e9a21bf189a77e9bd7afa414113c5aa7840dfc",
+          "hash": "b00fe74cf255d8d6944fb5374a73f2502e777569e36e2d5f52656be9af010c32",
           "path": "templates/SCORECARD.md"
         },
         {
-          "hash": "0e47704410b640b8ecf1a575da707ed040b7a9e302412af07c37b1172887ce9e",
+          "hash": "9bed25a2b947f424235e782efd44b53cce7587933adf0014b3efe78133f77643",
           "path": "templates/SECURITY.md"
         },
         {
-          "hash": "e4d0fe2d8caa8abd2bca47c83776f05aaf64dfc8172eafc560d59e7496764838",
+          "hash": "4d3d2f49d988f7d0887515a35011e9b2a22cd6a9551e59b7c998acf64c2ee47b",
           "path": "templates/SHIP_GATE.md"
         }
       ],
@@ -575,27 +850,41 @@
     },
     {
       "dynamicReads": 0,
+      "dynamicSpawns": 0,
+      "dynamicSpawnsInTests": 0,
       "dynamicWrites": 0,
       "entryPoints": [],
       "externals": 0,
       "files": [
         {
-          "hash": "cad8fd6473cf9c744f2ed1368500228e4433e662a1e4bf3c85899e5dfd35952d",
+          "hash": "bad46110a14b606baae0bfe26d937ffb1883dc090e38288d9b0198a754205ee9",
           "importsFiles": [
             "bin/shipcheck.mjs"
           ],
-          "path": "test/front-door.test.mjs"
+          "path": "test/front-door.test.mjs",
+          "spawns": [
+            "bin/shipcheck.mjs"
+          ],
+          "testFramework": "node --test"
         },
         {
-          "hash": "61714eccc93c95d4b4d7eb48a78292176933f1bdca121a0495d186c44b51f918",
+          "hash": "576f7c80cb4c596afa09bb499552296430ae18267bb7a98ebe8713277ffae8e3",
           "importsFiles": [
             "bin/shipcheck.mjs"
           ],
-          "path": "test/shipcheck.test.mjs"
+          "path": "test/shipcheck.test.mjs",
+          "spawns": [
+            "bin/shipcheck.mjs"
+          ],
+          "testFramework": "node --test"
         },
         {
-          "hash": "6a2932d365263ef407bd0702c94a9f8edc581bf6e7eb7a32932551be6a60eff4",
-          "path": "test/version.test.mjs"
+          "hash": "581e26dc9351b0ad1b568e56f8903fd58090174d724d51abf7033e23f906efc9",
+          "path": "test/version.test.mjs",
+          "spawns": [
+            "bin/shipcheck.mjs"
+          ],
+          "testFramework": "node --test"
         }
       ],
       "globs": [
@@ -605,75 +894,234 @@
       "name": "test",
       "origin": "authored",
       "role": "test",
+      "testRunners": [
+        "node --test"
+      ],
       "testedBy": 0,
       "unresolvedSites": 0
     }
   ],
   "doors": [
     {
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "",
           "job": "verify",
-          "step": "Atlas check",
-          "text": "npx --yes @dogfood-lab/atlas@1.14.0 check"
+          "programs": [
+            "npx"
+          ],
+          "step": "Atlas check"
         },
         {
+          "dir": "",
           "job": "verify",
-          "step": "3",
-          "text": "npm test"
+          "programs": [
+            "npm"
+          ],
+          "step": "3"
         },
         {
+          "dir": "",
           "job": "verify",
-          "step": "4",
-          "text": "npm run verify"
+          "programs": [
+            "npx"
+          ],
+          "step": "Coverage report for Codecov"
         },
         {
+          "dir": "",
           "job": "verify",
-          "step": "5",
-          "text": "npm audit --audit-level=moderate"
+          "programs": [
+            "npm"
+          ],
+          "step": "7"
         },
         {
+          "dir": "",
           "job": "verify",
-          "step": "6",
-          "text": "npm pack --dry-run"
+          "programs": [
+            "npm"
+          ],
+          "step": "8"
         },
         {
-          "job": "dogfood",
-          "step": "Step: run-help",
-          "text": "node bin/shipcheck.mjs help 2>&1 | tee /tmp/help.log\necho \"status=pass\" >> \"$GITHUB_OUTPUT\"\n"
+          "dir": "",
+          "job": "verify",
+          "programs": [
+            "npm"
+          ],
+          "step": "9"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: run-init",
-          "text": "node bin/shipcheck.mjs init 2>&1 | tee /tmp/init.log\nif [ -f \"SHIP_GATE.md\" ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "1",
+            "echo",
+            "node",
+            "tee"
+          ],
+          "step": "Step: run-help"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: run-audit",
-          "text": "# audit may exit 3 (partial) which is valid\nset +e\nnode bin/shipcheck.mjs audit 2>&1 | tee /tmp/audit.log\nEXIT_CODE=$?\nset -e\nif [ \"$EXIT_CODE\" -eq 0 ] || [ \"$EXIT_CODE\" -eq 3 ]; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\necho \"exit_code=$EXIT_CODE\" >> \"$GITHUB_OUTPUT\"\n"
+          "programs": [
+            "1",
+            "echo",
+            "node",
+            "tee"
+          ],
+          "step": "Step: run-init"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Step: verify-output",
-          "text": "# Check audit log contains gate results (shipcheck outputs summary lines)\nif grep -q -E \"(Checked:|Unchecked:|Skipped:|Pass rate:)\" /tmp/audit.log; then\n  echo \"status=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"status=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "1",
+            "echo",
+            "node",
+            "tee"
+          ],
+          "step": "Step: run-audit"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Determine overall verdict",
-          "text": "HELP=\"${{ steps.help.outputs.status }}\"\nINIT=\"${{ steps.init.outputs.status }}\"\nAUDIT=\"${{ steps.audit.outputs.status }}\"\nVERIFY=\"${{ steps.verify_output.outputs.status }}\"\nif [ \"$HELP\" = \"pass\" ] && [ \"$INIT\" = \"pass\" ] && [ \"$AUDIT\" = \"pass\" ] && [ \"$VERIFY\" = \"pass\" ]; then\n  echo \"verdict=pass\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"verdict=fail\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+          "programs": [
+            "echo",
+            "grep"
+          ],
+          "step": "Step: verify-output"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Build submission",
-          "text": "FINISHED_AT=$(date -u +\"%Y-%m-%dT%H:%M:%SZ\")\ncat > /tmp/submission.json << 'INNER_EOF'\n{\n  \"schema_version\": \"1.0.0\",\n  \"run_id\": \"shipcheck-RUN_ID-ATTEMPT\",\n  \"repo\": \"REPO_SLUG\",\n  \"ref\": {\n    \"branch\": \"REF_NAME\",\n    \"commit_sha\": \"COMMIT_SHA\"\n  },\n  \"source\": {\n    \"provider\": \"github\",\n    \"workflow\": \"ci.yml\",\n    \"provider_run_id\": \"PROVIDER_RUN_ID\",\n    \"attempt\": ATTEMPT_NUM,\n    \"run_url\": \"RUN_URL_PLACEHOLDER\",\n    \"actor\": \"ACTOR_NAME\"\n  },\n  \"timing\": {\n    \"started_at\": \"STARTED_PLACEHOLDER\",\n    \"finished_at\": \"FINISHED_PLACEHOLDER\",\n    \"duration_ms\": 0\n  },\n  \"ci_checks\": [\n    { \"id\": \"unit-tests\", \"kind\": \"test\", \"status\": \"pass\", \"value\": 24 }\n  ],\n  \"scenario_results\": [\n    {\n      \"scenario_id\": \"self-gate-real-repo\",\n      \"scenario_name\": \"Self-gate against real repo\",\n      \"scenario_version\": \"1.0.0\",\n      \"product_surface\": \"cli\",\n      \"execution_mode\": \"bot\",\n      \"verdict\": \"VERDICT_PLACEHOLDER\",\n      \"step_results\": [\n        { \"step_id\": \"run-help\", \"status\": \"HELP_STATUS\" },\n        { \"step_id\": \"run-init\", \"status\": \"INIT_STATUS\" },\n        { \"step_id\": \"run-audit\", \"status\": \"AUDIT_STATUS\" },\n        { \"step_id\": \"verify-output\", \"status\": \"VERIFY_STATUS\" }\n      ],\n      \"evidence\": [\n        {\n          \"kind\": \"log\",\n          \"url\": \"RUN_URL_PLACEHOLDER\",\n          \"description\": \"CI run log with audit output\"\n        },\n        {\n          \"kind\": \"artifact\",\n          \"url\": \"RUN_URL_PLACEHOLDER/artifacts\",\n          \"description\": \"Audit log artifact (dogfood-audit-log)\"\n        }\n      ],\n      \"notes\": \"Self-gate audit exit code: EXIT_CODE_PLACEHOLDER\"\n    }\n  ],\n  \"overall_verdict\": \"VERDICT_PLACEHOLDER\",\n  \"notes\": \"Pilot 1: shipcheck self-dogfood.\"\n}\nINNER_EOF\n\n# Replace placeholders with actual values\nsed -i \"s|REPO_SLUG|${GITHUB_REPOSITORY}|g\" /tmp/submission.json\nsed -i \"s|REF_NAME|${GITHUB_REF_NAME}|g\" /tmp/submission.json\nsed -i \"s|COMMIT_SHA|${GITHUB_SHA}|g\" /tmp/submission.json\nsed -i \"s|PROVIDER_RUN_ID|${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ATTEMPT_NUM|${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|RUN_URL_PLACEHOLDER|https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}|g\" /tmp/submission.json\nsed -i \"s|ACTOR_NAME|${GITHUB_ACTOR}|g\" /tmp/submission.json\nsed -i \"s|STARTED_PLACEHOLDER|${{ github.event.head_commit.timestamp }}|g\" /tmp/submission.json\nsed -i \"s|FINISHED_PLACEHOLDER|${FINISHED_AT}|g\" /tmp/submission.json\nsed -i \"s|shipcheck-RUN_ID-ATTEMPT|shipcheck-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}|g\" /tmp/submission.json\nsed -i \"s|VERDICT_PLACEHOLDER|${{ steps.verdict.outputs.verdict }}|g\" /tmp/submission.json\nsed -i \"s|HELP_STATUS|${{ steps.help.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|INIT_STATUS|${{ steps.init.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|AUDIT_STATUS|${{ steps.audit.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|VERIFY_STATUS|${{ steps.verify_output.outputs.status }}|g\" /tmp/submission.json\nsed -i \"s|EXIT_CODE_PLACEHOLDER|${{ steps.audit.outputs.exit_code }}|g\" /tmp/submission.json\n\n# Validate JSON\njq empty /tmp/submission.json\necho \"Submission built:\"\njq '.run_id, .overall_verdict' /tmp/submission.json\n"
+          "programs": [
+            "echo"
+          ],
+          "step": "Determine overall verdict"
         },
         {
+          "dir": "",
           "job": "dogfood",
-          "step": "Dispatch to dogfood-labs",
-          "text": "SUBMISSION=$(cat /tmp/submission.json)\nRUN_ID=$(echo \"$SUBMISSION\" | jq -r '.run_id')\n\nif [ -z \"$GH_TOKEN\" ]; then\n  echo \"::warning::DOGFOOD_TOKEN not set — skipping dispatch\"\n  exit 0\nfi\n\n# Build payload with submission as a proper JSON object (not string).\n# Best-effort: the payload is already validated by the blocking `jq empty`\n# in \"Build submission\" above, so only the outbound call is tolerant here.\n# An expired or unscoped DOGFOOD_TOKEN must not redden a mainline whose\n# product gates all passed -- it surfaces as a run-summary warning instead.\nif jq -n --argjson sub \"$SUBMISSION\" \\\n  '{\"event_type\":\"dogfood_submission\",\"client_payload\":{\"submission\":$sub}}' \\\n  | gh api repos/dogfood-lab/testing-os/dispatches \\\n    --input - --silent\nthen\n  echo \"Dispatched $RUN_ID to testing-os\"\nelse\n  echo \"::warning::Dispatch of $RUN_ID to dogfood-lab/testing-os failed (check DOGFOOD_TOKEN validity and scope) -- not failing the build\"\nfi\n"
+          "programs": [
+            "cat",
+            "date",
+            "echo",
+            "jq",
+            "sed"
+          ],
+          "step": "Build submission"
+        },
+        {
+          "dir": "",
+          "job": "dogfood",
+          "programs": [
+            "cat",
+            "echo",
+            "gh",
+            "jq"
+          ],
+          "step": "Dispatch to dogfood-labs"
         }
       ],
+      "elsewhere": [],
       "file": ".github/workflows/ci.yml",
+      "gated": [
+        {
+          "jobs": [
+            "dogfood"
+          ],
+          "pushes": false,
+          "sends": [
+            "dispatchesTo:dogfood-lab/testing-os"
+          ],
+          "stages": [],
+          "when": {
+            "branches": [
+              "main"
+            ]
+          }
+        }
+      ],
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "verify",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "name": "codecov",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "name": "dogfood",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [
         {
@@ -682,7 +1130,13 @@
         }
       ],
       "name": "CI",
-      "permissions": [],
+      "permissions": [
+        "contents:read",
+        "id-token:write"
+      ],
+      "programs": [
+        "git"
+      ],
       "pushes": false,
       "reach": [
         {
@@ -700,17 +1154,25 @@
       "runs": [
         {
           "job": "dogfood",
-          "path": "bin/shipcheck.mjs"
+          "path": "bin/shipcheck.mjs",
+          "runKind": "executes",
+          "when": {
+            "branches": [
+              "main"
+            ]
+          }
         },
         {
           "job": "verify",
-          "path": "bin/shipcheck.mjs"
+          "path": "bin/shipcheck.mjs",
+          "runKind": "executes"
         },
         {
           "directory": true,
           "job": "verify",
           "matched": true,
-          "path": "test/"
+          "path": "test/",
+          "runKind": "executes"
         }
       ],
       "runsCount": 2,
@@ -719,9 +1181,7 @@
       ],
       "sends": {
         "deploysPages": false,
-        "dispatchesTo": [
-          "dogfood-lab/testing-os"
-        ],
+        "dispatchesTo": [],
         "opensIssues": false,
         "opensIssuesOnFailure": false,
         "opensPullRequests": false,
@@ -730,6 +1190,19 @@
         "releases": false
       },
       "stages": [],
+      "tests": [
+        {
+          "coverage": true,
+          "files": 3,
+          "job": "verify",
+          "junit": true,
+          "runner": "node --test",
+          "step": "3",
+          "through": [
+            "npm test"
+          ]
+        }
+      ],
       "triggers": [
         {
           "event": "pull_request",
@@ -737,6 +1210,7 @@
             ".github/workflows/**",
             "atlas/**",
             "bin/**",
+            "codecov.yml",
             "contracts/**",
             "dogfood/**",
             "package-lock.json",
@@ -757,6 +1231,7 @@
             ".github/workflows/**",
             "atlas/**",
             "bin/**",
+            "codecov.yml",
             "contracts/**",
             "dogfood/**",
             "package-lock.json",
@@ -774,25 +1249,85 @@
       ],
       "uses": [
         "actions/checkout",
+        "actions/download-artifact",
         "actions/setup-node",
-        "actions/upload-artifact"
+        "actions/upload-artifact",
+        "codecov/codecov-action"
       ],
       "usesWorkflowToken": false
     },
     {
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "site",
           "job": "build",
-          "step": "Install site dependencies",
-          "text": "npm ci"
+          "programs": [
+            "npm"
+          ],
+          "step": "Install site dependencies"
         },
         {
+          "dir": "site",
           "job": "build",
-          "step": "Build site",
-          "text": "npm run build"
+          "programs": [
+            "npm"
+          ],
+          "step": "Build site"
         }
       ],
+      "elsewhere": [],
       "file": ".github/workflows/pages.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "build",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        },
+        {
+          "basis": "declared",
+          "environment": {
+            "name": "github-pages"
+          },
+          "name": "deploy",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [],
       "name": "Deploy site to GitHub Pages",
@@ -802,10 +1337,32 @@
         "pages:write"
       ],
       "pushes": false,
-      "reach": [],
+      "reach": [
+        {
+          "boundary": "site",
+          "depth": 0,
+          "files": 5
+        }
+      ],
       "readers": [],
-      "runs": [],
-      "runsCount": 0,
+      "runs": [
+        {
+          "job": "build",
+          "matched": true,
+          "path": "site/astro.config.mjs",
+          "runKind": "executes",
+          "via": "astro build"
+        },
+        {
+          "directory": true,
+          "job": "build",
+          "matched": true,
+          "path": "site/src/",
+          "runKind": "executes",
+          "via": "astro build"
+        }
+      ],
+      "runsCount": 2,
       "secrets": [],
       "sends": {
         "deploysPages": true,
@@ -842,44 +1399,103 @@
       "usesWorkflowToken": false
     },
     {
+      "checksCount": 0,
       "commands": [
         {
+          "dir": "",
           "job": "publish",
-          "step": "Verify release tag matches package.json version",
-          "text": "PKG_VERSION=$(node -p \"require('./package.json').version\")\nTAG_VERSION=\"${GITHUB_REF_NAME#v}\"\necho \"Tag: ${GITHUB_REF_NAME} -> ${TAG_VERSION} | Package: ${PKG_VERSION}\"\nif [ \"${PKG_VERSION}\" != \"${TAG_VERSION}\" ]; then\n  echo \"::error::Release tag ${TAG_VERSION} does not match package.json version ${PKG_VERSION}\"\n  exit 1\nfi\n"
+          "programs": [
+            "echo",
+            "node"
+          ],
+          "step": "Verify release tag matches package.json version"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "Test",
-          "text": "npm test"
+          "programs": [
+            "npm"
+          ],
+          "step": "Test"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "Verify (shipcheck self-audit + help)",
-          "text": "npm run verify"
+          "programs": [
+            "npm"
+          ],
+          "step": "Verify (shipcheck self-audit + help)"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "Dependency audit",
-          "text": "npm audit --audit-level=moderate"
+          "programs": [
+            "npm"
+          ],
+          "step": "Dependency audit"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "npm pack dry-run (verify tarball shape)",
-          "text": "npm pack --dry-run"
+          "programs": [
+            "npm"
+          ],
+          "step": "npm pack dry-run (verify tarball shape)"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "Install npm >= 11.5 in sandbox for OIDC trusted-publishing auth",
-          "text": "# Node 22 bundles npm 10.x (no OIDC); an in-place `npm i -g npm@latest`\n# races its own arborist rebuild. Install into an isolated sandbox.\nSANDBOX=\"$HOME/.npm-cli-sandbox\"\nmkdir -p \"$SANDBOX\"\npushd \"$SANDBOX\" >/dev/null\necho '{\"name\":\"npm-cli-sandbox\",\"version\":\"0.0.0\",\"private\":true}' > package.json\nnpm install --no-save --no-audit --no-fund --silent npm@latest\npopd >/dev/null\necho \"$SANDBOX/node_modules/.bin\" >> \"$GITHUB_PATH\"\n\"$SANDBOX/node_modules/.bin/npm\" --version\n"
+          "programs": [
+            "echo",
+            "mkdir",
+            "npm",
+            "popd",
+            "pushd"
+          ],
+          "step": "Install npm >= 11.5 in sandbox for OIDC trusted-publishing auth"
         },
         {
+          "dir": "",
           "job": "publish",
-          "step": "Publish to npm with provenance (OIDC trusted publisher)",
-          "text": "npm publish --provenance --access public"
+          "programs": [
+            "npm"
+          ],
+          "step": "Publish to npm with provenance (OIDC trusted publisher)"
         }
       ],
+      "elsewhere": [],
       "file": ".github/workflows/release.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "publish",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [
         {
@@ -891,6 +1507,9 @@
       "permissions": [
         "contents:read",
         "id-token:write"
+      ],
+      "programs": [
+        "git"
       ],
       "pushes": false,
       "reach": [
@@ -909,13 +1528,15 @@
       "runs": [
         {
           "job": "publish",
-          "path": "bin/shipcheck.mjs"
+          "path": "bin/shipcheck.mjs",
+          "runKind": "executes"
         },
         {
           "directory": true,
           "job": "publish",
           "matched": true,
-          "path": "test/"
+          "path": "test/",
+          "runKind": "executes"
         }
       ],
       "runsCount": 2,
@@ -926,6 +1547,13 @@
         "opensIssues": false,
         "opensIssuesOnFailure": false,
         "opensPullRequests": false,
+        "packages": [
+          {
+            "dir": "",
+            "name": "@mcptoolshop/shipcheck",
+            "registry": "npm"
+          }
+        ],
         "publishes": true,
         "publishesTo": [
           "npm"
@@ -933,6 +1561,17 @@
         "releases": false
       },
       "stages": [],
+      "tests": [
+        {
+          "files": 3,
+          "job": "publish",
+          "runner": "node --test",
+          "step": "Test",
+          "through": [
+            "npm test"
+          ]
+        }
+      ],
       "triggers": [
         {
           "event": "release",
@@ -951,74 +1590,168 @@
       "usesWorkflowToken": false
     },
     {
+      "checksCount": 1,
       "commands": [
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "2",
-          "text": "npm ci"
+          "programs": [
+            "npm"
+          ],
+          "step": "2"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "3",
-          "text": "npm run build || true"
+          "programs": [
+            "npm"
+          ],
+          "step": "3"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Hash artifacts",
-          "text": "mkdir -p /tmp/repomesh\nif compgen -G \"dist/*.tgz\" > /dev/null; then\n  sha256sum dist/*.tgz > /tmp/repomesh/artifact-hashes.txt\nelif compgen -G \"bin/*.mjs\" > /dev/null; then\n  sha256sum bin/*.mjs > /tmp/repomesh/artifact-hashes.txt\nelse\n  sha256sum package.json > /tmp/repomesh/artifact-hashes.txt\nfi\ncat /tmp/repomesh/artifact-hashes.txt\n"
+          "programs": [
+            "cat",
+            "compgen",
+            "mkdir",
+            "sha256sum"
+          ],
+          "step": "Hash artifacts"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Generate SBOM",
-          "text": "npm sbom --sbom-format cyclonedx > /tmp/repomesh/sbom.json 2>/dev/null || echo '{\"bomFormat\":\"CycloneDX\",\"specVersion\":\"1.4\",\"components\":[]}' > /tmp/repomesh/sbom.json\nsha256sum /tmp/repomesh/sbom.json | awk '{print $1}' > /tmp/repomesh/sbom-hash.txt\necho \"SBOM generated ($(wc -c < /tmp/repomesh/sbom.json) bytes)\"\n"
+          "programs": [
+            "awk",
+            "echo",
+            "npm",
+            "sha256sum",
+            "wc"
+          ],
+          "step": "Generate SBOM"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Generate provenance",
-          "text": "cat > /tmp/repomesh/provenance.json << PROVEOF\n{\n  \"_type\": \"https://slsa.dev/provenance/v1\",\n  \"subject\": {\n    \"repo\": \"${REPO_ID}\",\n    \"version\": \"${VERSION}\",\n    \"commit\": \"${COMMIT}\"\n  },\n  \"buildDefinition\": {\n    \"buildType\": \"https://github.com/actions/runner\",\n    \"externalParameters\": {\n      \"workflow\": \".github/workflows/repomesh-broadcast.yml\",\n      \"trigger\": \"release:published\"\n    }\n  },\n  \"runDetails\": {\n    \"builder\": {\n      \"id\": \"https://github.com/actions/runner/${RUNNER_OS}/${RUNNER_ARCH}\"\n    },\n    \"metadata\": {\n      \"invocationId\": \"https://github.com/${REPO_ID}/actions/runs/${{ github.run_id }}\",\n      \"startedOn\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"\n    }\n  }\n}\nPROVEOF\nsha256sum /tmp/repomesh/provenance.json | awk '{print $1}' > /tmp/repomesh/provenance-hash.txt\necho \"Provenance generated\"\n"
+          "programs": [
+            "awk",
+            "cat",
+            "echo",
+            "sha256sum"
+          ],
+          "step": "Generate provenance"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Upload attestation assets",
-          "text": "VERSION=\"${{ github.ref_name }}\"\ngh release upload \"$VERSION\" /tmp/repomesh/sbom.json --clobber 2>/dev/null || echo \"SBOM upload skipped\"\ngh release upload \"$VERSION\" /tmp/repomesh/provenance.json --clobber 2>/dev/null || echo \"Provenance upload skipped\"\n"
+          "programs": [
+            "echo",
+            "gh"
+          ],
+          "step": "Upload attestation assets"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Create signed event",
-          "text": "cat > /tmp/repomesh/build-event.mjs << 'SCRIPT'\nimport fs from \"node:fs\";\nimport crypto from \"node:crypto\";\n\nfunction canonicalize(v) {\n  if (Array.isArray(v)) return v.map(canonicalize);\n  if (v && typeof v === \"object\") {\n    const out = {};\n    for (const k of Object.keys(v).sort()) out[k] = canonicalize(v[k]);\n    return out;\n  }\n  return v;\n}\n\nconst repo = process.env.REPO_ID;\nconst version = process.env.VERSION.replace(/^v/, \"\");\nconst commit = process.env.COMMIT;\nconst keyId = process.env.KEY_ID;\n\nif (!process.env.SIGNING_KEY) {\n  console.error(\"REPOMESH_SIGNING_KEY secret is not set.\");\n  process.exit(1);\n}\n\nconst artifacts = fs.readFileSync(\"/tmp/repomesh/artifact-hashes.txt\", \"utf8\")\n  .trim().split(\"\\n\").filter(Boolean)\n  .map(line => {\n    const [sha, ...rest] = line.trim().split(/\\s+/);\n    const file = rest.join(\" \");\n    return {\n      name: file.split(\"/\").pop(),\n      sha256: sha,\n      uri: `https://github.com/${repo}/releases/tag/v${version}`\n    };\n  });\n\n// Build attestations from generated SBOM + provenance\nconst attestations = [];\nconst releaseUrl = `https://github.com/${repo}/releases/download/v${version}`;\n\ntry {\n  fs.accessSync(\"/tmp/repomesh/sbom.json\");\n  attestations.push({\n    type: \"sbom\",\n    uri: `${releaseUrl}/sbom.json`\n  });\n} catch {}\n\ntry {\n  fs.accessSync(\"/tmp/repomesh/provenance.json\");\n  attestations.push({\n    type: \"provenance\",\n    uri: `${releaseUrl}/provenance.json`\n  });\n} catch {}\n\nconst ev = {\n  type: \"ReleasePublished\",\n  repo,\n  version,\n  commit,\n  timestamp: new Date().toISOString(),\n  artifacts,\n  attestations,\n  signature: { alg: \"ed25519\", keyId, value: \"\", canonicalHash: \"\" }\n};\n\n// Compute canonical hash (signature excluded)\nconst stripped = JSON.parse(JSON.stringify(ev));\ndelete stripped.signature;\nconst canonical = JSON.stringify(canonicalize(stripped));\nconst hash = crypto.createHash(\"sha256\").update(canonical, \"utf8\").digest(\"hex\");\n\n// Sign the canonical hash\nconst privKey = crypto.createPrivateKey(process.env.SIGNING_KEY);\nconst sig = crypto.sign(null, Buffer.from(hash, \"hex\"), privKey);\n\nev.signature.value = sig.toString(\"base64\");\nev.signature.canonicalHash = hash;\n\nfs.writeFileSync(\"/tmp/repomesh/event.json\", JSON.stringify(ev));\nconsole.log(`Event: ${ev.type} ${ev.repo}@${ev.version} (keyId: ${keyId})`);\nconsole.log(`Attestations: ${attestations.map(a => a.type).join(\", \") || \"none\"}`);\nSCRIPT\n\nnode /tmp/repomesh/build-event.mjs\n"
+          "programs": [
+            "cat",
+            "node"
+          ],
+          "step": "Create signed event"
         },
         {
+          "dir": "",
           "job": "broadcast",
-          "step": "Append to ledger via PR",
-          "text": "REPO_SLUG=\"${{ github.event.repository.name }}\"\nVERSION=\"${{ github.ref_name }}\"\nBRANCH=\"event/${REPO_SLUG}/${VERSION}\"\n\ngh repo clone \"${{ env.REPOMESH_LEDGER_REPO }}\" /tmp/repomesh-ledger -- --depth 1\ncd /tmp/repomesh-ledger\n\ngit remote set-url origin \"https://x-access-token:${GH_TOKEN}@github.com/${{ env.REPOMESH_LEDGER_REPO }}.git\"\ngit config user.name \"repomesh-bot\"\ngit config user.email \"repomesh-bot@users.noreply.github.com\"\ngit checkout -b \"$BRANCH\"\n\ncat /tmp/repomesh/event.json >> ledger/events/events.jsonl\nprintf '\\n' >> ledger/events/events.jsonl\n\ngit add ledger/events/events.jsonl\ngit commit -m \"event: ${{ github.repository }}@${VERSION}\"\ngit push origin \"$BRANCH\"\n\ngh pr create \\\n  --repo \"${{ env.REPOMESH_LEDGER_REPO }}\" \\\n  --head \"$BRANCH\" \\\n  --title \"event: ${{ github.repository }}@${VERSION}\" \\\n  --body \"$(cat <<'EOF'\n## RepoMesh Broadcast\n\n**Repo:** ${{ github.repository }}\n**Version:** ${{ github.ref_name }}\n**Commit:** ${{ github.sha }}\n**Type:** ReleasePublished\n\nAutomated event from release workflow. Ledger CI will verify schema, signature, and append-only rules.\nEOF\n)\"\n"
+          "programs": [
+            "cat",
+            "cd",
+            "gh",
+            "git",
+            "printf"
+          ],
+          "step": "Append to ledger via PR"
+        }
+      ],
+      "elsewhere": [
+        {
+          "clone": "mcp-tool-shop-org/repomesh",
+          "dir": "/tmp/repomesh-ledger",
+          "pushes": true,
+          "stages": [
+            "ledger/events/events.jsonl"
+          ]
         }
       ],
       "file": ".github/workflows/repomesh-broadcast.yml",
+      "jobs": [
+        {
+          "basis": "declared",
+          "name": "broadcast",
+          "runsOn": [
+            {
+              "labels": [
+                "ubuntu-latest"
+              ],
+              "platform": {
+                "cpu": "x64",
+                "libc": "glibc",
+                "os": "linux"
+              }
+            }
+          ],
+          "setup": [
+            {
+              "ranges": [
+                {
+                  "from": "22",
+                  "range": ">=22.0.0 <23.0.0-0"
+                }
+              ],
+              "step": "1",
+              "uses": "actions/setup-node",
+              "version": "22"
+            }
+          ]
+        }
+      ],
       "landings": [],
       "mentions": [
         {
           "job": "broadcast",
           "path": ".github/workflows/repomesh-broadcast.yml"
-        },
-        {
-          "job": "broadcast",
-          "path": "package.json"
         }
       ],
       "name": "repomesh-broadcast",
       "permissions": [
         "contents:write"
       ],
-      "pushes": true,
-      "reach": [],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "root",
+          "depth": 0,
+          "files": 1
+        }
+      ],
       "readers": [],
-      "runs": [],
-      "runsCount": 0,
+      "runs": [
+        {
+          "job": "broadcast",
+          "path": "package.json",
+          "runKind": "checks"
+        }
+      ],
+      "runsCount": 1,
       "secrets": [
         "REPOMESH_LEDGER_TOKEN",
         "REPOMESH_SIGNING_KEY"
       ],
       "sends": {
+        "assets": [
+          "file:provenance.json",
+          "file:sbom.json"
+        ],
         "deploysPages": false,
         "dispatchesTo": [],
         "opensIssues": false,
@@ -1028,9 +1761,7 @@
         "publishesTo": [],
         "releases": false
       },
-      "stages": [
-        "ledger/events/events.jsonl"
-      ],
+      "stages": [],
       "triggers": [
         {
           "event": "release",
@@ -1044,6 +1775,51 @@
         "actions/setup-node"
       ],
       "usesWorkflowToken": true
+    },
+    {
+      "checksCount": 0,
+      "commands": [],
+      "elsewhere": [],
+      "file": "package.json",
+      "kind": "command",
+      "landings": [],
+      "mentions": [],
+      "name": "shipcheck",
+      "permissions": [],
+      "programs": [
+        "git"
+      ],
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "bin",
+          "depth": 0,
+          "files": 1
+        }
+      ],
+      "readers": [],
+      "runs": [
+        {
+          "path": "bin/shipcheck.mjs",
+          "runKind": "executes"
+        }
+      ],
+      "runsCount": 1,
+      "secrets": [],
+      "sends": {
+        "deploysPages": false,
+        "dispatchesTo": [],
+        "opensIssues": false,
+        "opensIssuesOnFailure": false,
+        "opensPullRequests": false,
+        "publishes": false,
+        "publishesTo": [],
+        "releases": false
+      },
+      "stages": [],
+      "triggers": [],
+      "uses": [],
+      "usesWorkflowToken": false
     }
   ],
   "edges": [
@@ -1054,36 +1830,17 @@
       "to": "bin"
     }
   ],
+  "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "875a8ae4a0587a17208636a352759afd751981d8",
-    "tracked": 101
+    "commit": "960400504764966256327f4a0fb89126e1647945",
+    "tracked": 102
   },
   "landings": [
     {
       "readers": [
         {
-          "by": "bin/shipcheck.mjs",
-          "call": "existsSync",
-          "confidence": "ast"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "readFileSync",
-          "confidence": "ast"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "readdirSync",
-          "confidence": "ast"
-        }
-      ],
-      "target": ".github/workflows",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": ".github/workflows/repomesh-broadcast.yml"
+          "by": ".github/workflows/repomesh-broadcast.yml",
+          "confidence": "config"
         }
       ],
       "target": ".github/workflows/repomesh-broadcast.yml",
@@ -1092,25 +1849,10 @@
     {
       "readers": [
         {
-          "by": "package.json",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "ADOPTION.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "literal",
-          "confidence": "ast"
-        },
-        {
-          "by": "package.json",
-          "call": "literal",
-          "confidence": "text"
+          "by": "test/version.test.mjs",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "CHANGELOG.md",
@@ -1119,49 +1861,10 @@
     {
       "readers": [
         {
-          "by": "README.es.md",
+          "by": "test/shipcheck.test.mjs",
           "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "package.json",
-          "call": "literal",
-          "confidence": "text"
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "LICENSE",
@@ -1170,254 +1873,16 @@
     {
       "readers": [
         {
-          "by": "README.fr.md",
+          "by": "test/front-door.test.mjs",
           "call": "literal",
-          "confidence": "text"
+          "confidence": "ast",
+          "fromTests": true
         },
         {
-          "by": "README.hi.md",
+          "by": "test/shipcheck.test.mjs",
           "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.es.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.fr.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.hi.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.it.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.ja.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "literal",
-          "confidence": "ast"
-        },
-        {
-          "by": "package.json",
-          "call": "literal",
-          "confidence": "text"
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "README.md",
@@ -1426,102 +1891,10 @@
     {
       "readers": [
         {
-          "by": "README.es.md",
+          "by": "test/shipcheck.test.mjs",
           "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.zh.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.pt-BR.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "README.es.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.fr.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.hi.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.it.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.ja.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.md",
-          "call": "literal",
-          "confidence": "text"
-        },
-        {
-          "by": "README.pt-BR.md",
-          "call": "literal",
-          "confidence": "text"
-        }
-      ],
-      "target": "README.zh.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "literal",
-          "confidence": "ast"
-        }
-      ],
-      "target": "SCORECARD.md",
-      "writers": []
-    },
-    {
-      "readers": [
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "literal",
-          "confidence": "ast"
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "SECURITY.md",
@@ -1530,22 +1903,14 @@
     {
       "readers": [
         {
-          "by": ".github/workflows/ci.yml"
+          "by": ".github/workflows/ci.yml",
+          "confidence": "config"
         },
         {
-          "by": "bin/shipcheck.mjs",
-          "call": "existsSync",
-          "confidence": "weak"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
+          "by": "test/shipcheck.test.mjs",
           "call": "literal",
-          "confidence": "ast"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "readFileSync",
-          "confidence": "weak"
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "SHIP_GATE.md",
@@ -1559,9 +1924,22 @@
           "confidence": "text"
         },
         {
-          "by": "package.json",
+          "by": "test/front-door.test.mjs",
           "call": "literal",
-          "confidence": "text"
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/shipcheck.test.mjs",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/version.test.mjs",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "bin/shipcheck.mjs",
@@ -1570,9 +1948,10 @@
     {
       "readers": [
         {
-          "by": "bin/shipcheck.mjs",
+          "by": "test/shipcheck.test.mjs",
           "call": "literal",
-          "confidence": "ast"
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "package-lock.json",
@@ -1581,20 +1960,8 @@
     {
       "readers": [
         {
-          "by": ".github/workflows/release.yml"
-        },
-        {
-          "by": ".github/workflows/repomesh-broadcast.yml"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "existsSync",
-          "confidence": "weak"
-        },
-        {
-          "by": "bin/shipcheck.mjs",
-          "call": "literal",
-          "confidence": "ast"
+          "by": ".github/workflows/release.yml",
+          "confidence": "config"
         },
         {
           "by": "bin/shipcheck.mjs",
@@ -1610,6 +1977,18 @@
           "by": "bin/shipcheck.mjs",
           "call": "readFileSync",
           "confidence": "weak"
+        },
+        {
+          "by": "test/shipcheck.test.mjs",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        },
+        {
+          "by": "test/version.test.mjs",
+          "call": "readFileSync",
+          "confidence": "ast",
+          "fromTests": true
         }
       ],
       "target": "package.json",
@@ -1618,8 +1997,35 @@
     {
       "readers": [
         {
+          "by": "site/astro.config.mjs",
+          "call": "content-collection",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "site/astro.config.mjs",
+          "call": "autogenerate",
+          "confidence": "ast"
+        }
+      ],
+      "target": "site/src/content/docs/handbook",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
           "by": "bin/shipcheck.mjs",
-          "call": "literal",
+          "call": "existsSync",
+          "confidence": "ast"
+        },
+        {
+          "by": "bin/shipcheck.mjs",
+          "call": "readFileSync",
           "confidence": "ast"
         }
       ],
@@ -1630,7 +2036,12 @@
       "readers": [
         {
           "by": "bin/shipcheck.mjs",
-          "call": "literal",
+          "call": "existsSync",
+          "confidence": "ast"
+        },
+        {
+          "by": "bin/shipcheck.mjs",
+          "call": "readFileSync",
           "confidence": "ast"
         }
       ],
@@ -1641,7 +2052,12 @@
       "readers": [
         {
           "by": "bin/shipcheck.mjs",
-          "call": "literal",
+          "call": "existsSync",
+          "confidence": "ast"
+        },
+        {
+          "by": "bin/shipcheck.mjs",
+          "call": "readFileSync",
           "confidence": "ast"
         }
       ],
@@ -1652,7 +2068,12 @@
       "readers": [
         {
           "by": "bin/shipcheck.mjs",
-          "call": "literal",
+          "call": "existsSync",
+          "confidence": "ast"
+        },
+        {
+          "by": "bin/shipcheck.mjs",
+          "call": "readFileSync",
           "confidence": "ast"
         }
       ],
