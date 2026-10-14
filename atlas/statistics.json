@@ -163,7 +163,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "test",
-      "qualifyingSourceCommits": 9,
+      "qualifyingSourceCommits": 10,
       "rebaseline": null
     }
   ],
@@ -171,8 +171,8 @@
     "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
     "files": [
       {
-        "commits": 13,
-        "lines": 267,
+        "commits": 15,
+        "lines": 277,
         "path": ".github/workflows/ci.yml"
       },
       {
@@ -241,8 +241,8 @@
         "path": "README.zh.md"
       },
       {
-        "commits": 4,
-        "lines": 262,
+        "commits": 6,
+        "lines": 296,
         "path": "atlas/README.md"
       },
       {
@@ -251,18 +251,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 4,
-        "lines": 802,
+        "commits": 6,
+        "lines": 944,
         "path": "atlas/page.json"
       },
       {
-        "commits": 4,
-        "lines": 2208,
+        "commits": 6,
+        "lines": 2268,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 4,
-        "lines": 6678,
+        "commits": 6,
+        "lines": 6720,
         "path": "atlas/structure.json"
       },
       {
@@ -296,8 +296,8 @@
         "path": "site/astro.config.mjs"
       },
       {
-        "commits": 8,
-        "lines": 15514,
+        "commits": 10,
+        "lines": 15522,
         "path": "site/package-lock.json"
       },
       {
@@ -326,8 +326,8 @@
         "path": "test/front-door.test.mjs"
       },
       {
-        "commits": 11,
-        "lines": 1394,
+        "commits": 12,
+        "lines": 1401,
         "path": "test/shipcheck.test.mjs"
       }
     ]
@@ -336,9 +336,9 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-01T02:13:07.593Z",
+  "generatedAt": "2026-10-14T22:46:54.561Z",
   "generatedFrom": {
-    "commit": "8561c6d79dd6ea9c04daaa0c488677d528470c79"
+    "commit": "bc7e0b0e065f2fc4efb751128e24680a807840c7"
   },
   "pairs": [
     {
@@ -373,16 +373,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-09-30T13:52:49-07:00",
+    "headDate": "2026-10-14T14:19:24-07:00",
     "inScopeFiles": 107,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 25,
+    "qualifyingCommits": 28,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T20:52:49.000Z",
+    "since": "2026-04-17T21:19:24.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
