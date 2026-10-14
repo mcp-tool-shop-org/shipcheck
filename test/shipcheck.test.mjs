@@ -545,14 +545,15 @@ describe("pack command (Gate H)", () => {
 // Fake credentials below are constructed at runtime (prefix + filler) so the test
 // SOURCE never contains a contiguous real-looking token — this keeps GitHub push
 // protection and the org's own `shipcheck secrets` gate quiet while the RUNTIME
-// value still exercises the regex. AKIAIOSFODNN7EXAMPLE is AWS's own documented,
+// value still exercises the regex. AKIA + IOSFODNN7EXAMPLE is AWS's own documented,
 // universally-allowlisted example key.
+// built at runtime so secret scanners don't flag a test fixture
 const FAKE = {
-  aws: "AKIAIOSFODNN7EXAMPLE",
+  aws: "AKIA" + "IOSFODNN7EXAMPLE",
   githubPat: "ghp_" + "0123456789abcdefghijklmnopqrstuvwxyz",   // 36-char body
   npmToken: "npm_" + "0123456789abcdefghijklmnopqrstuvwxyz",    // 36-char body
   anthropic: "sk-ant-" + "A".repeat(24),
-  privKeyHeader: "-----BEGIN RSA PRIVATE KEY-----",
+  privKeyHeader: "-----BEGIN RSA " + "PRIVATE KEY-----",
 };
 
 describe("scanTextForSecrets (Gate I unit + RED meta)", () => {
