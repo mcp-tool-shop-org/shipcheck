@@ -1,14 +1,14 @@
 # shipcheck: how it works
 
-Mapped at 2026-10-14 from commit bc7e0b0 by Atlas 1.24.0.
+Mapped at 2026-10-14 from commit 42c9ca0 by Atlas 1.24.0.
 
 ## What this is
 
 10 parts, mostly Markdown (79 files); code in JavaScript (5), CSS (2), TypeScript (2) and Astro (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run shipcheck.
 
-## What changed since 2026-10-01 (8561c6d)
+## What changed since 2026-10-14 (bc7e0b0)
 
-Nothing structural changed since 2026-10-01; 5 files changed content.
+Nothing structural changed since 2026-10-14; no file changed.
 
 ## What comes in
 

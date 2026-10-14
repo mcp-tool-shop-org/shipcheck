@@ -196,8 +196,8 @@
         "path": ".github/workflows/repomesh-broadcast.yml"
       },
       {
-        "commits": 9,
-        "lines": 264,
+        "commits": 10,
+        "lines": 272,
         "path": "CHANGELOG.md"
       },
       {
@@ -241,8 +241,8 @@
         "path": "README.zh.md"
       },
       {
-        "commits": 6,
-        "lines": 296,
+        "commits": 7,
+        "lines": 303,
         "path": "atlas/README.md"
       },
       {
@@ -251,18 +251,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 6,
-        "lines": 944,
+        "commits": 7,
+        "lines": 967,
         "path": "atlas/page.json"
       },
       {
-        "commits": 6,
-        "lines": 2268,
+        "commits": 7,
+        "lines": 2308,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 6,
-        "lines": 6720,
+        "commits": 7,
+        "lines": 6732,
         "path": "atlas/structure.json"
       },
       {
@@ -281,13 +281,13 @@
         "path": "docs/executed-vs-attested-audit.md"
       },
       {
-        "commits": 2,
-        "lines": 24,
+        "commits": 3,
+        "lines": 28,
         "path": "package-lock.json"
       },
       {
-        "commits": 9,
-        "lines": 42,
+        "commits": 10,
+        "lines": 44,
         "path": "package.json"
       },
       {
@@ -336,31 +336,31 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-14T22:46:54.561Z",
+  "generatedAt": "2026-10-14T22:49:14.792Z",
   "generatedFrom": {
-    "commit": "bc7e0b0e065f2fc4efb751128e24680a807840c7"
+    "commit": "42c9ca009eaa21c60e2ac97173b1680bfb53a125"
   },
   "pairs": [
     {
       "a": "CHANGELOG.md",
       "b": "bin/shipcheck.mjs",
-      "either": 7,
+      "either": 8,
       "shared": 5,
-      "strength": 0.714286
+      "strength": 0.625
     },
     {
       "a": "CHANGELOG.md",
       "b": "package.json",
-      "either": 7,
-      "shared": 5,
-      "strength": 0.714286
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
     },
     {
       "a": "bin/shipcheck.mjs",
       "b": "package.json",
-      "either": 7,
+      "either": 8,
       "shared": 5,
-      "strength": 0.714286
+      "strength": 0.625
     }
   ],
   "parameters": {
@@ -373,16 +373,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-10-14T14:19:24-07:00",
+    "headDate": "2026-10-14T18:46:57-04:00",
     "inScopeFiles": 107,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 28,
+    "qualifyingCommits": 29,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-17T21:19:24.000Z",
+    "since": "2026-04-17T22:46:57.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

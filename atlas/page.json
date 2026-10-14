@@ -31,21 +31,21 @@
   "changes": {
     "fileCounts": {
       "added": 0,
-      "changed": 5,
+      "changed": 0,
       "moved": 0,
-      "parts": 3,
+      "parts": 0,
       "removed": 0
     },
     "items": [
       {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-10-01; 5 files changed content.",
+        "sentence": "Nothing structural changed since 2026-10-14; no file changed.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "8561c6d79dd6ea9c04daaa0c488677d528470c79",
-      "generatedAt": "2026-10-01T02:13:07.593Z"
+      "commit": "bc7e0b0e065f2fc4efb751128e24680a807840c7",
+      "generatedAt": "2026-10-14T22:46:54.561Z"
     },
     "unchanged": true
   },
@@ -54,7 +54,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "bc7e0b0e065f2fc4efb751128e24680a807840c7",
+  "commit": "42c9ca009eaa21c60e2ac97173b1680bfb53a125",
   "defaultBranch": "main",
   "derived": "10 parts, mostly Markdown (79 files); code in JavaScript (5), CSS (2), TypeScript (2) and Astro (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run shipcheck.",
   "doors": [
@@ -242,7 +242,7 @@
   ],
   "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-10-14T22:46:54.561Z",
+  "generatedAt": "2026-10-14T22:49:14.792Z",
   "limits": [
     "2 reads use paths built at run time and are not named here.",
     "4 writes and 31 reads go to the directory the command is run in, not to this repository.",
