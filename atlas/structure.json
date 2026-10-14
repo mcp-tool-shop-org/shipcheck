@@ -645,7 +645,7 @@
           "path": "ADOPTION.md"
         },
         {
-          "hash": "f0269e43a924df1ee602e30045e73cb114acc549a4468f1dac76f1b1eacc11a0",
+          "hash": "8320093c9a1ebac3c7f1c32c3192f2ddf5c416f0f6fcbf85843969ccbcc1233f",
           "path": "CHANGELOG.md"
         },
         {
@@ -701,11 +701,11 @@
           "path": "codecov.yml"
         },
         {
-          "hash": "428dbba412cf965b2f8dbec1cb0833dbc807c15c0646748c050f1e385a3491ac",
+          "hash": "a2fe92361523b2df7aa9742aef357729641083b9e300434a8c4a19327801b82a",
           "path": "package-lock.json"
         },
         {
-          "hash": "706570c06af312fb66fbd6f6603c49f0abea1181ce03772f6a02bef0cba0922b",
+          "hash": "e3588af2ec3f7bbdfe3485dfd75e4f344863aa3ff2c98f397f589d608c566c1c",
           "path": "package.json"
         }
       ],
@@ -733,7 +733,7 @@
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "87139e10ca7684b2ba99c9425836cbef943e1ad3a0417cb53ff3eb32549f6147",
+          "hash": "1b3cc20545e2e0968373ee2c2716efc7cfc224197eae36e8dc53c114cc60a2cc",
           "path": "site/package-lock.json"
         },
         {
@@ -868,7 +868,7 @@
           "testFramework": "node --test"
         },
         {
-          "hash": "576f7c80cb4c596afa09bb499552296430ae18267bb7a98ebe8713277ffae8e3",
+          "hash": "8f994d5922b615b90585a19b02edaf3a1cdb6d489f4548bedf4f97187886b493",
           "importsFiles": [
             "bin/shipcheck.mjs"
           ],
@@ -1817,7 +1817,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "8561c6d79dd6ea9c04daaa0c488677d528470c79",
+    "commit": "42c9ca009eaa21c60e2ac97173b1680bfb53a125",
     "tracked": 102
   },
   "landings": [

@@ -31,37 +31,30 @@
   "changes": {
     "fileCounts": {
       "added": 0,
-      "changed": 1,
+      "changed": 0,
       "moved": 0,
-      "parts": 1,
+      "parts": 0,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `contracts/**`, `dogfood/**`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `templates/**` and `test/**`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
         "kind": "counts",
-        "sentence": "1 file changed content, across 1 part.",
+        "sentence": "Nothing structural changed since 2026-10-14; no file changed.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "960400504764966256327f4a0fb89126e1647945",
-      "generatedAt": "2026-09-30T20:12:52.872Z"
+      "commit": "bc7e0b0e065f2fc4efb751128e24680a807840c7",
+      "generatedAt": "2026-10-14T22:46:54.561Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "8561c6d79dd6ea9c04daaa0c488677d528470c79",
+  "commit": "42c9ca009eaa21c60e2ac97173b1680bfb53a125",
   "defaultBranch": "main",
   "derived": "10 parts, mostly Markdown (79 files); code in JavaScript (5), CSS (2), TypeScript (2) and Astro (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run shipcheck.",
   "doors": [
@@ -249,7 +242,7 @@
   ],
   "engine": "1.24.0",
   "generated": [],
-  "generatedAt": "2026-10-01T02:13:07.593Z",
+  "generatedAt": "2026-10-14T22:49:14.792Z",
   "limits": [
     "2 reads use paths built at run time and are not named here.",
     "4 writes and 31 reads go to the directory the command is run in, not to this repository.",

@@ -1,15 +1,14 @@
 # shipcheck: how it works
 
-Mapped at 2026-10-01 from commit 8561c6d by Atlas 1.24.0.
+Mapped at 2026-10-14 from commit 42c9ca0 by Atlas 1.24.0.
 
 ## What this is
 
 10 parts, mostly Markdown (79 files); code in JavaScript (5), CSS (2), TypeScript (2) and Astro (1). Work enters through 5 doors; CI and Release each reach 2 parts, and CI is followed because a pull request goes through it. It publishes to npm. It deploys a site to GitHub Pages. People run shipcheck.
 
-## What changed since 2026-09-30 (9604005)
+## What changed since 2026-10-14 (bc7e0b0)
 
-- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `contracts/**`, `dogfood/**`, `package-lock.json`, `package.json`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `templates/**` and `test/**`.
-- 1 file changed content, across 1 part.
+Nothing structural changed since 2026-10-14; no file changed.
 
 ## What comes in
 
