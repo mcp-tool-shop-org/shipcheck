@@ -257,7 +257,7 @@
       },
       {
         "commits": 7,
-        "lines": 2308,
+        "lines": 2334,
         "path": "atlas/statistics.json"
       },
       {
@@ -336,9 +336,9 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-14T22:49:14.792Z",
+  "generatedAt": "2026-10-15T02:53:05.400Z",
   "generatedFrom": {
-    "commit": "42c9ca009eaa21c60e2ac97173b1680bfb53a125"
+    "commit": "90be53636593bb46faadbe37b3b781c845ad73b5"
   },
   "pairs": [
     {
@@ -373,7 +373,7 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-10-14T18:46:57-04:00",
+    "headDate": "2026-10-14T16:01:25-07:00",
     "inScopeFiles": 107,
     "pinnedStart": null,
     "priorFloor": "fallen",
@@ -382,7 +382,7 @@
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-17T22:46:57.000Z",
+    "since": "2026-04-17T23:01:25.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
