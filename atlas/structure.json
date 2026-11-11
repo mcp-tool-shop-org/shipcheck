@@ -240,7 +240,7 @@
       "externals": 0,
       "files": [
         {
-          "hash": "32438adb3e3aaa5eb73f33ab0fab4509408b01d926e9e5923edf8dc5e8813763",
+          "hash": "cac24b6e6a0cd46ab3da74f89aa8451da897dd138e733ca66c5a0d5d86466475",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -733,11 +733,11 @@
           "path": "site/astro.config.mjs"
         },
         {
-          "hash": "23cc30f07e08c2a68dc6408ed91c26f5cb7965fb9b5b60cf2fad8e399418abf2",
+          "hash": "458fe3be2e82bc19bede5b3d9bc3867f99634791ae4ca9734a8d34d00d4e3e51",
           "path": "site/package-lock.json"
         },
         {
-          "hash": "d5d302d99273ab564243bed14d243e2e1385d6e2e4f0b643c9641a4b488ae3a3",
+          "hash": "f09196763a8eebdc1c297eecf1da4a04d9731a4e51d76ef6ebd72bbc1b4c6c1e",
           "path": "site/package.json"
         },
         {
@@ -1755,6 +1755,13 @@
           ]
         }
       ],
+      "unresolvedExpressions": [
+        {
+          "adds": "words",
+          "job": "broadcast",
+          "step": "Append to ledger via PR"
+        }
+      ],
       "uses": [
         "actions/checkout",
         "actions/setup-node"
@@ -1815,9 +1822,9 @@
       "to": "bin"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "90be53636593bb46faadbe37b3b781c845ad73b5",
+    "commit": "dee57316e9a0a6b16fbb4b8b322f83ee5605cd01",
     "tracked": 102
   },
   "landings": [
